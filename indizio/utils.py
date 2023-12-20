@@ -90,7 +90,7 @@ def parse_samplesheet(path):
     no_file = 'File not found: {}'
 
     valid_codes = set(['M', 'DM', 'T', 'P'])
-
+    print(path)
     df = pd.read_table(path, sep=',')
     #print(df.columns)
     #Sheet must have exactly three columns.

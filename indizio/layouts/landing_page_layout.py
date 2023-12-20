@@ -40,7 +40,7 @@ landing_page_layout = [
                             html.H2("Heatmap viewer.", className="display-5"),
                             html.P(
                                 children=[
-                                    "View connected data as heatmaps. Explroe heatmaps for each distance metric you uploaded. Click 'Matrices'.",
+                                    "View connected data as heatmaps. Explore heatmaps for each distance metric you uploaded. Click 'Matrices'.",
                                 ],
                                 className="lead",
                             ),

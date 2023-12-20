@@ -1,11 +1,4 @@
-import itertools as it
-import sys
 from tempfile import NamedTemporaryFile
-import io
-import base64
-
-import numpy as np
-import pandas as pd
 
 import dash
 from dash.dependencies import Output, Input, State
@@ -13,26 +6,44 @@ from dash import dcc, html, ALL
 from dash.exceptions import PreventUpdate
 import dash_bio as dashbio
 
-import dash_bootstrap_components as dbc
 import dash_cytoscape as cyto
+
+from indizio import config
+from indizio.util.log import setup_logger
 
 # Load extra layouts
 cyto.load_extra_layouts()
-
-import networkx as nx
-
+import dash_bootstrap_components as dbc
 import plotly.graph_objects as go
 import plotly.express as px
-import seaborn as sns
-from matplotlib.figure import Figure
 
 from components import *
 from utils import *
-from layouts.landing_page_layout import landing_page_layout
-from layouts.heatmap_layout import make_heatmap_layout
-from layouts.network_layout import make_network_layout
+from indizio.layouts.landing_page_layout import landing_page_layout
+from indizio.layouts.heatmap_layout import make_heatmap_layout
+from indizio.layouts.network_layout import make_network_layout
+def make_navbar(active=0):
+    classnames = ['', '', '']
+    classnames[active] = "active"
 
-if __name__ == "__main__":
+    navbar = dbc.NavbarSimple(
+        children=[
+            dbc.NavItem(dbc.NavLink("Matrices", href="/page-1"),id='page-1-nav' ,className=classnames[0]),
+            dbc.NavItem(dbc.NavLink("Network Visualization", href="page-2"),id='page-2-nav', className=classnames[1]),
+            dbc.NavItem(dbc.NavLink("Network Statistics", href="page-3"),id='page-3-nav', className=classnames[2]),
+        ],
+        brand="Indizio",
+        brand_href="/",
+        color="primary",
+        dark=True,
+    )
+    return navbar
+
+
+
+def main():
+    setup_logger()
+
 
     FONT_AWESOME = "https://use.fontawesome.com/releases/v5.7.2/css/all.css"
     external_stylesheets = [
@@ -43,8 +54,9 @@ if __name__ == "__main__":
         __name__,
         external_stylesheets=external_stylesheets,
         suppress_callback_exceptions=False,
+        use_pages=True
     )
-    server = app.server
+    app.title = config.PAGE_TITLE
     colorscales = px.colors.named_colorscales()
     try:
         assert len(sys.argv) == 2
@@ -72,14 +84,14 @@ if __name__ == "__main__":
         {
             "selector": "edge",
             "style": {
-                #'width': 'mapData(lr, 50, 200, 0.75, 5)',
+                # 'width': 'mapData(lr, 50, 200, 0.75, 5)',
                 "opacity": 0.4,
             },
         },
         {
             "selector": "node",
             "style": {
-                #'color': '#317b75',
+                # 'color': '#317b75',
                 "background-color": "#317b75",
                 "content": "data(label)",
             },
@@ -87,7 +99,7 @@ if __name__ == "__main__":
         {
             "selector": ".focal",
             "style": {
-                #'color': '#E65340',
+                # 'color': '#E65340',
                 "background-color": "#E65340",
                 "content": "data(label)",
             },
@@ -95,7 +107,7 @@ if __name__ == "__main__":
         {
             "selector": ".other",
             "style": {
-                #'color': '#317b75',
+                # 'color': '#317b75',
                 "background-color": "#317b75",
                 "content": "data(label)",
             },
@@ -134,7 +146,7 @@ if __name__ == "__main__":
                     dbc.Col(
                         [
                             dcc.Loading(
-                                #html.Img(id="clustergram-graph"),
+                                # html.Img(id="clustergram-graph"),
                                 dcc.Graph(id='clustergram-graph', style={'width': '90vh', 'height': '90vh'}),
                             ),
                             dbc.Row(
@@ -146,6 +158,7 @@ if __name__ == "__main__":
             ),
         ],
     )
+
 
     ################################################################################
     ### Heatmap Callbacks                                                        ###
@@ -171,8 +184,9 @@ if __name__ == "__main__":
             tooltip={"placement": "bottom", "always_visible": False},
             id={"role": "slider", "index": 0},
         )
-        #print(minval, maxval)
+        # print(minval, maxval)
         return slider
+
 
     @app.callback(
         Output({"role": "slider", "index": ALL}, "value"),
@@ -202,6 +216,7 @@ if __name__ == "__main__":
         else:
             vals = list(np.linspace(minval, maxval, n_vals + 1))
             return [vals]
+
 
     @app.callback(
         Output("heatmap-graph", "figure"),
@@ -278,8 +293,8 @@ if __name__ == "__main__":
                     "showgrid": False,
                     "showline": False,
                     "zeroline": False,
-                    #'ticks':"",
-                    #'showticklabels': False
+                    # 'ticks':"",
+                    # 'showticklabels': False
                 }
             )
             # Edit xaxis2
@@ -290,8 +305,8 @@ if __name__ == "__main__":
                     "showgrid": False,
                     "showline": False,
                     "zeroline": False,
-                    #'showticklabels': False,
-                    #'ticks':""
+                    # 'showticklabels': False,
+                    # 'ticks':""
                 }
             )
         else:
@@ -311,6 +326,7 @@ if __name__ == "__main__":
             )
         return fig
 
+
     ################################################################################
     ### Network Visualization Callbacks                                          ###
     ################################################################################
@@ -319,6 +335,7 @@ if __name__ == "__main__":
     )
     def update_layout(layout):
         return {"name": layout, "animate": True}
+
 
     @app.callback(
         Output("download-network", "data"),
@@ -345,6 +362,7 @@ if __name__ == "__main__":
             nx.readwrite.graphml.write_graphml(H, nfile.name)
             return dcc.send_file(nfile.name)
         return dash.no_update
+
 
     @app.callback(
         Output("node-data-store", "data"),
@@ -381,12 +399,13 @@ if __name__ == "__main__":
         }
         for attr, thresh in zip(attributes, thresholds):
             summary_data["attributes"].append({"attribute": attr, "threshold": thresh})
-        #print(summary_data)
+        # print(summary_data)
         return {"elements": elements, "summary_data": summary_data}
 
+
     @app.callback(
-        Output("network-plot", "elements"), 
-        [Input("node-data-store", "modified_timestamp"), 
+        Output("network-plot", "elements"),
+        [Input("node-data-store", "modified_timestamp"),
          State("node-data-store", "data")],
     )
     def update_network_plot(ts, data):
@@ -394,15 +413,16 @@ if __name__ == "__main__":
             raise PreventUpdate
         return data["elements"]
 
+
     @app.callback(
         Output("node-selected", "children"),
-        [Input("node-data-store", "modified_timestamp"), 
-        State("node-data-store", "data")],
+        [Input("node-data-store", "modified_timestamp"),
+         State("node-data-store", "data")],
     )
     def update_node_summary(ts, data):
         if ts is None:
             raise PreventUpdate
-        
+
         summary_data = [
             dbc.ListGroupItem("Focal Node: {}".format(data["summary_data"]["nodes"])),
             dbc.ListGroupItem("Degree: {}".format(data["summary_data"]["degree"])),
@@ -425,6 +445,7 @@ if __name__ == "__main__":
         )
         return summary
 
+
     @app.callback(
         Output("network-plot", "stylesheet"), [Input("network-plot", "tapNode")],
     )
@@ -437,13 +458,13 @@ if __name__ == "__main__":
                 "selector": "edge",
                 "style": {
                     "opacity": 0.4,
-                    #'width': 'mapData(lr, 50, 200, 0.75, 5)',
+                    # 'width': 'mapData(lr, 50, 200, 0.75, 5)',
                 },
             },
             {
                 "selector": "node",
                 "style": {
-                    #'color': '#317b75',
+                    # 'color': '#317b75',
                     "background-color": "#317b75",
                     "content": "data(label)",
                     "width": "mapData(degree, 1, 100, 25, 200)",
@@ -452,7 +473,7 @@ if __name__ == "__main__":
             {
                 "selector": ".focal",
                 "style": {
-                    #'color': '#E65340',
+                    # 'color': '#E65340',
                     "background-color": "#E65340",
                     "content": "data(label)",
                 },
@@ -460,7 +481,7 @@ if __name__ == "__main__":
             {
                 "selector": ".other",
                 "style": {
-                    #'color': '#317b75',
+                    # 'color': '#317b75',
                     "background-color": "#317b75",
                     "content": "data(label)",
                 },
@@ -508,16 +529,17 @@ if __name__ == "__main__":
             )
         return stylesheet
 
+
     ################################################################################
     ### Dendrogram Callbacks                                                     ###
     ################################################################################
     @app.callback(
         Output('clustergram-graph', 'figure'),
-        [Input("node-data-store", "modified_timestamp"), 
-        State("node-data-store", "data")],
-        )
+        [Input("node-data-store", "modified_timestamp"),
+         State("node-data-store", "data")],
+    )
     def create_clustergram(ts, data):
-        if not ts or isinstance(pa, type(None)) or isinstance(tree, type(None)): #TODO plot the P/A if there's no tree
+        if not ts or isinstance(pa, type(None)) or isinstance(tree, type(None)):  # TODO plot the P/A if there's no tree
             raise PreventUpdate
         # subset_pa = pa[data['summary_data']['nodes']]
         # fig = Figure()
@@ -546,31 +568,34 @@ if __name__ == "__main__":
         # return "data:image/png;base64.{}".format(data)
 
         subset_pa = pa[data['summary_data']['connected_nodes']]
+
         def phylo_linkage(y, method='single', metric='euclidean', optimal_ordering=False):
             """
             A hack to allow us to use Clustergram. Linkage is precomputed
             """
             return tree
+
         print("========")
         print(f"Treeshape: {tree.shape}")
         print(f"Subset PA shape: {subset_pa.shape}")
         print(f"PA shape: {pa.shape}")
         print("========")
         clustergram = dashbio.Clustergram(
-            data = subset_pa.values,
-            row_labels = list(subset_pa.index),
-            column_labels = list(subset_pa.columns.values),
-            link_fun = phylo_linkage,
+            data=subset_pa.values,
+            row_labels=list(subset_pa.index),
+            column_labels=list(subset_pa.columns.values),
+            link_fun=phylo_linkage,
             cluster='row',
             hidden_labels='row',
             height=900,
             width=1100,
-            color_map= [
+            color_map=[
                 [0.0, '#FFFFFF'],
                 [1.0, '#EF553B']
             ]
         )
         return clustergram
+
 
     """
     @app.callback(
@@ -647,6 +672,8 @@ if __name__ == "__main__":
         return plot
 
     """
+
+
     ################################################################################
     ### Page Navigation callbacks                                                ###
     ################################################################################
@@ -693,4 +720,11 @@ if __name__ == "__main__":
                 "",
             )
 
-    app.run_server(debug=True, dev_tools_ui=True)
+
+    app.run(debug=True, dev_tools_ui=True, port=6969)
+
+
+
+
+if __name__ == "__main__":
+    main()

@@ -18,7 +18,7 @@ def complete_path(text, state):
     elif incomplete_path.exists():
         completions = [incomplete_path]
     else:
-        exists_parts = pathlib.Path('.')
+        exists_parts = pathlib.Path('..')
         for part in incomplete_path.parts:
             test_next_part = exists_parts / part
             if test_next_part.exists():

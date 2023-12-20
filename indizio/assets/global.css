@@ -1,0 +1,37 @@
+/* CSS extracted from app.py */
+edge {
+    opacity: 0.4;
+}
+
+node {
+    background-color: #317b75;
+    content: data(label);
+}
+
+.focal {
+    background-color: #e65340;
+    content: data(label)
+}
+
+.other {
+    background-color: #317b75;
+    content: data(label)
+}
+
+
+/*
+Additional CSS added below
+ */
+
+.container-main {
+    padding: 0;
+       background-color: #f1f1f1;
+    min-height: 100vh;
+}
+
+
+.network-properties-container {
+    background-color: #ffffff;
+    min-width: 600px;
+}
+
