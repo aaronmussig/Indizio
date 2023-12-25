@@ -18,7 +18,7 @@ class MatrixParametersCanvas(dbc.Card):
     def __init__(self):
         super().__init__(
             children=[
-                dbc.CardHeader("Matrix Parameters"),
+                dbc.CardHeader(html.H5("Matrix Parameters")),
                 dbc.CardBody(
                     children=[
                         dbc.Row(MatrixParamsMetric()),

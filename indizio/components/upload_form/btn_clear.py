@@ -5,11 +5,12 @@ from dash import Output, Input, callback
 from dash.exceptions import PreventUpdate
 
 from indizio.config import RELOAD_ID
-from indizio.store.distance_matrix import DistanceMatrixFileStore
+from indizio.store.distance_matrix import DistanceMatrixStore
 from indizio.store.dm_graph import DistanceMatrixGraphStore
+from indizio.store.matrix_parameters import MatrixParametersStore
 from indizio.store.metadata_file import MetadataFileStore
 from indizio.store.network_form_store import NetworkFormStore
-from indizio.store.presence_absence import PresenceAbsenceFileStore
+from indizio.store.presence_absence import PresenceAbsenceStore
 from indizio.store.tree_file import TreeFileStore
 from indizio.store.upload_form_store import UploadFormStore
 
@@ -35,11 +36,12 @@ class UploadFormBtnClear(dbc.Button):
             output=dict(
                 network_store=Output(NetworkFormStore.ID, "clear_data"),
                 upload_store=Output(UploadFormStore.ID, "clear_data"),
-                presence_absence_store=Output(PresenceAbsenceFileStore.ID, "clear_data"),
-                distance_matrix_store=Output(DistanceMatrixFileStore.ID, "clear_data"),
+                presence_absence_store=Output(PresenceAbsenceStore.ID, "clear_data"),
+                distance_matrix_store=Output(DistanceMatrixStore.ID, "clear_data"),
                 metadata_store=Output(MetadataFileStore.ID, "clear_data"),
                 tree_store=Output(TreeFileStore.ID, "clear_data"),
                 dm_graph_store=Output(DistanceMatrixGraphStore.ID, "clear_data"),
+                matrix_graph_store=Output(MatrixParametersStore.ID, "clear_data"),
                 reload=Output(RELOAD_ID, "href", allow_duplicate=True),
             ),
             inputs=dict(
@@ -66,5 +68,6 @@ class UploadFormBtnClear(dbc.Button):
                 metadata_store=True,
                 tree_store=True,
                 dm_graph_store=True,
+                matrix_graph_store=True,
                 reload="/"
             )

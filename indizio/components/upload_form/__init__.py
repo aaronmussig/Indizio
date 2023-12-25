@@ -5,7 +5,7 @@ from indizio.components.upload_form.btn_upload import UploadFormBtnUpload
 from indizio.components.upload_form.file_selector import UploadFormFileSelector
 from indizio.components.upload_form.file_selector_container import UploadFormFileSelectorContainer
 from indizio.components.upload_form.file_upload_form import UploadFormFileUploadForm
-from indizio.components.upload_form.file_uploaded_container import UploadFormFileUploadedContainer
+from indizio.components.uploaded_files import UploadedFileContainer
 
 
 class UploadFormContainer(html.Div):
@@ -15,9 +15,9 @@ class UploadFormContainer(html.Div):
             [
                 UploadFormFileUploadForm(),
                 UploadFormFileSelectorContainer(),
-                UploadFormFileUploadedContainer(),
+                UploadedFileContainer(),
                 UploadFormBtnUpload(),
-                UploadFormBtnClear()
+                UploadFormBtnClear(),
             ]
 
         )

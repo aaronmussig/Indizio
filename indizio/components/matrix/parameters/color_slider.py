@@ -1,4 +1,5 @@
 import logging
+from functools import lru_cache
 
 import dash_bootstrap_components as dbc
 import numpy as np
@@ -6,16 +7,18 @@ from dash import Output, Input, callback
 from dash import dcc, State, ctx
 from dash.exceptions import PreventUpdate
 
-from indizio.config import PERSISTENCE_TYPE
+from indizio.config import PERSISTENCE_TYPE, ID_MATRIX_PARAMS_METRIC
+from indizio.store.distance_matrix import DistanceMatrixStore, DistanceMatrixData
 from indizio.store.matrix_parameters import MatrixParameters
+from indizio.util.cache import freezeargs
 
 
 class MatrixParamsColorSlider(dbc.Row):
     ID = "matrix-params-color-slider"
 
-    ID_BTN_MINUS = "matrix-params-color-slider-btn-minus"
-    ID_BTN_PLUS = "matrix-params-color-slider-btn-plus"
-    ID_RANGE = "matrix-params-color-slider-range"
+    ID_BTN_MINUS = f"{ID}-btn-minus"
+    ID_BTN_PLUS = f"{ID}-btn-plus"
+    ID_RANGE = f"{ID}-range"
 
     def __init__(self):
         slider_min = MatrixParameters().slider[0]
@@ -50,8 +53,8 @@ class MatrixParamsColorSlider(dbc.Row):
                         max=slider_max,
                         value=[slider_min, slider_max],
                         marks={
-                            slider_min: {'label': f'{slider_min:.2f}'},
-                            slider_max: {'label': f'{slider_max:.2f}'}
+                            slider_min: dict(label=f'{slider_min:.2f}'),
+                            slider_max: dict(label=f'{slider_max:.2f}')
                         },
                         step=(slider_max - slider_max) / 100,
                         tooltip={"placement": "bottom", "always_visible": False},
@@ -111,3 +114,37 @@ class MatrixParamsColorSlider(dbc.Row):
             else:
                 log.error(f'{self.ID} - Unknown trigger: {triggered_id}.')
                 raise PreventUpdate
+
+        @callback(
+            output=dict(
+                min=Output(self.ID_RANGE, "min"),
+                max=Output(self.ID_RANGE, "max"),
+                marks=Output(self.ID_RANGE, "marks"),
+            ),
+            inputs=dict(
+                metric=Input(ID_MATRIX_PARAMS_METRIC, "value"),
+                matrix_store=State(DistanceMatrixStore.ID, "data"),
+            ),
+        )
+        def update_min_max(metric, matrix_store):
+            log = logging.getLogger()
+            log.debug(f'{self.ID} - Adjusting matrix slider min/max.')
+
+            if not matrix_store:
+                log.debug(f'{self.ID} - Nothing to do.')
+                raise PreventUpdate
+
+            matrix_store = DistanceMatrixData(**matrix_store)
+            matrix = matrix_store.get_file(metric)
+
+            matrix_min, matrix_max = matrix.min_value, matrix.max_value
+            marks = {
+                round(matrix_min, 2): dict(label=f'{matrix_min:.2f}'),
+                round(matrix_max, 2): dict(label=f'{matrix_max:.2f}')
+            }
+            print(marks)
+            return dict(
+                min=matrix_min,
+                max=matrix_max,
+                marks=marks
+            )

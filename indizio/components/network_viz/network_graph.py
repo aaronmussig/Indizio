@@ -4,12 +4,19 @@ from functools import lru_cache
 import dash_cytoscape as cyto
 from dash import Output, Input, callback, State
 from dash.exceptions import PreventUpdate
+import dash
+from indizio.cache import CACHE_MANAGER
+from indizio.config import ID_NETWORK_VIZ_PROGRESS
 
-from indizio.components.network_properties import NetworkPropertiesCard
 from indizio.store.dm_graph import DistanceMatrixGraphStore, DmGraph
 from indizio.store.network_form_store import NetworkFormStore, NetworkFormStoreData
-from indizio.util.cache import freezeargs, from_hashable
+from indizio.util.cache import freezeargs, from_hashable, cache_by
 from indizio.util.graph import filter_graph
+from cachetools import cached, LRUCache, TTLCache
+from cachetools.keys import hashkey
+import networkx as nx
+
+from indizio.util.types import ProgressFn
 
 
 class NetworkVizGraph(cyto.Cytoscape):
@@ -23,7 +30,6 @@ class NetworkVizGraph(cyto.Cytoscape):
         super().__init__(
             id=self.ID,
             elements=[],
-            # stylesheet=stylesheet,
             layout={"name": "grid", 'animate': True},
             style={'width': '100%', 'height': 'calc(100vh - 150px)'},
             responsive=True,
@@ -33,8 +39,8 @@ class NetworkVizGraph(cyto.Cytoscape):
             output=dict(
                 elements=Output(self.ID, 'elements'),
                 layout=Output(self.ID, "layout"),
-                n_nodes=Output(NetworkPropertiesCard.ID_N_NODES, "children"),
-                n_edges=Output(NetworkPropertiesCard.ID_N_EDGES, "children"),
+                # n_nodes=Output(NetworkPropertiesCard.ID_N_NODES, "children"),
+                # n_edges=Output(NetworkPropertiesCard.ID_N_EDGES, "children"),
             ),
             inputs=dict(
                 ts_graph=Input(DistanceMatrixGraphStore.ID, "modified_timestamp"),
@@ -42,9 +48,16 @@ class NetworkVizGraph(cyto.Cytoscape):
                 state_graph=State(DistanceMatrixGraphStore.ID, "data"),
                 state_params=State(NetworkFormStore.ID, "data"),
             ),
+            # running=[
+            #     (Output(self.ID, 'style'), {'visibility': 'hidden'}, {'visibility': 'visible'}),
+            #     (Output(ID_NETWORK_VIZ_PROGRESS, 'style'), {'visibility': 'visible'}, {'visibility': 'hidden'}),
+            # ],
+            # progress=[
+            #     Output(ID_NETWORK_VIZ_PROGRESS, "value"),
+            # ],
+            prevent_initial_call=False,
+            background=True,
         )
-        @freezeargs
-        @lru_cache
         def draw_graph(ts_graph, ts_param, state_graph, state_params):
             # Output debugging information
             log = logging.getLogger()
@@ -53,33 +66,16 @@ class NetworkVizGraph(cyto.Cytoscape):
                 log.debug(f'{self.ID} - No data to draw graph.')
                 raise PreventUpdate
 
-            # Networkx mutates the state so it must be de-serialized
-            state_graph = from_hashable(state_graph)
-
-            # De-serialize the states
-            graph = DmGraph.deserialize(state_graph)
+            graph = DmGraph(**state_graph)
             params = NetworkFormStoreData(**state_params)
 
-            # Filter the graph based on the parameters
-            out_graph = filter_graph(
-                G=graph.graph,
-                node_subset=params.node_of_interest,
-                degree=params.thresh_degree,
-                thresh=params.corr_input,
-                thresh_op=params.thresh_corr_select
-            )['elements']
-
-            # There is a formatting quirk with cytoscape that requires a reformat
-            # to display the label correctly
-            for node in out_graph['nodes']:
-                node['data']['label'] = node['data']['name']
-                del node['data']['name']
+            out_graph = graph.filter_to_cytoscape(params)
 
             return dict(
                 elements=out_graph,
                 layout={'name': params.layout.name, 'animate': True},
-                n_nodes=len(out_graph['nodes']),
-                n_edges=len(out_graph['edges'])
+                # n_nodes=len(out_graph['nodes']),
+                # n_edges=len(out_graph['edges'])
             )
 
         @callback(

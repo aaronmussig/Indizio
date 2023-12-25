@@ -31,26 +31,3 @@ class MatrixParamsBinningOption(dbc.Row):
                 )
             ]
         )
-
-        # @callback(
-        #     output=dict(
-        #         options=Output(self.ID, "options"),
-        #     ),
-        #     inputs=dict(
-        #         ts=Input(DistanceMatrixGraphStore.ID, "modified_timestamp"),
-        #         state=State(DistanceMatrixGraphStore.ID, "data"),
-        #     )
-        # )
-        # def update_options_on_file_upload(ts, state):
-        #     log = logging.getLogger()
-        #     log.debug(f'{self.ID} - Updating the nodes of interest selection from user file update.')
-        #
-        #     if ts is None or state is None:
-        #         log.debug(f'{self.ID} - No data to update from.')
-        #         raise PreventUpdate
-        #
-        #     # De-serialize the graph and return the nodes
-        #     graph = DmGraph.deserialize(state)
-        #     return dict(
-        #         options=[x for x in graph.graph.nodes]
-        #     )

@@ -1,7 +1,11 @@
+from typing import Optional, List, Dict
+
 from dash import dcc
 from pydantic import BaseModel
-
+import orjson
 from indizio.config import PERSISTENCE_TYPE
+from indizio.interfaces.boolean import BooleanAllAny, BooleanShowHide
+from indizio.interfaces.bound import  Bound
 from indizio.interfaces.html_option import HtmlOption
 
 
@@ -30,6 +34,17 @@ class NetworkFormLayoutOption(HtmlOption):
     spread = 'Spread'
     euler = 'Euler'
 
+class NetworkParamThreshold(BaseModel):
+    file_id: str
+    left_bound: Bound = Bound.INCLUSIVE
+    right_bound: Bound = Bound.INCLUSIVE
+    left_value: float
+    right_value: float
+
+class NetworkParamDegree(BaseModel):
+    min_value: float = 0.0
+    max_value: float = 1.0
+
 
 class NetworkFormStoreData(BaseModel):
     """
@@ -37,11 +52,29 @@ class NetworkFormStoreData(BaseModel):
     """
 
     layout: NetworkFormLayoutOption = NetworkFormLayoutOption.grid
-    node_of_interest: list[str] = list()
-    thresh_degree: int = 0
-    thresh_corr_select: NetworkThreshCorrOption = NetworkThreshCorrOption.GEQ
-    corr_input: float = 0.0
-    is_set: bool = False
+    node_of_interest: List[str] = list()
+    thresholds: Dict[str, NetworkParamThreshold] = dict()
+    thresh_matching: BooleanAllAny = BooleanAllAny.ALL
+    degree: NetworkParamDegree = NetworkParamDegree()
+    show_edges_to_self: BooleanShowHide = BooleanShowHide.SHOW
+
+    def get_focal_node_str(self):
+        """Returns the string output of the focal node."""
+        return ', '.join(self.node_of_interest) if self.node_of_interest else 'All'
+
+    def get_threshold_str(self):
+        """Returns the string output of the threshold filtering."""
+        return 'TODO'
+
+    def get_cache_key(self) -> bytes:
+        """
+        Returns a unique key for this object.
+        Note that only the attributes that would affect the structure of the
+        graph are considered.
+        """
+        param_json = self.model_dump(mode='json')
+        param_json.pop('layout')
+        return orjson.dumps(param_json, option=orjson.OPT_SORT_KEYS)
 
 
 class NetworkFormStore(dcc.Store):

@@ -1,37 +1,41 @@
-import io
-import json
+from pathlib import Path
+from typing import Optional, Dict
 
 import dendropy
 from dash import dcc
 from pydantic import BaseModel
 
 from indizio.config import PERSISTENCE_TYPE
-from indizio.store.upload_form_store import UploadFormStoreData
+from indizio.store.upload_form_store import UploadFormItem
+from indizio.util.files import to_pickle, from_pickle
 
 
 class TreeFile(BaseModel):
     file_name: str
-    tree: dendropy.Tree
-    newick: str
-
-    class Config:
-        arbitrary_types_allowed = True
+    file_id: str
+    path: Path
+    hash: str
 
     @classmethod
-    def from_upload_data(cls, data: UploadFormStoreData):
-        decoded_str = io.StringIO(data.data.decode('utf-8'))
-        tree = dendropy.Tree.get(data=decoded_str, schema='newick')
-        return cls(file_name=data.file_name, newick=decoded_str, tree=tree)
+    def from_upload_data(cls, data: UploadFormItem):
+        """
+        Convert the tree into a pickle.
+        """
+        tree = dendropy.Tree.get_from_path(data.path.as_posix(), schema='newick')
+        path, md5 = to_pickle(tree)
+        return cls(file_name=data.file_name, name=data.name, path=path, hash=md5)
 
-    def serialize(self):
-        return {'file_name': self.file_name, 'newick': self.newick}
+    def read(self) -> dendropy.Tree:
+        return from_pickle(self.path)
 
-    @classmethod
-    def deserialize(cls, data):
-        newick = data['newick']
-        tree = dendropy.Tree.get(data=newick, schema='newick')
-        return cls(file_name=data['file_name'], newick=newick, tree=tree)
+class TreeData(BaseModel):
+    data: Dict[str, TreeFile] = dict()
 
+    def add_item(self, item: TreeFile):
+        self.data[item.file_id] = item
+
+    def get_files(self):
+        return self.data.values()
 
 class TreeFileStore(dcc.Store):
     ID = 'tree-file-store'

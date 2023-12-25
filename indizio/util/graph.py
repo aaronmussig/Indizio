@@ -1,23 +1,31 @@
+from typing import Optional
+
 import networkx as nx
 
 from indizio.store.network_form_store import NetworkThreshCorrOption
+from indizio.util.types import ProgressFn
 
 
-def filter_graph(G: nx.Graph, node_subset, degree, thresh, thresh_op: NetworkThreshCorrOption):
+def filter_graph(
+        G: nx.Graph,
+        node_subset,
+        degree,
+        thresh,
+        thresh_op: NetworkThreshCorrOption,
+        progress: Optional[ProgressFn] = None
+) -> nx.Graph:
     subgraphs = list()
 
     # Filter the nodes if specified
     nodes_to_keep = node_subset if node_subset else list(G.nodes)
 
-    for node in nodes_to_keep:
-        node_list = list()
-        if degree == 0:
-            node_list.append(node)
+    for i, node in enumerate(nodes_to_keep):
         edges = list()
-        for edge in G.edges(node_list, data=True):
-            for file_name in set(edge[2]) - {'target', 'source'}:
+        # TODO: Here I have removed the requirement for the degree to be 0
+        # TODO: as it doesn't make any sense for filtering
+        for edge in G.edges(node, data=True):
+            for file_name, corr in edge[2].items():
                 keep_edge = False
-                corr = edge[2][file_name]
                 if thresh_op is NetworkThreshCorrOption.GT:
                     if corr > thresh:
                         keep_edge = True
@@ -48,11 +56,13 @@ def filter_graph(G: nx.Graph, node_subset, degree, thresh, thresh_op: NetworkThr
         else:
             subgraphs.append(G.subgraph([node]))
 
+        # Update the progress function if provided
+        if progress:
+            progress(100 * i / len(nodes_to_keep))
     composed = nx.compose_all(subgraphs)
-    return nx.cytoscape_data(composed)
+    return composed
 
 
 def neighborhood(G, node, n):
-    path_lengths = nx.single_source_dijkstra_path_length(G, node)
-    return [node for node, length in path_lengths.items()
-            if length <= n]
+    path_lengths = nx.single_source_dijkstra_path_length(G, node, n)
+    return list(path_lengths.keys())

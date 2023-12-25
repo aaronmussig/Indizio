@@ -4,7 +4,7 @@ from dash import Output, Input, html, callback
 from dash.exceptions import PreventUpdate
 
 from indizio.components.upload_form.file_selector import UploadFormFileSelector
-from indizio.store.upload_form_store import UploadFormStore, UploadFormStoreData
+from indizio.store.upload_form_store import UploadFormStore, UploadFormItem, UploadFormData
 
 
 class UploadFormFileSelectorContainer(html.Div):
@@ -40,10 +40,15 @@ class UploadFormFileSelectorContainer(html.Div):
                 raise PreventUpdate
 
             log.debug(f'{self.ID} - Refreshing uploaded files.')
+            upload_form_data = UploadFormData(**state)
             children = list()
-            for file_data in state:
-                file_obj = UploadFormStoreData(**file_data)
-                children.append(UploadFormFileSelector(file_obj.file_name))
+            for file_obj in upload_form_data.data.values():
+                children.append(
+                    UploadFormFileSelector(
+                        file_name=file_obj.file_name,
+                        file_hash=file_obj.hash
+                    )
+                )
 
             return dict(
                 children=children

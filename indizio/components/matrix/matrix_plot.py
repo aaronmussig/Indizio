@@ -5,8 +5,7 @@ import dash_cytoscape as cyto
 from dash import Output, Input, callback, State, html, dcc
 from dash.exceptions import PreventUpdate
 
-from indizio.components.network_properties import NetworkPropertiesCard
-from indizio.store.distance_matrix import DistanceMatrixFileStore, DistanceMatrixFile
+from indizio.store.distance_matrix import DistanceMatrixStore, DistanceMatrixFile, DistanceMatrixData
 from indizio.store.dm_graph import DistanceMatrixGraphStore, DmGraph
 from indizio.store.matrix_parameters import MatrixParametersStore, MatrixParameters, MatrixBinOption
 from indizio.store.network_form_store import NetworkFormStore, NetworkFormStoreData
@@ -14,12 +13,15 @@ from indizio.util.cache import freezeargs, from_hashable
 from indizio.util.graph import filter_graph
 import plotly.graph_objects as go
 import numpy as np
+import os
+
+from indizio.util.plot import get_color
+
 
 class MatrixPlot(dcc.Graph):
     """
     The cytoscape network graph component.
     """
-
     ID = 'matrix-plot'
     def __init__(self):
         super().__init__(
@@ -37,9 +39,9 @@ class MatrixPlot(dcc.Graph):
             ),
             inputs=dict(
                 ts_params=Input(MatrixParametersStore.ID, "modified_timestamp"),
-                ts_dm=Input(DistanceMatrixFileStore.ID, "modified_timestamp"),
+                ts_dm=Input(DistanceMatrixStore.ID, "modified_timestamp"),
                 state_params=State(MatrixParametersStore.ID, "data"),
-                state_dm=State(DistanceMatrixFileStore.ID, "data"),
+                state_dm=State(DistanceMatrixStore.ID, "data"),
             )
         )
         @freezeargs
@@ -52,18 +54,18 @@ class MatrixPlot(dcc.Graph):
                 log.debug(f'{self.ID} - No data to update from.')
                 raise PreventUpdate
 
-            # De-serialize the distance matrix
-            print('TODO!@@!@!@!@')
-            key = 'pa2.csv'
-
-            fig = go.Figure()
-            # empty initially
-
-            # De-serialize the states
-            feature_df = DistanceMatrixFile.deserialize(state_dm[key]).df
+            # De-serialize the distance matrix store
+            state_dm = DistanceMatrixData(**state_dm)
             params = MatrixParameters(**state_params)
 
-            meta_df = None
+            # If the metric is not set from the parameters, choose the first one
+            if params.metric is None:
+                feature_df = state_dm.get_files()[0].read()
+            else:
+                feature_df = state_dm.get_file(params.metric).read()
+
+            # empty initially
+            fig = go.Figure()
 
             # if dataset in meta_dict.keys():
             #     meta_df = meta_dict[dataset]
@@ -75,7 +77,7 @@ class MatrixPlot(dcc.Graph):
 
             if params.bin_option is MatrixBinOption.BINNED:
                 colorscale = []
-                colors = get_color(scale, np.linspace(0, 1, len(slidervals) - 1))
+                colors = get_color(params.color_scale, np.linspace(0, 1, len(slidervals) - 1))
                 minval = min(slidervals)
                 maxval = max(slidervals)
                 normed_vals = [(x - minval) / (maxval - minval) for x in slidervals]

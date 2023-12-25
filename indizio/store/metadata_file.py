@@ -1,33 +1,42 @@
-import io
-import json
+from pathlib import Path
+from typing import Optional, Dict
 
 import pandas as pd
 from dash import dcc
 from pydantic import BaseModel
 
 from indizio.config import PERSISTENCE_TYPE
-from indizio.store.upload_form_store import UploadFormStoreData
+from indizio.store.upload_form_store import UploadFormItem
+from indizio.util.files import to_pickle_df, from_pickle_df
 
 
 class MetadataFile(BaseModel):
     file_name: str
-    df: pd.DataFrame
-
-    class Config:
-        arbitrary_types_allowed = True
-
-    @classmethod
-    def from_upload_data(cls, data: UploadFormStoreData):
-        decoded_str = io.StringIO(data.data.decode('utf-8'))
-        df = pd.read_table(decoded_str, sep=',', index_col=0)
-        return cls(file_name=data.file_name, data=df)
-
-    def serialize(self):
-        return {'file_name': self.file_name, 'df': self.df.to_json()}
+    file_id: Optional[str] = None
+    path: Path
+    hash: str
 
     @classmethod
-    def deserialize(cls, data):
-        return cls(file_name=data['file_name'], df=pd.read_json(io.StringIO(data['df'])))
+    def from_upload_data(cls, data: UploadFormItem):
+        """
+        Create a metadata file from the upload data.
+        """
+        df = pd.read_table(data.path, sep=',', index_col=0)
+        path, md5 = to_pickle_df(df)
+        return cls(file_name=data.file_name, file_id=data.name, path=path, hash=md5)
+
+    def read(self) -> pd.DataFrame:
+        return from_pickle_df(self.path)
+
+
+class MetadataData(BaseModel):
+    data: Dict[str, MetadataFile] = dict()
+
+    def add_item(self, item: MetadataFile):
+        self.data[item.file_id] = item
+
+    def get_files(self):
+        return self.data.values()
 
 
 class MetadataFileStore(dcc.Store):

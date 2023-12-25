@@ -3,11 +3,10 @@ from dash import Output, Input, State, html, callback
 
 from indizio.components.network_form.btn_dl_graphml import DownloadGraphMlButton
 from indizio.components.network_form.btn_update import NetworkFormBtnUpdate
+from indizio.components.network_form.degree import NetworkFormDegree
 from indizio.components.network_form.layout import NetworkFormLayout
 from indizio.components.network_form.node_of_interest import NetworkFormNodeOfInterest
-from indizio.components.network_form.thresh_corr import NetworkThreshCorrAIO
-from indizio.components.network_form.thresh_degree import NetworkThreshDegreeAIO
-from indizio.components.network_properties import NetworkPropertiesCard
+from indizio.components.network_form.thresh_filter_container import NetworkThreshFilterContainer
 
 
 class NetworkFormAIO(html.Div):
@@ -39,9 +38,10 @@ class NetworkFormAIO(html.Div):
                         # Node of interest
                         dbc.Row(NetworkFormNodeOfInterest()),
 
+                        NetworkFormDegree(),
+
                         # Thresholds
-                        dbc.Row(NetworkThreshDegreeAIO()),
-                        dbc.Row(NetworkThreshCorrAIO()),
+                            NetworkThreshFilterContainer(),
 
                         # Update button
                         dbc.Row(NetworkFormBtnUpdate()),
@@ -50,7 +50,7 @@ class NetworkFormAIO(html.Div):
                         dbc.Row(DownloadGraphMlButton()),
 
                         # Network properties
-                        dbc.Row(NetworkPropertiesCard()),
+                        # dbc.Row(NetworkPropertiesCard()),
 
                     ]
                 ),

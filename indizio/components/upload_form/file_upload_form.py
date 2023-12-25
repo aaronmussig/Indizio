@@ -5,7 +5,11 @@ from dash import Output, Input, html, callback, State
 from dash import dcc
 from dash.exceptions import PreventUpdate
 
-from indizio.store.upload_form_store import UploadFormStore, UploadFormStoreData
+from indizio.config import TMP_DIR
+from indizio.store.upload_form_store import UploadFormStore, UploadFormItem, UploadFormData
+from indizio.util.cache import get_tmp_dir
+from indizio.util.files import to_file
+from indizio.util.hashing import calc_md5
 
 
 class UploadFormFileUploadForm(html.Div):
@@ -56,7 +60,7 @@ class UploadFormFileUploadForm(html.Div):
         def store_upload(list_of_contents, list_of_names, list_of_dates, state):
             """
             After a user has input a file, this will convert the base64 content
-            into a byte string. This is then stored in the store to be processed
+            into a byte string. This is then stored on disk to be processed
             on file upload.
             """
             log = logging.getLogger()
@@ -66,11 +70,23 @@ class UploadFormFileUploadForm(html.Div):
             if list_of_contents is None:
                 raise PreventUpdate
 
-            output = [UploadFormStoreData(**x) for x in state]
+            # Seed the output with any previously uploaded files
+            output = UploadFormData(**state) if state else UploadFormData()
+
+            # Process one or many files
             for c, n, d in zip(list_of_contents, list_of_names, list_of_dates):
+                # Decode the content into bytes
                 content_type, content_string = c.split(',', 1)
                 data_decoded = base64.b64decode(content_string)
-                output.append(UploadFormStoreData(data=data_decoded, file_name=n))
+
+                # Generate a unique path for this file and write it to disk
+                md5 = calc_md5(data_decoded)
+                path = to_file(data=data_decoded, name=md5)
+
+                # Store this file in the output
+                item = UploadFormItem(path=path, file_name=n, hash=md5)
+                output.add_item(item)
+
             return dict(
-                data=[x.model_dump(mode='json') for x in output]
+                data=output.model_dump(mode='json')
             )

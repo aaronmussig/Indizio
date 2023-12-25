@@ -7,7 +7,7 @@ from dash import dcc
 from pydantic import BaseModel
 
 from indizio.config import PERSISTENCE_TYPE
-from indizio.store.upload_form_store import UploadFormStoreData
+from indizio.store.upload_form_store import UploadFormItem
 
 from indizio.interfaces.html_option import HtmlOption
 

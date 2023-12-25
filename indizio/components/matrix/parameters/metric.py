@@ -5,12 +5,12 @@ from dash import Output, Input, callback, State
 from dash import dcc
 from dash.exceptions import PreventUpdate
 
-from indizio.config import PERSISTENCE_TYPE
-from indizio.store.distance_matrix import DistanceMatrixFileStore
+from indizio.config import PERSISTENCE_TYPE, ID_MATRIX_PARAMS_METRIC
+from indizio.store.distance_matrix import DistanceMatrixStore, DistanceMatrixData
 
 
 class MatrixParamsMetric(dbc.Row):
-    ID = "matrix-params-metric"
+    ID = ID_MATRIX_PARAMS_METRIC
 
     def __init__(self):
         super().__init__(
@@ -42,8 +42,8 @@ class MatrixParamsMetric(dbc.Row):
                 value=Output(self.ID, "value"),
             ),
             inputs=dict(
-                ts=Input(DistanceMatrixFileStore.ID, "modified_timestamp"),
-                state=State(DistanceMatrixFileStore.ID, "data"),
+                ts=Input(DistanceMatrixStore.ID, "modified_timestamp"),
+                state=State(DistanceMatrixStore.ID, "data"),
             )
         )
         def update_values_on_dm_load(ts, state):
@@ -54,9 +54,13 @@ class MatrixParamsMetric(dbc.Row):
                 log.debug(f'{self.ID} - No data to update from.')
                 raise PreventUpdate
 
+            # De-serialize the state
+            state = DistanceMatrixData(**state)
+
             # No need to de-serialize as the key values are the file names
-            options = [x for x in state.keys()]
+            options = state.as_options()
+            default = options[0]['value'] if options else None
             return dict(
                 options=options,
-                value=options[0] if options else None
+                value=default
             )
