@@ -26,7 +26,7 @@ class NetworkFormLayout(html.Div):
                 #     value=NetworkFormStoreData().layout.value,
                 # ),
                 dbc.InputGroup([
-                    dbc.InputGroupText("Network layout"),
+                    dbc.InputGroupText(html.H5("Network layout")),
                     dbc.Select(
                         id=self.ID,
                         options=NetworkFormLayoutOption.to_options(),

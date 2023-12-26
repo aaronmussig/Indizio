@@ -1,7 +1,6 @@
 import dash_bootstrap_components as dbc
 from dash import Output, Input, State, html, callback
 
-from indizio.components.network_form.btn_dl_graphml import DownloadGraphMlButton
 from indizio.components.network_form.btn_update import NetworkFormBtnUpdate
 from indizio.components.network_form.degree import NetworkFormDegree
 from indizio.components.network_form.layout import NetworkFormLayout
@@ -9,7 +8,7 @@ from indizio.components.network_form.node_of_interest import NetworkFormNodeOfIn
 from indizio.components.network_form.thresh_filter_container import NetworkThreshFilterContainer
 
 
-class NetworkFormAIO(html.Div):
+class NetworkFormParameters(html.Div):
     """
     This class wraps the network form.
     """
@@ -32,25 +31,33 @@ class NetworkFormAIO(html.Div):
                     title="Network Parameters",
                     is_open=False,
                     children=[
-                        # Network layout
-                        dbc.Row(NetworkFormLayout()),
+                        NetworkFormLayout(),
 
-                        # Node of interest
-                        dbc.Row(NetworkFormNodeOfInterest()),
 
-                        NetworkFormDegree(),
+                        html.Div(
+                            className='mt-3',
+                            children=[
+                                NetworkFormNodeOfInterest(),
+                            ]),
 
-                        # Thresholds
-                            NetworkThreshFilterContainer(),
+                        html.Div(
+                            className='mt-3',
+                            children=[
+                                NetworkFormDegree(),
+                            ]),
 
-                        # Update button
-                        dbc.Row(NetworkFormBtnUpdate()),
 
-                        # Download button
-                        dbc.Row(DownloadGraphMlButton()),
+                        html.Div(
+                            className='mt-3',
+                            children=[
+                                NetworkThreshFilterContainer(),
+                            ]),
 
-                        # Network properties
-                        # dbc.Row(NetworkPropertiesCard()),
+                        html.Div(
+                            className='mt-3',
+                            children=[
+                                NetworkFormBtnUpdate(),
+                            ])
 
                     ]
                 ),

@@ -1,46 +1,39 @@
 import logging
-from functools import lru_cache
 
 import dash_cytoscape as cyto
-from dash import Output, Input, callback, State
+from dash import Output, Input, callback, State, html
 from dash.exceptions import PreventUpdate
-import dash
-from indizio.cache import CACHE_MANAGER
-from indizio.config import ID_NETWORK_VIZ_PROGRESS
 
+from indizio.config import ID_NETWORK_VIZ_NODE_EDGE_COUNT
 from indizio.store.dm_graph import DistanceMatrixGraphStore, DmGraph
 from indizio.store.network_form_store import NetworkFormStore, NetworkFormStoreData
-from indizio.util.cache import freezeargs, from_hashable, cache_by
-from indizio.util.graph import filter_graph
-from cachetools import cached, LRUCache, TTLCache
-from cachetools.keys import hashkey
-import networkx as nx
-
-from indizio.util.types import ProgressFn
 
 
-class NetworkVizGraph(cyto.Cytoscape):
+class NetworkVizGraph(html.Div):
     """
     The cytoscape network graph component.
     """
-
     ID = 'network-viz-graph'
+    ID_GRAPH = f'{ID}-cytoscape'
 
     def __init__(self):
         super().__init__(
-            id=self.ID,
-            elements=[],
-            layout={"name": "grid", 'animate': True},
-            style={'width': '100%', 'height': 'calc(100vh - 150px)'},
-            responsive=True,
+            children=[
+                cyto.Cytoscape(
+                    id=self.ID_GRAPH,
+                    elements=[],
+                    layout={"name": "grid", 'animate': True},
+                    style={'width': '100%', 'height': 'calc(100vh - 210px)'},
+                    responsive=True,
+                )
+            ],
         )
 
         @callback(
             output=dict(
-                elements=Output(self.ID, 'elements'),
-                layout=Output(self.ID, "layout"),
-                # n_nodes=Output(NetworkPropertiesCard.ID_N_NODES, "children"),
-                # n_edges=Output(NetworkPropertiesCard.ID_N_EDGES, "children"),
+                elements=Output(self.ID_GRAPH, 'elements'),
+                layout=Output(self.ID_GRAPH, "layout"),
+                node_edge_children=Output(ID_NETWORK_VIZ_NODE_EDGE_COUNT, 'children'),
             ),
             inputs=dict(
                 ts_graph=Input(DistanceMatrixGraphStore.ID, "modified_timestamp"),
@@ -48,22 +41,19 @@ class NetworkVizGraph(cyto.Cytoscape):
                 state_graph=State(DistanceMatrixGraphStore.ID, "data"),
                 state_params=State(NetworkFormStore.ID, "data"),
             ),
-            # running=[
-            #     (Output(self.ID, 'style'), {'visibility': 'hidden'}, {'visibility': 'visible'}),
-            #     (Output(ID_NETWORK_VIZ_PROGRESS, 'style'), {'visibility': 'visible'}, {'visibility': 'hidden'}),
-            # ],
-            # progress=[
-            #     Output(ID_NETWORK_VIZ_PROGRESS, "value"),
-            # ],
+            running=[
+                (Output(self.ID_GRAPH, 'style'), {'visibility': 'hidden'}, {'visibility': 'visible'}),
+                (Output(ID_NETWORK_VIZ_NODE_EDGE_COUNT, 'children'), 'Loading...', 'No distance matrix loaded.'),
+            ],
             prevent_initial_call=False,
             background=True,
         )
         def draw_graph(ts_graph, ts_param, state_graph, state_params):
             # Output debugging information
             log = logging.getLogger()
-            log.debug(f'{self.ID} - Drawing graph.')
+            log.debug(f'{self.ID_GRAPH} - Drawing graph.')
             if ts_graph is None or state_graph is None:
-                log.debug(f'{self.ID} - No data to draw graph.')
+                log.debug(f'{self.ID_GRAPH} - No data to draw graph.')
                 raise PreventUpdate
 
             graph = DmGraph(**state_graph)
@@ -73,24 +63,23 @@ class NetworkVizGraph(cyto.Cytoscape):
 
             return dict(
                 elements=out_graph,
-                layout={'name': params.layout.name, 'animate': True},
-                # n_nodes=len(out_graph['nodes']),
-                # n_edges=len(out_graph['edges'])
+                layout={'name': params.layout.name.replace('_', '-'), 'animate': True},
+                node_edge_children=f'Nodes: {len(out_graph["nodes"]):,} | Edges: {len(out_graph["edges"]):,}'
             )
 
         @callback(
             output=dict(
-                stylesheet=Output(self.ID, 'stylesheet'),
+                stylesheet=Output(self.ID_GRAPH, 'stylesheet'),
             ),
             inputs=dict(
-                node=Input(self.ID, "tapNode"),
-                prev_stylesheet=State(self.ID, 'stylesheet'),
+                node=Input(self.ID_GRAPH, "tapNode"),
+                prev_stylesheet=State(self.ID_GRAPH, 'stylesheet'),
             ),
         )
         def highlight_on_node_select(node, prev_stylesheet):
             # Output debugging information
             log = logging.getLogger()
-            log.debug(f'{self.ID} - Node clicked.')
+            log.debug(f'{self.ID_GRAPH} - Node clicked.')
 
             stylesheet = [
                 {

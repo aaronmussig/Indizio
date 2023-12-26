@@ -14,19 +14,18 @@ class NetworkVizResetView(dbc.Button):
         super().__init__(
             children=[
                 "Centre graph",
-
             ],
             id=self.ID,
-            color="warning"
+            style={'marginLeft': '10px'}
         )
 
         @callback(
             output=dict(
-                layout=Output(NetworkVizGraph.ID, "layout", allow_duplicate=True),
+                layout=Output(NetworkVizGraph.ID_GRAPH, "layout", allow_duplicate=True),
             ),
             inputs=dict(
                 n_clicks=Input(self.ID, "n_clicks"),
-                prev_layout=Input(NetworkVizGraph.ID, "layout"),
+                prev_layout=Input(NetworkVizGraph.ID_GRAPH, "layout"),
             ),
             prevent_initial_call=True
         )

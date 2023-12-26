@@ -76,7 +76,7 @@ class DmGraph(BaseModel):
             out.add(dm.file_id)
         return frozenset(out)
 
-    def filter_to_cytoscape(self, params: NetworkFormStoreData):
+    def filter(self, params: NetworkFormStoreData):
 
         if ENABLE_CACHE:
             # Extract the caching key from the parameters
@@ -88,13 +88,10 @@ class DmGraph(BaseModel):
             with Cache(CACHE.directory) as cache:
                 existing_result = cache.get(cache_key)
                 if existing_result:
-                    print("returning from cache")
                     return existing_result
 
         # No existing data were found, compute it
-        print('reading graph')
         G = self.read()
-        print('read')
 
         # Extract all edges for procesing
         # Filter the nodes if specified
@@ -103,8 +100,7 @@ class DmGraph(BaseModel):
 
         # Iterate over each edge and filter them based on the thresholding
         edges_to_keep = list()
-        print('calculating from edges')
-        for edge_from, edge_to, d_edge_data in edges_to_process:
+        for idx, (edge_from, edge_to, d_edge_data) in enumerate(edges_to_process):
 
             # Skip edges from self if applicable
             if params.show_edges_to_self is BooleanShowHide.HIDE:
@@ -136,15 +132,12 @@ class DmGraph(BaseModel):
                     edges_to_keep.append((edge_from, edge_to))
             elif params.thresh_matching is BooleanAllAny.ANY:
                 if any(edge_matches):
-                    edges_to_keep.append((edge_from,edge_to))
-
+                    edges_to_keep.append((edge_from, edge_to))
 
         # Create a subgraph based on those edges that meet the filtering
-        print("create subgraph")
         edge_subgraph = G.edge_subgraph(edges_to_keep)
 
         # Filter the nodes based on the degree
-        print('filter nodes to keep')
         nodes_to_keep = set()
         for cur_node, cur_degree in edge_subgraph.degree():
             if params.degree.min_value <= cur_degree <= params.degree.max_value:
@@ -153,70 +146,34 @@ class DmGraph(BaseModel):
                 nodes_to_keep.update(set(edge_subgraph.neighbors(cur_node)))
 
         # Create the subgraph containing only those nodes that meet the criteria
-        print("composing")
         composed = edge_subgraph.subgraph(nodes_to_keep)
-        print("done")
 
-        # print()
-        # subgraphs = list()
-        #
-        # nodes_to_keep = params.node_of_interest if params.node_of_interest else list(G.nodes)
-        # print("finding nodes to keep")
-        # # For each node, iterate over each edge that connects to it
-        # for i, node in enumerate(nodes_to_keep):
-        #     edges = list()
-        #     for edge in G.edges(node, data=True):
-        #
-        #         # Check each of the edge attributes to see if it is within bounds
-        #         file_matches = list()
-        #         for file_id, corr in edge[2].items():
-        #             cur_threshold = params.thresholds[file_id]
-        #
-        #             meets_lower = False
-        #             if cur_threshold.left_bound is Bound.INCLUSIVE:
-        #                 meets_lower = corr >= cur_threshold.left_value
-        #             elif cur_threshold.left_bound is Bound.EXCLUSIVE:
-        #                 meets_lower = corr > cur_threshold.left_value
-        #
-        #             meets_upper = False
-        #             if cur_threshold.right_bound is Bound.INCLUSIVE:
-        #                 meets_upper = corr <= cur_threshold.right_value
-        #             elif cur_threshold.right_bound is Bound.EXCLUSIVE:
-        #                 meets_upper = corr < cur_threshold.right_value
-        #
-        #             file_matches.append(meets_lower and meets_upper)
-        #
-        #         # Depending on the filtering type, check if we should keep the edge
-        #         if params.thresh_matching is BooleanAllAny.ALL:
-        #             if all(file_matches):
-        #                 edges.append((edge[0], edge[1]))
-        #         elif params.thresh_matching is BooleanAllAny.ANY:
-        #             if any(file_matches):
-        #                 edges.append((edge[0], edge[1]))
-        #
-        #     # Subset the original graph to contain only these edges
-        #     H = G.edge_subgraph(edges)
-        #     for node_id, node_degree in H.degree():
-        #         if params.degree.min_value <= node_degree <= params.degree.max_value:
-        #             continue
-        #     if node in set(H.nodes):
-        #         if params.thresh_degree == 0:
-        #             subgraphs.append(H)
-        #         else:
-        #             subgraphs.append(H.subgraph(neighborhood(H, node, params.thresh_degree)))
-        #     else:
-        #         subgraphs.append(G.subgraph([node]))
-        #
-        #     # Update the progress function if provided
-        #     # if progress:
-        #     #     progress(100 * i / len(nodes_to_keep))
-        # print('composing')
-        # composed = nx.compose_all(subgraphs)
+        # If the user selected any nodes of interest, make sure they are included
+        # in the final graph just as a node. If they aren't included by this point
+        # then none of the metrics will be satisifed, so a node works.
+        nodes_of_interest_missing = set()
+        for cur_node_of_interest in params.node_of_interest:
+            if not composed.has_node(cur_node_of_interest):
+                nodes_of_interest_missing.add(cur_node_of_interest)
+        # If any were found, unfreeze the graph and add them
+        if len(nodes_of_interest_missing) > 0:
+            composed = nx.Graph(composed)
+            composed.add_nodes_from(nodes_of_interest_missing)
 
+        # Store the result in the cache
+        if ENABLE_CACHE:
+            with Cache(CACHE.directory) as cache:
+                cache.set(cache_key, composed)
+
+        # Return the filtered graph
+        return composed
+
+    def filter_to_cytoscape(self, params: NetworkFormStoreData):
+        filtered_graph = self.filter(params)
 
         # Convert the graph to cytoscape format
         print('converitng to cytoscape')
-        cyto_data = nx.cytoscape_data(composed)
+        cyto_data = nx.cytoscape_data(filtered_graph)
         out_graph = cyto_data['elements']
 
         # There is a formatting quirk with cytoscape that requires a reformat
@@ -225,11 +182,6 @@ class DmGraph(BaseModel):
             node['data']['label'] = node['data']['name']
             del node['data']['name']
 
-        # Store the result in the cache
-        if ENABLE_CACHE:
-            print('saving in cache')
-            with Cache(CACHE.directory) as cache:
-                cache.set(cache_key, out_graph)
         return out_graph
 
 

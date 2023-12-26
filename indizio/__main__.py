@@ -68,7 +68,7 @@ def main():
             ]
         )
 
-        app.run(debug=True)
+        app.run(debug=False, host="0.0.0.0", port=8050)
 
     finally:
         print('TODO')

@@ -1,20 +1,14 @@
 import logging
 from functools import lru_cache
 
-import dash_cytoscape as cyto
-from dash import Output, Input, callback, State, html, dcc
+import numpy as np
+import plotly.graph_objects as go
+from dash import Output, Input, callback, State, dcc
 from dash.exceptions import PreventUpdate
 
-from indizio.store.distance_matrix import DistanceMatrixStore, DistanceMatrixFile, DistanceMatrixData
-from indizio.store.dm_graph import DistanceMatrixGraphStore, DmGraph
+from indizio.store.distance_matrix import DistanceMatrixStore, DistanceMatrixData
 from indizio.store.matrix_parameters import MatrixParametersStore, MatrixParameters, MatrixBinOption
-from indizio.store.network_form_store import NetworkFormStore, NetworkFormStoreData
-from indizio.util.cache import freezeargs, from_hashable
-from indizio.util.graph import filter_graph
-import plotly.graph_objects as go
-import numpy as np
-import os
-
+from indizio.util.cache import freezeargs
 from indizio.util.plot import get_color
 
 
@@ -23,6 +17,7 @@ class MatrixPlot(dcc.Graph):
     The cytoscape network graph component.
     """
     ID = 'matrix-plot'
+
     def __init__(self):
         super().__init__(
             id=self.ID,

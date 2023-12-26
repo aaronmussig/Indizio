@@ -14,5 +14,9 @@ class NetworkVizProgressBar(dbc.Progress):
         super().__init__(
             id=self.ID,
             min=0,
-            max=100
+            max=100,
+            value=100,
+            striped=True,
+            animated=True,
+            style={'visibility': 'hidden'}
         )

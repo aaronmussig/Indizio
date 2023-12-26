@@ -9,7 +9,7 @@ from indizio.store.dm_graph import DistanceMatrixGraphStore, DmGraph
 from indizio.store.network_form_store import NetworkFormStore, NetworkFormStoreData
 
 
-class NetworkFormNodeOfInterest(html.Div):
+class NetworkFormNodeOfInterest(dbc.Card):
     """
     Dropdown menu option in the network form, that allows users to
     select nodes of interest.
@@ -19,17 +19,16 @@ class NetworkFormNodeOfInterest(html.Div):
     def __init__(self):
         super().__init__(
             [
-                dbc.Label(
-                    "Select a node of interest",
-                    html_for=self.ID
-                ),
-                dcc.Dropdown(
-                    id=self.ID,
-                    options=[],
-                    value=[],
-                    className="bg-light text-dark",
-                    multi=True,
-                ),
+                dbc.CardHeader(html.H5("Nodes of interest")),
+                dbc.CardBody([
+                    dcc.Dropdown(
+                        id=self.ID,
+                        options=[],
+                        value=[],
+                        className="bg-light text-dark",
+                        multi=True,
+                    ),
+                ]),
             ]
 
         )

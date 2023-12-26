@@ -1,7 +1,5 @@
 import dash_bootstrap_components as dbc
 
-from indizio.components.console import ConsoleContainer
-
 NAVBAR = dbc.NavbarSimple(
     children=[
         dbc.NavItem(dbc.NavLink("Matrices", href="/matrix")),
@@ -28,7 +26,6 @@ class NavBar(dbc.NavbarSimple):
                 dbc.NavItem(dbc.NavLink("Matrices", href="/matrix")),
                 dbc.NavItem(dbc.NavLink("Network Visualization", href="/network")),
                 dbc.NavItem(dbc.NavLink("Network Statistics", href="/stats")),
-                ConsoleContainer()
             ])
 
     pass

@@ -1,16 +1,10 @@
 import dash_bootstrap_components as dbc
 from dash import Output, Input, callback, State, html
-from dash.exceptions import PreventUpdate
 
-from indizio.components.network_form.thresh_filter_item import NetworkThreshFilterItem
-from indizio.components.network_form.thresh_matching import NetworkThreshMatching
 from indizio.config import ID_NETWORK_FORM_DEGREE_LOWER_VALUE, ID_NETWORK_FORM_DEGREE_UPPER_VALUE, \
     ID_NETWORK_FORM_DEGREE, ID_NETWORK_FORM_EDGES_TO_SELF
 from indizio.interfaces.boolean import BooleanShowHide
-from indizio.interfaces.bound import Bound
-from indizio.store.dm_graph import DistanceMatrixGraphStore, DmGraph
-from indizio.store.network_form_store import NetworkFormStoreData, NetworkParamThreshold, \
-    NetworkFormStore, NetworkParamDegree
+from indizio.store.network_form_store import NetworkFormStoreData, NetworkFormStore
 
 
 class NetworkFormDegree(dbc.Card):

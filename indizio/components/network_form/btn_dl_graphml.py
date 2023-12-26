@@ -8,7 +8,6 @@ from dash.exceptions import PreventUpdate
 from indizio.cache import CACHE_MANAGER
 from indizio.store.dm_graph import DistanceMatrixGraphStore, DmGraph
 from indizio.store.network_form_store import NetworkFormStore, NetworkFormStoreData
-from indizio.util.graph import filter_graph
 
 
 class DownloadGraphMlButton(html.Div):
@@ -25,10 +24,11 @@ class DownloadGraphMlButton(html.Div):
                 dbc.Button(
                     "Download as GraphML",
                     id=self.ID,
-                    color="success"
+                    color="primary"
                 ),
-                dcc.Download(id=self.ID_DOWNLOAD)
-            ]
+                dcc.Download(id=self.ID_DOWNLOAD),
+            ],
+            style={'marginLeft': '10px'}
         )
 
         @callback(
@@ -52,17 +52,10 @@ class DownloadGraphMlButton(html.Div):
                 raise PreventUpdate
 
             # De-serialize the states
-            graph = DmGraph(**state_graph).read()
+            graph = DmGraph(**state_graph)
             params = NetworkFormStoreData(**state_params)
 
-            # Filter the graph based on the parameters
-            filtered_graph = filter_graph(
-                G=graph,
-                node_subset=params.node_of_interest,
-                degree=params.thresh_degree,
-                thresh=params.corr_input,
-                thresh_op=params.thresh_corr_select,
-            )
+            filtered_graph = graph.filter(params)
 
             # Convert the graph to GraphML and format the output
             graphml_str = '\n'.join(nx.generate_graphml(filtered_graph))

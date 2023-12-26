@@ -29,7 +29,8 @@ class NetworkFormBtnUpdate(dbc.Button):
         super().__init__(
             "Update Network",
             id=self.ID,
-            color="success"
+            color="success",
+            className='w-100'
         )
 
         # When the update button is pressed, then update the network parameters
