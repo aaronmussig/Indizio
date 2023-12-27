@@ -1,3 +1,4 @@
+import pickle
 from collections import defaultdict
 from pathlib import Path
 from typing import List, Optional, Collection, FrozenSet
@@ -8,7 +9,7 @@ from diskcache import Cache
 from pydantic import BaseModel
 
 from indizio.cache import CACHE
-from indizio.config import PERSISTENCE_TYPE, ENABLE_CACHE
+from indizio.config import PERSISTENCE_TYPE, ENABLE_CACHE, TMP_DIR
 from indizio.interfaces.boolean import BooleanAllAny, BooleanShowHide
 from indizio.interfaces.bound import Bound
 from indizio.store.distance_matrix import DistanceMatrixFile
@@ -83,6 +84,11 @@ class DmGraph(BaseModel):
             param_cache_key = params.get_cache_key()
             combined_cache_key = calc_md5(self.hash.encode() + param_cache_key)
             cache_key = f'cyto-graph-{combined_cache_key}'
+            # cache_path = TMP_DIR / cache_key
+
+            # if cache_path.is_file():
+            #     with cache_path.open('rb') as f:
+            #         return pickle.load(f)
 
             # Check if the graph is already cached
             with Cache(CACHE.directory) as cache:
@@ -159,6 +165,7 @@ class DmGraph(BaseModel):
         if len(nodes_of_interest_missing) > 0:
             composed = nx.Graph(composed)
             composed.add_nodes_from(nodes_of_interest_missing)
+        composed = nx.Graph(composed)
 
         # Store the result in the cache
         if ENABLE_CACHE:
