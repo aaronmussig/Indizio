@@ -23,7 +23,9 @@ RUN python -m pip install \
     dendropy \
     frozendict \
     pillow \
-    pandas
+    pandas \
+    numpy \
+    tqdm
 
 EXPOSE 8050
 ENTRYPOINT [ "python", "-m", "indizio" ]

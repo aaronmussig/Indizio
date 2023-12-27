@@ -1,37 +1,38 @@
-{% set name = "indizio" %}
-{% set version = "0.1.0" %}
+{% set name = "indizio-dev" %}
+{% set version = "0.0.1" %}
 
 package:
   name: {{ name|lower }}
   version: {{ version }}
 
 source:
-  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
-  sha256: 3e01465ec2a3b8425495ab8c0739fb9030cf91683db6e44b5127a04775d186eb
+  git_url: https://github.com/aaronmussig/indizio.git
+  git_depth: 1
 
 build:
   noarch: python
-  number: 1
+  number: 0
 
 requirements:
   host:
-    - python >=3.6
+    - python >=3.8
     - pip
   run:
-    - python >=3.6
-    - biolib >=0.1.0
-    - numpy >=1.8.0
-    - future
+    - python >=3.8
+    - dash
+    - dash_bootstrap_components
+    - dash_cytoscape
+    - diskcache
+    - dash_bio
+    - pydantic
+    - networkx
+    - orjson
     - dendropy
-    - blast
-    - hmmer ==3.1b2
+    - frozendict
+    - pillow
+    - pandas
+    - numpy
 
 test:
   imports:
-    - genometk
-  commands:
-    - genometk -h
-
-about:
-  home: https://github.com/dparks1134/GenomeTk
-  summary: 'The genome toolkit is a collection of methods for determining characteristics about genomes.'
+    - indizio
