@@ -29,4 +29,4 @@ ID_NETWORK_FORM_EDGES_TO_SELF = f'{ID_NETWORK_FORM_DEGREE}-show-edges-to-self'
 
 ID_NETWORK_VIZ_NODE_EDGE_COUNT = 'network-viz-node-edge-count'
 
-ENABLE_CACHE = False
+ENABLE_CACHE = True
