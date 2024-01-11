@@ -21,6 +21,7 @@ TMP_DIR = Path(tempfile.gettempdir()) / 'indizio'
 
 # Identifiers for some components where a circular import would otherwise be created
 ID_MATRIX_PARAMS_METRIC = 'matrix-params-metric'
+ID_CLUSTERGRAM_PARAMS_METRIC = 'clustergram-params-metric'
 ID_NETWORK_VIZ_PROGRESS = 'network-viz-progress-bar'
 ID_NETWORK_FORM_DEGREE = 'network-form-degree'
 ID_NETWORK_FORM_DEGREE_LOWER_VALUE = f'{ID_NETWORK_FORM_DEGREE}-lower-value'

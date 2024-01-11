@@ -149,6 +149,7 @@ class MatrixPlot(dcc.Graph):
                     "tickmode": "array",
                     "ticktext": feature_df.columns.str.slice().to_list(),
                 },
+                yaxis_scaleanchor="x"
             )
             return dict(
                 fig=fig

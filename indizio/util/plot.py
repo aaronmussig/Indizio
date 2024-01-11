@@ -1,3 +1,5 @@
+from typing import Collection, Tuple
+
 import plotly
 from PIL import ImageColor
 from _plotly_utils.basevalidators import ColorscaleValidator
@@ -69,3 +71,11 @@ def get_continuous_color(colorscale, intermed):
         intermed=((intermed - low_cutoff) / (high_cutoff - low_cutoff)),
         colortype="rgb",
     )
+
+
+
+def format_labels(labels: Collection[str]) -> Tuple[str]:
+    out = list()
+    for label in labels:
+        out.append(label[0:10])
+    return tuple(out)

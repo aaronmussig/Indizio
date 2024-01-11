@@ -1,6 +1,5 @@
-from functools import lru_cache
 from pathlib import Path
-from typing import Optional, Dict, Tuple, List
+from typing import Dict, Tuple, List
 
 import pandas as pd
 from dash import dcc
@@ -8,7 +7,7 @@ from pydantic import BaseModel
 
 from indizio.config import PERSISTENCE_TYPE
 from indizio.store.upload_form_store import UploadFormItem
-from indizio.util.files import to_pickle_df, from_pickle_df
+from indizio.util.files import to_pickle_df, from_pickle_df, get_delimiter
 
 
 class DistanceMatrixFile(BaseModel):
@@ -18,13 +17,16 @@ class DistanceMatrixFile(BaseModel):
     hash: str
     min_value: float
     max_value: float
+    n_cols: int
+    n_rows: int
 
     @classmethod
     def from_upload_data(cls, data: UploadFormItem):
         """
         Convert the data from the upload form store into a distance matrix file
         """
-        df = pd.read_table(data.path, sep=',', index_col=0)
+        delimiter = get_delimiter(data.path)
+        df = pd.read_table(data.path, sep=delimiter, index_col=0)
         min_value = float(df.min().min())
         max_value = float(df.max().max())
         path, md5 = to_pickle_df(df)
@@ -34,7 +36,9 @@ class DistanceMatrixFile(BaseModel):
             path=path,
             hash=md5,
             min_value=min_value,
-            max_value=max_value
+            max_value=max_value,
+            n_cols=int(df.shape[1]),
+            n_rows=int(df.shape[0])
         )
 
     def read(self) -> pd.DataFrame:
@@ -61,9 +65,8 @@ class DistanceMatrixData(BaseModel):
         """Returns the keys of the data as a dictionary of HTML options"""
         out = list()
         for file in self.get_files():
-            out.append({'label': file.file_id, 'value': file.file_id,})
+            out.append({'label': file.file_id, 'value': file.file_id, })
         return out
-
 
 
 class DistanceMatrixStore(dcc.Store):

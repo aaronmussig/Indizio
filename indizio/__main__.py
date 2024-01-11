@@ -8,6 +8,7 @@ from dash import dcc
 from indizio.cache import CACHE_MANAGER
 from indizio.components.navbar import NavBar
 from indizio.config import RELOAD_ID, TMP_DIR
+from indizio.store.clustergram_parameters import ClustergramParametersStore
 from indizio.store.distance_matrix import DistanceMatrixStore
 from indizio.store.dm_graph import DistanceMatrixGraphStore
 from indizio.store.matrix_parameters import MatrixParametersStore
@@ -55,6 +56,7 @@ def main():
                 TreeFileStore(),
                 DistanceMatrixGraphStore(),
                 MatrixParametersStore(),  # todo, add clear?
+                ClustergramParametersStore(),
 
                 NavBar(),
                 dcc.Location(id=RELOAD_ID, refresh=True),

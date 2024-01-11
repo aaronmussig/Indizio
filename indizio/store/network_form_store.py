@@ -1,11 +1,12 @@
-from typing import Optional, List, Dict
+from typing import List, Dict
 
+import orjson
 from dash import dcc
 from pydantic import BaseModel
-import orjson
+
 from indizio.config import PERSISTENCE_TYPE
 from indizio.interfaces.boolean import BooleanAllAny, BooleanShowHide
-from indizio.interfaces.bound import  Bound
+from indizio.interfaces.bound import Bound
 from indizio.interfaces.html_option import HtmlOption
 
 
@@ -34,12 +35,14 @@ class NetworkFormLayoutOption(HtmlOption):
     spread = 'Spread'
     euler = 'Euler'
 
+
 class NetworkParamThreshold(BaseModel):
     file_id: str
     left_bound: Bound = Bound.INCLUSIVE
     right_bound: Bound = Bound.INCLUSIVE
     left_value: float
     right_value: float
+
 
 class NetworkParamDegree(BaseModel):
     min_value: float = 0.0
@@ -51,7 +54,7 @@ class NetworkFormStoreData(BaseModel):
     This class represents the data that is stored in the network form store.
     """
 
-    layout: NetworkFormLayoutOption = NetworkFormLayoutOption.grid
+    layout: NetworkFormLayoutOption = NetworkFormLayoutOption.circle
     node_of_interest: List[str] = list()
     thresholds: Dict[str, NetworkParamThreshold] = dict()
     thresh_matching: BooleanAllAny = BooleanAllAny.ALL

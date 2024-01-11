@@ -55,25 +55,32 @@ class UploadedFileContainer(html.Div):
                 children.append(UploadedFileDisplay(
                     file_name=pa_file.file_name,
                     name=pa_file.file_id,
-                    file_type=UserFileType.PA
+                    file_type=UserFileType.PA,
+                    n_cols=pa_file.n_cols,
+                    n_rows=pa_file.n_rows,
                 ))
             for dm_file in dm_store.get_files():
                 children.append(UploadedFileDisplay(
                     file_name=dm_file.file_name,
                     name=dm_file.file_id,
-                    file_type=UserFileType.DM
+                    file_type=UserFileType.DM,
+                    n_cols=dm_file.n_cols,
+                    n_rows=dm_file.n_rows,
                 ))
             for meta_file in meta_store.get_files():
                 children.append(UploadedFileDisplay(
                     file_name=meta_file.file_name,
                     name=meta_file.file_id,
-                    file_type=UserFileType.META
+                    file_type=UserFileType.META,
+                    n_cols=meta_file.n_cols,
+                    n_rows=meta_file.n_rows,
                 ))
             for tree_file in tree_store.get_files():
                 children.append(UploadedFileDisplay(
                     file_name=tree_file.file_name,
                     name=tree_file.file_id,
-                    file_type=UserFileType.TREE
+                    file_type=UserFileType.TREE,
+                    n_leaves=tree_file.n_leaves
                 ))
 
             return dict(

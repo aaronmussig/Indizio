@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Optional, Tuple
 
 import pandas as pd
-
+import csv
 from indizio.config import TMP_DIR
 from indizio.util.hashing import calc_md5
 
@@ -75,3 +75,13 @@ def to_file(data: bytes, name: Optional[str] = None) -> Path:
     with open(path, 'wb') as f:
         f.write(data)
     return path
+
+
+def get_delimiter(file_path: Path, n_lines=5):
+    sniffer = csv.Sniffer()
+    lines = list()
+    with file_path.open() as f:
+        for _ in range(n_lines):
+            lines.append(f.readline())
+    sample = '\n'.join(lines)
+    return sniffer.sniff(sample).delimiter
