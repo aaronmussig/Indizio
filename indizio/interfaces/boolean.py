@@ -8,3 +8,7 @@ class BooleanAllAny(HtmlOption):
 class BooleanShowHide(HtmlOption):
     SHOW = 'Show'
     HIDE = 'Hide'
+
+class BooleanYesNo(HtmlOption):
+    YES = 'Yes'
+    NO = 'No'

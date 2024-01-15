@@ -43,7 +43,7 @@ class TreeData(BaseModel):
         self.data[item.file_id] = item
 
     def get_files(self):
-        return self.data.values()
+        return tuple(self.data.values())
 
     def get_file(self, file_id: str):
         return self.data[file_id]

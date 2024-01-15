@@ -4,13 +4,16 @@ from dash import dcc
 from pydantic import BaseModel
 
 from indizio.config import PERSISTENCE_TYPE
+from indizio.interfaces.boolean import BooleanYesNo
+from indizio.interfaces.cluster_on import ClusterOn
 
 
 class ClustergramParameters(BaseModel):
     metric: Optional[str] = None
     tree: Optional[str] = None
     metadata: Optional[str] = None
-    color_scale: str = 'inferno'
+    cluster_on: ClusterOn = ClusterOn.IDS
+    optimal_leaf_order: BooleanYesNo = BooleanYesNo.NO
 
 
 class ClustergramParametersStore(dcc.Store):

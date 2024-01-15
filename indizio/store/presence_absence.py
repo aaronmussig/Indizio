@@ -45,8 +45,14 @@ class PresenceAbsenceFile(BaseModel):
         return from_pickle_df(self.path)
 
     def as_distance_matrix(self) -> DistanceMatrixFile:
+
         # Convert the dataframe to a distance matrix and compute the correlation
         df_corr = self.read().corr().abs()
+
+        # Round all values within 10 decimal places of precision
+        df_corr = df_corr.round(10)
+
+        # Compute the min/max
         df_min = float(df_corr.min().min())
         df_max = float(df_corr.max().max())
 
@@ -80,7 +86,7 @@ class PresenceAbsenceData(BaseModel):
         self.data[item.file_id] = item
 
     def get_files(self):
-        return self.data.values()
+        return tuple(self.data.values())
 
     def get_file(self, file_id: str) -> PresenceAbsenceFile:
         return self.data[file_id]
