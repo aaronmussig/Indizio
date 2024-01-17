@@ -45,7 +45,6 @@ class PresenceAbsenceFile(BaseModel):
         return from_pickle_df(self.path)
 
     def as_distance_matrix(self) -> DistanceMatrixFile:
-
         # Convert the dataframe to a distance matrix and compute the correlation
         df_corr = self.read().corr().abs()
 
