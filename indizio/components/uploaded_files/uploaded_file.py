@@ -20,10 +20,10 @@ class UploadedFileDisplay(dbc.Card):
             n_leaves: Optional[int] = None,
     ):
         children = list()
+        children.append(html.B(file_type.value))
         if name:
-            children.append(file_name)
             children.append(html.Br())
-        children.append(file_type.value)
+            children.append(file_name)
         if description:
             children.append(html.Br())
             children.append(description)
@@ -34,14 +34,37 @@ class UploadedFileDisplay(dbc.Card):
             children.append(html.Br())
             children.append(f'Leaves: {n_leaves:,}')
 
+        file_icon = ""
+        if file_type is UserFileType.TREE:
+            file_icon = "fa-tree"
+        elif file_type is UserFileType.DM:
+            file_icon = "fa-table-cells"
+        elif file_type is UserFileType.PA:
+            file_icon = "fa-border-none"
+        elif file_type is UserFileType.META:
+            file_icon = "fa-table-list"
+
         super().__init__(
             className="d-flex m-1",
             style={
-                'minWidth': '250px',
+                'minWidth': '200px',
             },
             children=
             [
-                dbc.CardHeader(html.H5(name if name else file_name)),
+                dbc.CardHeader(
+                    className='d-flex align-items-center',
+                    children=[
+                        html.I(className=f"fas {file_icon}"),
+                        html.Div(
+                            style={
+                                'marginLeft': '10px'
+                            },
+                            children=[
+                                html.H5(name if name else file_name)
+                            ]
+                        ),
+                    ]
+                ),
                 dbc.CardBody(children),
             ]
         )

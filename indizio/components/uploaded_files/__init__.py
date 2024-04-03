@@ -9,6 +9,7 @@ from indizio.store.metadata_file import MetadataFileStore, MetadataData
 from indizio.store.presence_absence import PresenceAbsenceStore, PresenceAbsenceData
 from indizio.store.tree_file import TreeFileStore, TreeData
 
+import dash_bootstrap_components as dbc
 
 class UploadedFileContainer(html.Div):
     """
@@ -20,8 +21,8 @@ class UploadedFileContainer(html.Div):
     def __init__(self):
         super().__init__(
             id=self.ID,
+            className='d-flex justify-content-center align-items-top ',
             children=list(),
-            className='d-flex flex-wrap'
         )
 
         @callback(

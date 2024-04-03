@@ -14,7 +14,9 @@ from scipy.spatial.distance import squareform, pdist
 
 from indizio.interfaces.boolean import BooleanYesNo
 from indizio.store.clustergram_parameters import ClustergramParametersStore, ClustergramParameters
+from indizio.store.dm_graph import DistanceMatrixGraphStore, DmGraph
 from indizio.store.metadata_file import MetadataFileStore, MetadataData
+from indizio.store.network_interaction import NetworkInteractionStore, NetworkInteractionData
 from indizio.store.presence_absence import PresenceAbsenceStore, PresenceAbsenceData
 from indizio.store.tree_file import TreeFileStore, TreeData
 
@@ -41,28 +43,42 @@ class ClustergramPlot(dcc.Graph):
                 ts_dm=Input(PresenceAbsenceStore.ID, "modified_timestamp"),
                 ts_tree=Input(TreeFileStore.ID, "modified_timestamp"),
                 ts_meta=Input(MetadataFileStore.ID, "modified_timestamp"),
+                ts_interaction=Input(NetworkInteractionStore.ID, "modified_timestamp"),
                 state_params=State(ClustergramParametersStore.ID, "data"),
                 state_dm=State(PresenceAbsenceStore.ID, "data"),
                 state_tree=State(TreeFileStore.ID, "data"),
                 state_meta=State(MetadataFileStore.ID, "data"),
+                state_interaction=State(NetworkInteractionStore.ID, "data")
             )
         )
         # @freezeargs
         # @lru_cache
-        def update_options_on_file_upload(ts_params, ts_dm, ts_tree, ts_meta, state_params, state_dm, state_tree,
-                                          state_meta):
+        def update_options_on_file_upload(
+                ts_params, ts_dm, ts_tree, ts_meta, ts_interaction, state_params, state_dm,
+                state_tree, state_meta, state_interaction
+        ):
             log = logging.getLogger()
             log.debug(f'{self.ID} - Updating clustergram figure.')
 
-            if ts_dm is None or not state_dm:
-                log.debug(f'{self.ID} - No data to update from.')
-                raise PreventUpdate
+            # if ts_dm is None or not state_dm:
+            #     log.debug(f'{self.ID} - No data to update from.')
+            #     raise PreventUpdate
 
             # De-serialize the distance matrix store
             state_dm = PresenceAbsenceData(**state_dm)
             params = ClustergramParameters(**state_params)
             state_tree = TreeData(**state_tree)
             state_meta = MetadataData(**state_meta)
+            state_interaction = NetworkInteractionData(**state_interaction)
+
+            # Check if any nodes are selected, as we will subset the distance matrix
+            # to those nodes
+            nodes_to_keep = set()
+            if state_interaction.has_node_selected():
+                nodes_to_keep = state_interaction.get_all_nodes()
+
+            # Load the distance matrix based on what was used to generate the graph
+
 
             # Optionally load the metadata
             if params.metadata is not None:

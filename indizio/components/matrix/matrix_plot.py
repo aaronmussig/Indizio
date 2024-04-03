@@ -9,23 +9,30 @@ from dash.exceptions import PreventUpdate
 from indizio.store.distance_matrix import DistanceMatrixStore, DistanceMatrixData
 from indizio.store.matrix_parameters import MatrixParametersStore, MatrixParameters, MatrixBinOption
 from indizio.util.cache import freezeargs
+from indizio.util.graph import format_axis_labels
 from indizio.util.plot import get_color
 
 
-class MatrixPlot(dcc.Graph):
+class MatrixPlot(dcc.Loading):
     """
     The cytoscape network graph component.
     """
     ID = 'matrix-plot'
+    ID_LOADING = 'matrix-plot-loading'
 
     def __init__(self):
         super().__init__(
-            id=self.ID,
-            style={
-                'width': 'min(calc(100vh - 150px), 100vw)',
-                'height': 'min(calc(100vh - 150px), 100vw)'
-            },
-            responsive=True,
+            id=self.ID_LOADING,
+            children=[
+                dcc.Graph(
+                    id=self.ID,
+                    style={
+                        'width': 'min(calc(100vh - 150px), 100vw)',
+                        'height': 'min(calc(100vh - 150px), 100vw)'
+                    },
+                    responsive=True,
+                )
+            ]
         )
 
         @callback(
@@ -82,75 +89,31 @@ class MatrixPlot(dcc.Graph):
             else:
                 colorscale = params.color_scale
 
+            # Create the hovertext for the heatmap
+            xy_labels_full = list()
+            for y in feature_df.index:
+                cur_vals = list()
+                for x in feature_df.columns:
+                    cur_vals.append((y, x))
+                xy_labels_full.append(cur_vals)
+
             ava_hm = go.Heatmap(
-                x=feature_df.columns,
-                y=feature_df.index,
+                x=format_axis_labels(feature_df.columns),
+                y=format_axis_labels(feature_df.index),
                 z=feature_df,
                 colorscale=colorscale,
                 zmin=slidervals[0],
                 zmax=slidervals[-1],
+                customdata=xy_labels_full,
+                hovertemplate='%{customdata[0]}<br>%{customdata[1]}'
                 # colorbar=colorbar,
             )
-            # if type(meta_df) != type(None):
-            #     meta_hm = go.Heatmap(
-            #         x=meta_df.columns,
-            #         y=meta_df.index,
-            #         z=meta_df,
-            #         colorscale=colorscale,
-            #         zmin=slidervals[0],
-            #         zmax=slidervals[-1],
-            #         showscale=False,
-            #     )
-            #     f1 = go.Figure(meta_hm)
-            #     for data in f1.data:
-            #         fig.add_trace(data)
-            #
-            #     f2 = go.Figure(ava_hm)
-            #     for i in range(len(f2["data"])):
-            #         f2["data"][i]["xaxis"] = "x2"
-            #
-            #     for data in f2.data:
-            #         fig.add_trace(data)
-            #
-            #     fig.update_layout({"height": 800})
-            #     fig.update_layout(
-            #         xaxis={
-            #             "domain": [0.0, 0.20],
-            #             "mirror": False,
-            #             "showgrid": False,
-            #             "showline": False,
-            #             "zeroline": False,
-            #             # 'ticks':"",
-            #             # 'showticklabels': False
-            #         }
-            #     )
-            #     # Edit xaxis2
-            #     fig.update_layout(
-            #         xaxis2={
-            #             "domain": [0.25, 1.0],
-            #             "mirror": False,
-            #             "showgrid": False,
-            #             "showline": False,
-            #             "zeroline": False,
-            #             # 'showticklabels': False,
-            #             # 'ticks':""
-            #         }
-            #     )
-            # else:
+
+
             f = go.Figure(ava_hm)
             for data in f.data:
                 fig.add_trace(data)
-            fig.update_layout(
-                xaxis={
-                    "mirror": False,
-                    "showgrid": False,
-                    "showline": False,
-                    "zeroline": False,
-                    "tickmode": "array",
-                    "ticktext": feature_df.columns.str.slice().to_list(),
-                },
-                yaxis_scaleanchor="x"
-            )
+
             return dict(
                 fig=fig
             )

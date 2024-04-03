@@ -29,15 +29,14 @@ class UploadFormBtnUpload(dbc.Button):
     def __init__(self):
         super().__init__(
             [
-                "Upload & Process",
-                dbc.Progress(
-                    id=self.ID_PROGRESS,
-                    min=0,
-                    max=100
-                )
+                "Process",
             ],
             id=self.ID,
             color="success",
+            style={
+                'width': '150px',
+            },
+            className='me-2'
         )
 
         @callback(
@@ -64,15 +63,11 @@ class UploadFormBtnUpload(dbc.Button):
             ),
             running=[
                 (Output(self.ID, "disabled"), True, False),
-                # (Output(self.ID_PROGRESS, "style"), {'visibility': 'visible'}, {'visibility': 'hidden'}),
-            ],
-            progress=[
-                Output(self.ID_PROGRESS, "value")
             ],
             prevent_initial_call=True,
-            background=True,
+            background=False,
         )
-        def upload_content(set_progress: ProgressFn, n_clicks, values, names, state_upload, state_pa, state_dm,
+        def upload_content(n_clicks, values, names, state_upload, state_pa, state_dm,
                            state_meta,
                            state_tree, state_network_params):
             """
@@ -146,13 +141,12 @@ class UploadFormBtnUpload(dbc.Button):
                         dm_store.add_item(pa_file.as_distance_matrix())
 
             # Create the graph
-            graph = DmGraph.from_distance_matricies(dm_store.get_files(), set_progress)
+            graph = DmGraph.from_distance_matricies(dm_store.get_files())
 
             # Load the graph
             graph_nx = graph.read()
             graph_nodes = frozenset(graph_nx.nodes)
             graph_max_degree = max(d for _, d in graph_nx.degree)
-            set_progress(100)
 
             # Create the network parameters
             network_params = NetworkFormStoreData(**state_network_params)

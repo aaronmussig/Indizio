@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Collection
 
 import networkx as nx
 
@@ -66,3 +66,16 @@ def filter_graph(
 def neighborhood(G, node, n):
     path_lengths = nx.single_source_dijkstra_path_length(G, node, n)
     return list(path_lengths.keys())
+
+
+
+def format_axis_label(label: str) -> str:
+    """Format the axis label to be more human readable."""
+    if len(label) > 10:
+        return ''.join([f'{label[:3]}', '...', f'{label[-3:]}'])
+    else:
+        return label
+
+
+def format_axis_labels(labels: Collection[str]) -> Collection[str]:
+    return [format_axis_label(label) for label in labels]

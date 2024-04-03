@@ -20,7 +20,7 @@ class ClustergramParamsTree(dbc.Row):
                     dbc.Label(
                         "Tree",
                         html_for=self.ID,
-                        style={'font-weight': 'bold'}
+                        style={'fontWeight': 'bold'}
                     ),
                     width=3
                 ),

@@ -1,13 +1,14 @@
 import logging
 
+import dash_bootstrap_components as dbc
 from dash import Output, Input, html, callback
 from dash.exceptions import PreventUpdate
 
 from indizio.components.upload_form.file_selector import UploadFormFileSelector
-from indizio.store.upload_form_store import UploadFormStore, UploadFormItem, UploadFormData
+from indizio.store.upload_form_store import UploadFormStore, UploadFormData
 
 
-class UploadFormFileSelectorContainer(html.Div):
+class UploadFormFileSelectorContainer(dbc.Card):
     """
     This component wraps each of the files that are prepared for upload.
     """
@@ -16,9 +17,18 @@ class UploadFormFileSelectorContainer(html.Div):
 
     def __init__(self):
         super().__init__(
-            id=self.ID,
-            children=list(),
-            className='d-flex flex-wrap'
+            children=[
+                dbc.CardHeader(
+                    className='text-center',
+                    children=[
+                        html.B("Uploaded Files")
+                    ]
+                ),
+                dbc.CardBody(
+                    id=self.ID,
+                    children=list()
+                )
+            ],
         )
 
         @callback(

@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 import orjson
 from dash import dcc
@@ -49,6 +49,16 @@ class NetworkParamDegree(BaseModel):
     max_value: float = 1.0
 
 
+class NetworkParamNodeColor(BaseModel):
+    file_id: str
+    column: str
+
+
+class NetworkParamNodeSize(BaseModel):
+    file_id: str
+    column: str
+
+
 class NetworkFormStoreData(BaseModel):
     """
     This class represents the data that is stored in the network form store.
@@ -60,6 +70,8 @@ class NetworkFormStoreData(BaseModel):
     thresh_matching: BooleanAllAny = BooleanAllAny.ALL
     degree: NetworkParamDegree = NetworkParamDegree()
     show_edges_to_self: BooleanShowHide = BooleanShowHide.SHOW
+    node_color: Optional[NetworkParamNodeColor] = None
+    node_size: Optional[NetworkParamNodeSize] = None
 
     def get_focal_node_str(self):
         """Returns the string output of the focal node."""

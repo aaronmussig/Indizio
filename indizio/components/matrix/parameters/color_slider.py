@@ -9,7 +9,7 @@ from dash.exceptions import PreventUpdate
 
 from indizio.config import PERSISTENCE_TYPE, ID_MATRIX_PARAMS_METRIC
 from indizio.store.distance_matrix import DistanceMatrixStore, DistanceMatrixData
-from indizio.store.matrix_parameters import MatrixParameters
+from indizio.store.matrix_parameters import MatrixParameters, MatrixParametersStore
 from indizio.util.cache import freezeargs
 
 
@@ -27,7 +27,7 @@ class MatrixParamsColorSlider(dbc.Row):
             [
                 dbc.Col(
                     "Scale",
-                    style={'font-weight': 'bold'},
+                    style={'fontWeight': 'bold'},
                     width=3
                 ),
 
@@ -122,20 +122,27 @@ class MatrixParamsColorSlider(dbc.Row):
                 marks=Output(self.ID_RANGE, "marks"),
             ),
             inputs=dict(
-                metric=Input(ID_MATRIX_PARAMS_METRIC, "value"),
-                matrix_store=State(DistanceMatrixStore.ID, "data"),
+                mat_param_ts=Input(MatrixParametersStore.ID, "modified_timestamp"),
+                mat_param_store=State(MatrixParametersStore.ID, "data"),
+                dm_store=State(DistanceMatrixStore.ID, "data")
             ),
         )
-        def update_min_max(metric, matrix_store):
+        def update_min_max(mat_param_ts, mat_param_store, dm_store):
             log = logging.getLogger()
             log.debug(f'{self.ID} - Adjusting matrix slider min/max.')
 
-            if not matrix_store:
+            if not mat_param_ts or not mat_param_store:
                 log.debug(f'{self.ID} - Nothing to do.')
                 raise PreventUpdate
 
-            matrix_store = DistanceMatrixData(**matrix_store)
-            matrix = matrix_store.get_file(metric)
+            # Read the stored matrix value
+            param_store = MatrixParameters(**mat_param_store)
+            if param_store.metric is None:
+                raise PreventUpdate
+
+            # Load the file to obtain the minimum / maximum value
+            dm_store = DistanceMatrixData(**dm_store)
+            matrix = dm_store.get_file(param_store.metric)
 
             matrix_min, matrix_max = matrix.min_value, matrix.max_value
             marks = {

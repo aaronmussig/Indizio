@@ -3,6 +3,7 @@ from typing import Collection, Tuple
 import plotly
 from PIL import ImageColor
 from _plotly_utils.basevalidators import ColorscaleValidator
+import plotly.express as px
 
 
 ################################################################################
@@ -72,6 +73,20 @@ def get_continuous_color(colorscale, intermed):
         colortype="rgb",
     )
 
+def numerical_colorscale(values, colorscale):
+
+    # Normalize the values between 0 and 1
+    cur_min = min(values)
+    cur_max = max(values)
+    cur_range = cur_max - cur_min
+    d_val_to_norm = {x: (x - cur_min) / cur_range for x in values}
+
+    d_val_to_hex = {
+        k: rgb_tuple_to_hex(px.colors.sample_colorscale(colorscale, samplepoints=[v], colortype='tuple')[0])
+        for k, v in d_val_to_norm.items()
+    }
+
+    return d_val_to_hex
 
 
 def format_labels(labels: Collection[str]) -> Tuple[str]:
@@ -79,3 +94,6 @@ def format_labels(labels: Collection[str]) -> Tuple[str]:
     for label in labels:
         out.append(label[0:10])
     return tuple(out)
+
+def rgb_tuple_to_hex(rgb: Tuple[int, int, int]) -> str:
+    return '#{:02x}{:02x}{:02x}'.format(int(rgb[0] * 255), int(rgb[1] * 255), int(rgb[2] * 255))

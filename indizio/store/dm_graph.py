@@ -1,7 +1,6 @@
-import pickle
 from collections import defaultdict
 from pathlib import Path
-from typing import List, Optional, Collection, FrozenSet
+from typing import List, Collection, FrozenSet
 
 import networkx as nx
 from dash import dcc
@@ -9,16 +8,14 @@ from diskcache import Cache
 from pydantic import BaseModel
 
 from indizio.cache import CACHE
-from indizio.config import PERSISTENCE_TYPE, ENABLE_CACHE, TMP_DIR
+from indizio.config import PERSISTENCE_TYPE, ENABLE_CACHE
 from indizio.interfaces.boolean import BooleanAllAny, BooleanShowHide
 from indizio.interfaces.bound import Bound
 from indizio.store.distance_matrix import DistanceMatrixFile
 from indizio.store.network_form_store import NetworkFormStoreData
 from indizio.util.dataframe import dataframe_to_pairs
 from indizio.util.files import to_pickle, from_pickle
-from indizio.util.graph import neighborhood
 from indizio.util.hashing import calc_md5
-from indizio.util.types import ProgressFn
 
 
 class DmGraph(BaseModel):
@@ -30,7 +27,6 @@ class DmGraph(BaseModel):
     def from_distance_matricies(
             cls,
             matrices: Collection[DistanceMatrixFile],
-            set_progress: Optional[ProgressFn] = None
     ):
         """
         Create a graph from a collection of distance matrices.
@@ -84,11 +80,6 @@ class DmGraph(BaseModel):
             param_cache_key = params.get_cache_key()
             combined_cache_key = calc_md5(self.hash.encode() + param_cache_key)
             cache_key = f'cyto-graph-{combined_cache_key}'
-            # cache_path = TMP_DIR / cache_key
-
-            # if cache_path.is_file():
-            #     with cache_path.open('rb') as f:
-            #         return pickle.load(f)
 
             # Check if the graph is already cached
             with Cache(CACHE.directory) as cache:

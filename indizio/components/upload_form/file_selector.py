@@ -1,13 +1,12 @@
 from typing import Optional
 
 import dash_bootstrap_components as dbc
-from dash import html
 
 from indizio.components.upload_form.close_btn import UploadFormCloseButton
 from indizio.interfaces.file_type import UserFileType
 
 
-class UploadFormFileSelector(dbc.Card):
+class UploadFormFileSelector(dbc.Row):
     """
     This is the card that is used to display each file that the user has
     uploaded. A drop-down menu option allows the user to select the
@@ -28,54 +27,46 @@ class UploadFormFileSelector(dbc.Card):
         self.FILE_HASH = file_hash
 
         super().__init__(
-            className="d-flex m-1",
+            className="m-1 p-2",
             style={
-                'minWidth': '250px',
+                'backgroundColor': "#f0f0f0",
+                'borderRadius': '5px',
             },
             children=
             [
-                dbc.CardHeader(
-                    className="text-center",
-                    children=[
-                        html.Div(
-                            className='d-flex',
-                            style={'paddingLeft': '10px'},
-                            children=[
-                                html.H5(file_name),
-                                html.Div(
-                                    UploadFormCloseButton(file_hash),
-                                    style={'marginLeft': 'auto', 'marginRight': '0px', 'paddingLeft': '10px'},
-                                )
-                            ]
-                        )
-                    ]
-                ),
-                dbc.CardBody(
-                    [
-                        dbc.InputGroup(
-                            [
-                                dbc.InputGroupText("Name", style={"minWidth": "80px"}),
-                                dbc.Input(
-                                    id={
-                                        'type': self.ID_NAME,
-                                        'hash': file_hash,
-                                    },
-                                    value=file_name,
-                                ),
-                            ]
-                        ),
-                        dbc.InputGroup([
-                            dbc.InputGroupText("Type", style={"minWidth": "80px"}),
-                            dbc.Select(
+                dbc.Col(
+                    dbc.InputGroup(
+                        [
+                            dbc.InputGroupText("Name", style={"minWidth": "80px"}),
+                            dbc.Input(
                                 id={
-                                    'type': self.ID_TYPE,
+                                    'type': self.ID_NAME,
                                     'hash': file_hash,
                                 },
-                                options=UserFileType.to_options(),
-                                value=file_type,
+                                value=file_name,
                             ),
-                        ], className="mt-2"),
-                    ]
+                        ]
+                    ),
+                    width=6,
+                ),
+                dbc.Col(
+                    dbc.InputGroup([
+                        dbc.InputGroupText("Type", style={"minWidth": "80px"}),
+                        dbc.Select(
+                            id={
+                                'type': self.ID_TYPE,
+                                'hash': file_hash,
+                            },
+                            options=UserFileType.to_options(),
+                            value=file_type,
+                        ),
+                    ]),
+                    width=5,
+                ),
+                dbc.Col(
+                    UploadFormCloseButton(file_hash),
+                    width=1,
+                    className='justify-content-center align-items-center',
                 ),
             ]
         )

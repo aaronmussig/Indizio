@@ -19,7 +19,7 @@ class ClustergramParamsMetadata(dbc.Row):
                     dbc.Label(
                         "Metadata",
                         html_for=self.ID,
-                        style={'font-weight': 'bold'}
+                        style={'fontWeight': 'bold'}
                     ),
                     width=3
                 ),

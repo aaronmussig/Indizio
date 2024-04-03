@@ -14,6 +14,7 @@ from indizio.store.dm_graph import DistanceMatrixGraphStore
 from indizio.store.matrix_parameters import MatrixParametersStore
 from indizio.store.metadata_file import MetadataFileStore
 from indizio.store.network_form_store import NetworkFormStore
+from indizio.store.network_interaction import NetworkInteractionStore
 from indizio.store.presence_absence import PresenceAbsenceStore
 from indizio.store.tree_file import TreeFileStore
 from indizio.store.upload_form_store import UploadFormStore
@@ -57,6 +58,7 @@ def main():
                 DistanceMatrixGraphStore(),
                 MatrixParametersStore(),  # todo, add clear?
                 ClustergramParametersStore(),
+                NetworkInteractionStore(),
 
                 NavBar(),
                 dcc.Location(id=RELOAD_ID, refresh=True),

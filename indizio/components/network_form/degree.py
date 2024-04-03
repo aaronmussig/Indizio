@@ -18,12 +18,13 @@ class NetworkFormDegree(dbc.Card):
             className='p-0',
             children=[
                 dbc.CardHeader([
-                    html.H5("Degree (depth of neighborhood)"),
+                    html.B("Degree (depth of neighborhood)"),
                 ],
                     className='d-flex'
                 ),
                 dbc.CardBody(
-                    dbc.Table([
+                    dbc.Table(
+                        children=[
                         html.Thead(html.Tr([
                             html.Th("Minimum"),
                             html.Th("Maximum"),

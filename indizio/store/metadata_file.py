@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Optional, Dict, List
+from typing import Optional, Dict, List, Tuple
 
 import pandas as pd
 from dash import dcc
@@ -45,7 +45,7 @@ class MetadataData(BaseModel):
     def add_item(self, item: MetadataFile):
         self.data[item.file_id] = item
 
-    def get_files(self):
+    def get_files(self) -> Tuple[MetadataFile]:
         return tuple(self.data.values())
 
     def get_file(self, file_id: str) -> MetadataFile:
@@ -55,7 +55,7 @@ class MetadataData(BaseModel):
         """Returns the keys of the data as a dictionary of HTML options"""
         out = list()
         for file in self.get_files():
-            out.append({'label': file.file_id, 'value': file.file_id })
+            out.append({'label': file.file_id, 'value': file.file_id})
         return out
 
 

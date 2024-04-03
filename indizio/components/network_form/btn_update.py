@@ -4,17 +4,17 @@ import dash_bootstrap_components as dbc
 from dash import Output, Input, callback, State, ALL, ctx
 from dash.exceptions import PreventUpdate
 
-
 from indizio.components.network_form.layout import NetworkFormLayout
 from indizio.components.network_form.node_of_interest import NetworkFormNodeOfInterest
 from indizio.components.network_form.thresh_filter_item import NetworkThreshFilterItem
 from indizio.components.network_form.thresh_matching import NetworkThreshMatching
 from indizio.config import ID_NETWORK_FORM_DEGREE_LOWER_VALUE, ID_NETWORK_FORM_DEGREE_UPPER_VALUE, \
-    ID_NETWORK_FORM_EDGES_TO_SELF
+    ID_NETWORK_FORM_EDGES_TO_SELF, ID_NETWORK_FORM_NODE_METADATA_COLOR_FILE, ID_NETWORK_FORM_NODE_METADATA_COLOR_COLUMN, \
+    ID_NETWORK_FORM_NODE_METADATA_SIZE_FILE, ID_NETWORK_FORM_NODE_METADATA_SIZE_COLUMN
 from indizio.interfaces.boolean import BooleanAllAny, BooleanShowHide
 from indizio.interfaces.bound import Bound
 from indizio.store.network_form_store import NetworkFormStore, NetworkFormStoreData, NetworkFormLayoutOption, \
-    NetworkParamThreshold, NetworkParamDegree
+    NetworkParamThreshold, NetworkParamDegree, NetworkParamNodeColor, NetworkParamNodeSize
 
 
 class NetworkFormBtnUpdate(dbc.Button):
@@ -51,6 +51,10 @@ class NetworkFormBtnUpdate(dbc.Button):
                 degree_lower_value=State(ID_NETWORK_FORM_DEGREE_LOWER_VALUE, 'value'),
                 degree_upper_value=State(ID_NETWORK_FORM_DEGREE_UPPER_VALUE, 'value'),
                 edges_to_self=State(ID_NETWORK_FORM_EDGES_TO_SELF, 'value'),
+                node_color_file=State(ID_NETWORK_FORM_NODE_METADATA_COLOR_FILE, 'value'),
+                node_color_column=State(ID_NETWORK_FORM_NODE_METADATA_COLOR_COLUMN, 'value'),
+                node_size_file=State(ID_NETWORK_FORM_NODE_METADATA_SIZE_FILE, 'value'),
+                node_size_column=State(ID_NETWORK_FORM_NODE_METADATA_SIZE_COLUMN, 'value'),
             ),
         )
         def on_submit(
@@ -65,7 +69,11 @@ class NetworkFormBtnUpdate(dbc.Button):
                 corr_matching,
                 degree_lower_value,
                 degree_upper_value,
-                edges_to_self
+                edges_to_self,
+                node_color_file,
+                node_color_column,
+                node_size_file,
+                node_size_column
         ):
             log = logging.getLogger()
             log.debug(f'{self.ID} - Updating network parameters.')
@@ -82,6 +90,12 @@ class NetworkFormBtnUpdate(dbc.Button):
                 max_value=max(degree_lower_value or 0.0, degree_upper_value or 1.0),
             )
             network_form_state.show_edges_to_self = BooleanShowHide(edges_to_self)
+
+            # Create the Node metadata options (if they're set)
+            if node_color_file and node_color_column:
+                network_form_state.node_color = NetworkParamNodeColor(file_id=node_color_file, column=node_color_column)
+            if node_size_file and node_size_column:
+                network_form_state.node_size = NetworkParamNodeSize(file_id=node_size_file, column=node_size_column)
 
             # Extract the thresholds from the dynamically generated data
             d_lower_bound = dict()

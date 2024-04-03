@@ -5,11 +5,13 @@ from dash import Output, Input, callback
 from dash.exceptions import PreventUpdate
 
 from indizio.config import RELOAD_ID
+from indizio.store.clustergram_parameters import ClustergramParametersStore
 from indizio.store.distance_matrix import DistanceMatrixStore
 from indizio.store.dm_graph import DistanceMatrixGraphStore
 from indizio.store.matrix_parameters import MatrixParametersStore
 from indizio.store.metadata_file import MetadataFileStore
 from indizio.store.network_form_store import NetworkFormStore
+from indizio.store.network_interaction import NetworkInteractionStore
 from indizio.store.presence_absence import PresenceAbsenceStore
 from indizio.store.tree_file import TreeFileStore
 from indizio.store.upload_form_store import UploadFormStore
@@ -24,24 +26,29 @@ class UploadFormBtnClear(dbc.Button):
 
     def __init__(self):
         super().__init__(
+            style={
+                'width': '150px',
+            },
+            className='me-2',
             children=[
                 "Reset",
-
             ],
             id=self.ID,
-            color="warning"
+            color="danger"
         )
 
         @callback(
             output=dict(
-                network_store=Output(NetworkFormStore.ID, "clear_data"),
-                upload_store=Output(UploadFormStore.ID, "clear_data"),
-                presence_absence_store=Output(PresenceAbsenceStore.ID, "clear_data"),
+                clustergram_parameters=Output(ClustergramParametersStore.ID, "clear_data"),
                 distance_matrix_store=Output(DistanceMatrixStore.ID, "clear_data"),
-                metadata_store=Output(MetadataFileStore.ID, "clear_data"),
-                tree_store=Output(TreeFileStore.ID, "clear_data"),
                 dm_graph_store=Output(DistanceMatrixGraphStore.ID, "clear_data"),
                 matrix_graph_store=Output(MatrixParametersStore.ID, "clear_data"),
+                metadata_store=Output(MetadataFileStore.ID, "clear_data"),
+                network_store=Output(NetworkFormStore.ID, "clear_data"),
+                network_interaction=Output(NetworkInteractionStore.ID, "clear_data"),
+                presence_absence_store=Output(PresenceAbsenceStore.ID, "clear_data"),
+                tree_store=Output(TreeFileStore.ID, "clear_data"),
+                upload_store=Output(UploadFormStore.ID, "clear_data"),
                 reload=Output(RELOAD_ID, "href", allow_duplicate=True),
             ),
             inputs=dict(
@@ -61,13 +68,15 @@ class UploadFormBtnClear(dbc.Button):
                 raise PreventUpdate
             log.debug(f'{self.ID} - Resetting program to default state.')
             return dict(
-                network_store=True,
-                upload_store=True,
-                presence_absence_store=True,
+                clustergram_parameters=True,
                 distance_matrix_store=True,
-                metadata_store=True,
-                tree_store=True,
                 dm_graph_store=True,
                 matrix_graph_store=True,
+                metadata_store=True,
+                network_store=True,
+                network_interaction=True,
+                presence_absence_store=True,
+                tree_store=True,
+                upload_store=True,
                 reload="/"
             )

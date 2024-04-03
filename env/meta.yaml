@@ -1,5 +1,5 @@
 {% set name = "indizio-dev" %}
-{% set version = "0.0.2" %}
+{% set version = "0.0.5" %}
 
 package:
   name: {{ name|lower }}
@@ -25,21 +25,23 @@ requirements:
     - dash >=2.14.0
     - dash-bootstrap-components >=1.5.0
     - dash_cytoscape >=0.2.0
-    - diskcache>=5.2.1
-    - multiprocess>=0.70.12
-    - psutil>=5.8.0
-    - dash-bio >=1.0.2
+    - diskcache >=5.2.1
+    - multiprocess >=0.70.12
+    - psutil >=5.8.0
+    - dash-bio
     - pydantic >=2.5.0
-    - networkx >=3.2.0
-    - orjson >=3.9.0
-    - dendropy >=4.6.0
-    - frozendict >=2.3.0
-    - pillow >=10.1.0
-    - pandas >=2.1.0
-    - numpy >=1.26.0
-    - tqdm >=4.66.0
-    - scipy >=1.11.0
+    - networkx
+    - orjson
+    - dendropy
+    - frozendict
+    - pillow
+    - pandas
+    - numpy
+    - tqdm
+    - scipy <1.12.0
     - phylodm >=3.0.0
+
+# Needs scipy <1.12.0 as plotly dendrogram doesn't support higher versions
 
 #test:
 #  imports:

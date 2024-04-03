@@ -10,22 +10,6 @@ COPY . ./indizio
 
 WORKDIR /indizio
 
-RUN python -m pip install \
-    dash \
-    dash_bootstrap_components \
-    dash_cytoscape \
-    diskcache \
-    "dash[diskcache]" \
-    dash_bio \
-    pydantic \
-    networkx \
-    orjson \
-    dendropy \
-    frozendict \
-    pillow \
-    pandas \
-    numpy \
-    tqdm
+RUN python -m pip install .
 
-EXPOSE 8050
 ENTRYPOINT [ "python", "-m", "indizio" ]

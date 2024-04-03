@@ -19,7 +19,7 @@ class MatrixParamsMetric(dbc.Row):
                     dbc.Label(
                         "Metric",
                         html_for=self.ID,
-                        style={'font-weight': 'bold'}
+                        style={'fontWeight': 'bold'}
                     ),
                     width=3
                 ),

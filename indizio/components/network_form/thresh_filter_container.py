@@ -19,7 +19,7 @@ class NetworkThreshFilterContainer(dbc.Card):
             className='p-0',
             children=[
                 dbc.CardHeader([
-                    html.H5("Thresholds"),
+                    html.B("Thresholds"),
                     html.Div([
                         NetworkThreshMatching()
                     ],

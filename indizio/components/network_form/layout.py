@@ -17,24 +17,17 @@ class NetworkFormLayout(html.Div):
     def __init__(self):
         super().__init__(
             [
-                # dbc.Label("Change network layout", html_for=self.ID),
-                # dcc.Dropdown(
-                #     id=self.ID,
-                #     options=NetworkFormLayoutOption.to_options(),
-                #     persistence=True,
-                #     persistence_type=PERSISTENCE_TYPE,
-                #     value=NetworkFormStoreData().layout.value,
-                # ),
-                dbc.InputGroup([
-                    dbc.InputGroupText(html.H5("Network layout")),
-                    dbc.Select(
-                        id=self.ID,
-                        options=NetworkFormLayoutOption.to_options(),
-                        persistence=True,
-                        persistence_type=PERSISTENCE_TYPE,
-                        value=NetworkFormStoreData().layout.value,
-                    )
-                ])
+                dbc.InputGroup(
+                    children=[
+                        dbc.InputGroupText(html.B("Network layout")),
+                        dbc.Select(
+                            id=self.ID,
+                            options=NetworkFormLayoutOption.to_options(),
+                            persistence=True,
+                            persistence_type=PERSISTENCE_TYPE,
+                            value=NetworkFormStoreData().layout.value,
+                        )
+                    ])
             ]
         )
 

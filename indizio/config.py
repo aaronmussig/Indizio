@@ -30,4 +30,9 @@ ID_NETWORK_FORM_EDGES_TO_SELF = f'{ID_NETWORK_FORM_DEGREE}-show-edges-to-self'
 
 ID_NETWORK_VIZ_NODE_EDGE_COUNT = 'network-viz-node-edge-count'
 
+ID_NETWORK_FORM_NODE_METADATA_COLOR_FILE = 'network-form-node-metadata-color-file'
+ID_NETWORK_FORM_NODE_METADATA_COLOR_COLUMN = 'network-form-node-metadata-color-column'
+ID_NETWORK_FORM_NODE_METADATA_SIZE_FILE = 'network-form-node-metadata-size-file'
+ID_NETWORK_FORM_NODE_METADATA_SIZE_COLUMN = 'network-form-node-metadata-size-column'
+
 ENABLE_CACHE = True

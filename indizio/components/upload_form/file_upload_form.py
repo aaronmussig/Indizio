@@ -5,9 +5,8 @@ from dash import Output, Input, html, callback, State
 from dash import dcc
 from dash.exceptions import PreventUpdate
 
-from indizio.config import TMP_DIR
+from indizio.components.upload_form import UploadFormFileSelector
 from indizio.store.upload_form_store import UploadFormStore, UploadFormItem, UploadFormData
-from indizio.util.cache import get_tmp_dir
 from indizio.util.files import to_file
 from indizio.util.hashing import calc_md5
 
@@ -18,30 +17,47 @@ class UploadFormFileUploadForm(html.Div):
     """
 
     ID = "upload-form-file-upload-form"
-    ID_FEEDBACK = "upload-form-feedback"
+    ID_PENDING = f'{ID}-pending-files'
 
     def __init__(self):
         super().__init__(
-            [
-                dcc.Upload(
-                    id=self.ID,
-                    children=html.Div([
-                        'Drag and Drop or ',
-                        html.A('Select Files')
-                    ]),
+            className='p-3',
+            style={
+                'width': '100%',
+                'marginLeft': 'auto',
+                'marginRight': 'auto',
+                'minHeight': '60px',
+            },
+            children=[
+                html.Div(
                     style={
-                        'width': '100%',
-                        'height': '60px',
-                        'lineHeight': '60px',
                         'borderWidth': '1px',
                         'borderStyle': 'dashed',
                         'borderRadius': '5px',
-                        'textAlign': 'center',
-                        'margin': '10px'
                     },
-                    multiple=True
+                    children=[
+                        dcc.Upload(
+                            id=self.ID,
+                            children=html.Div([
+                                'Drag and drop or ',
+                                html.B(html.A('select files'))
+                            ]),
+                            style={
+                                'width': '100%',
+                                'height': '60px',
+                                'lineHeight': '60px',
+                                'textAlign': 'center',
+                            },
+                            multiple=True
+                        ),
+                        html.Div(
+                            id=self.ID_PENDING,
+                            children=[
+
+                            ]
+                        )
+                    ],
                 ),
-                html.Div(id=self.ID_FEEDBACK),
             ]
 
         )
@@ -89,4 +105,37 @@ class UploadFormFileUploadForm(html.Div):
 
             return dict(
                 data=output.model_dump(mode='json')
+            )
+
+        @callback(
+            output=dict(
+                children=Output(self.ID_PENDING, 'children'),
+            ),
+            inputs=dict(
+                ts=Input(UploadFormStore.ID, "modified_timestamp"),
+                state=Input(UploadFormStore.ID, "data"),
+            ),
+        )
+        def refresh_uploaded(ts, state):
+            # Output debugging information
+            log = logging.getLogger()
+
+            # Check if an update should happen
+            if ts is None or state is None:
+                log.debug(f'{self.ID} - No action to take.')
+                raise PreventUpdate
+
+            log.debug(f'{self.ID} - Refreshing uploaded files.')
+            upload_form_data = UploadFormData(**state)
+            children = list()
+            for file_obj in upload_form_data.data.values():
+                children.append(
+                    UploadFormFileSelector(
+                        file_name=file_obj.file_name,
+                        file_hash=file_obj.hash
+                    )
+                )
+
+            return dict(
+                children=children
             )

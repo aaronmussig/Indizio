@@ -25,7 +25,10 @@ class UploadFormCloseButton(dbc.Button):
                 'type': self.ID,
                 'hash': file_hash,
             },
-            className='fas fa-close px-2 py-1',
+            className='fas fa-close px-2 py-1 mt-1',
+            style={
+                'marginLeft': '10px'
+            }
         )
 
 

@@ -22,6 +22,34 @@ class MatrixParamsUpdateButton(dbc.Button):
 
         @callback(
             output=dict(
+                disabled=Output(self.ID, "disabled"),
+            ),
+            inputs=dict(
+                bin_option=Input(MatrixParamsBinningOption.ID, 'value'),
+                color_scale=Input(MatrixParamsColorScale.ID, 'value'),
+                slider=Input(MatrixParamsColorSlider.ID_RANGE, 'value'),
+                metric=Input(MatrixParamsMetric.ID, "value"),
+            ),
+        )
+        def toggle_disabled(metric, color_scale, bin_option, slider):
+            log = logging.getLogger()
+            log.debug(f'{self.ID} - Toggling update heatmap button.')
+
+            disabled = False
+            if metric is None:
+                disabled = True
+            if color_scale is None:
+                disabled = True
+            if bin_option is None:
+                disabled = True
+            if slider is None:
+                disabled = True
+            return dict(
+               disabled=disabled
+            )
+
+        @callback(
+            output=dict(
                 params=Output(MatrixParametersStore.ID, "data"),
             ),
             inputs=dict(
@@ -30,7 +58,8 @@ class MatrixParamsUpdateButton(dbc.Button):
                 color_scale=Input(MatrixParamsColorScale.ID, 'value'),
                 bin_option=Input(MatrixParamsBinningOption.ID, 'value'),
                 slider=Input(MatrixParamsColorSlider.ID_RANGE, 'value'),
-            )
+            ),
+            prevent_initial_call=True
         )
         def update_options_on_file_upload(n_clicks, metric, color_scale, bin_option, slider):
             log = logging.getLogger()
