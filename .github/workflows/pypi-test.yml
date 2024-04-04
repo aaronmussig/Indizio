@@ -25,5 +25,5 @@ jobs:
 
       - name: Publish package
         run: |
-          poetry config pypi-token.testpypi ${{ secrets.PYPI_TOKEN_TEST }}
-          poetry publish --build -r testpypi
+          poetry config pypi-token.test-pypi ${{ secrets.PYPI_TOKEN_TEST }}
+          poetry publish --build -r test-pypi
