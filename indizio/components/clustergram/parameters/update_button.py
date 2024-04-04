@@ -64,18 +64,15 @@ class ClustergramParamsUpdateButton(dbc.Button):
             inputs=dict(
                 metric=Input(ClustergramParamsMetric.ID, "value"),
                 tree=Input(ClustergramParamsTree.ID, 'value'),
-                metadata=Input(ClustergramParamsMetadata.ID, 'value'),
                 cluster_on=Input(ClustergramParamsClusterOn.ID, 'value'),
                 optimal_leaf_ordering=Input(ClustergramParamsOptimalLeafOrder.ID, 'value'),
             )
         )
-        def toggle_disabled(metric, tree, metadata, cluster_on, optimal_leaf_ordering):
+        def toggle_disabled(metric, tree, cluster_on, optimal_leaf_ordering):
             disabled = False
             if metric is None:
                 disabled = True
             if tree is None:
-                disabled = True
-            if metadata is None:
                 disabled = True
             if cluster_on is None:
                 disabled = True

@@ -32,6 +32,10 @@ def log(msg, level: LogLevel = LogLevel.INFO):
     rich.print(f'[bold][{ts}][/bold] [bold {color}]{level.value.upper()}[/bold {color}] - {msg}')
 
 
+def log_debug(msg):
+    log(msg, level=LogLevel.DEBUG)
+
+
 def hide_logs(name: str):
     logger = logging.getLogger(name)
     logger.setLevel(logging.WARNING)

@@ -84,7 +84,7 @@ def get_delimiter(file_path: Path, n_lines=5):
     """
     sniffer = csv.Sniffer()
     lines = list()
-    with file_path.open() as f:
+    with file_path.open(encoding="ISO-8859-1") as f:
         for _ in range(n_lines):
             lines.append(f.readline())
     sample = '\n'.join(lines)

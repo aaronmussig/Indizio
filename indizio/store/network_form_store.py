@@ -67,9 +67,9 @@ class NetworkFormStoreData(BaseModel):
     layout: NetworkFormLayoutOption = NetworkFormLayoutOption.circle
     node_of_interest: List[str] = list()
     thresholds: Dict[str, NetworkParamThreshold] = dict()
-    thresh_matching: BooleanAllAny = BooleanAllAny.ALL
+    thresh_matching: BooleanAllAny = BooleanAllAny.ANY
     degree: NetworkParamDegree = NetworkParamDegree()
-    show_edges_to_self: BooleanShowHide = BooleanShowHide.SHOW
+    show_edges_to_self: BooleanShowHide = BooleanShowHide.HIDE
     node_color: Optional[NetworkParamNodeColor] = None
     node_size: Optional[NetworkParamNodeSize] = None
 

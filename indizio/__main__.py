@@ -80,6 +80,10 @@ def main(
             # Create the default layout
             dash_app.layout = dbc.Container(
                 className="container-main",
+                style={
+                  "paddingLeft": 0,
+                  "paddingRight": 0
+                },
                 fluid=True,
                 children=
                 [
@@ -112,11 +116,14 @@ def main(
         dash_app.run(debug=debug, host=host, port=port)
 
     finally:
-        log('Cleaning up temporary files.', level=LogLevel.DEBUG)
-        try:
-            shutil.rmtree(TMP_DIR.as_posix())
-        except Exception as e:
-            log(f'Unable to remove temporary files: {e}', level=LogLevel.ERROR)
+        if debug:
+            log(f'Temporary files are not removed in debug mode: {TMP_DIR.as_posix()}')
+        else:
+            log('Cleaning up temporary files.', level=LogLevel.DEBUG)
+            try:
+                shutil.rmtree(TMP_DIR.as_posix())
+            except Exception as e:
+                log(f'Unable to remove temporary files: {e}', level=LogLevel.ERROR)
 
 
 if __name__ == "__main__":

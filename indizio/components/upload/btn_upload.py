@@ -63,7 +63,7 @@ class UploadFormBtnUpload(dbc.Button):
                 (Output(self.ID, "disabled"), True, False),
             ],
             prevent_initial_call=True,
-            background=False,
+            background=True,
         )
         def upload_content(n_clicks, values, names, state_upload, state_pa, state_dm,
                            state_meta,
@@ -155,7 +155,7 @@ class UploadFormBtnUpload(dbc.Button):
                 else:
                     network_thresholds[cur_dm.file_id] = NetworkParamThreshold(
                         file_id=cur_dm.file_id,
-                        left_value=cur_dm.min_value if len(graph_nodes) < 100 else round(cur_dm.max_value * 0.8, 2),
+                        left_value=cur_dm.min_value if len(graph_nodes) < 100 else round(cur_dm.max_value * 0.9, 2),
                         right_value=cur_dm.max_value,
                     )
             network_params.thresholds = network_thresholds

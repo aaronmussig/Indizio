@@ -6,11 +6,13 @@ import plotly.graph_objects as go
 from dash import Output, Input, callback, State, dcc
 from dash.exceptions import PreventUpdate
 
+from indizio.interfaces.logging import LogLevel
 from indizio.store.distance_matrix import DistanceMatrixStore, DistanceMatrixData
 from indizio.store.matrix_parameters import MatrixParametersStore, MatrixParameters, MatrixBinOption
 from indizio.util.cache import freezeargs
 from indizio.util.graph import format_axis_labels
 from indizio.util.plot import get_color
+from indizio.util.log import log_debug
 
 
 class MatrixPlot(dcc.Loading):
@@ -50,11 +52,10 @@ class MatrixPlot(dcc.Loading):
         @freezeargs
         @lru_cache
         def update_options_on_file_upload(ts_params, ts_dm, state_params, state_dm):
-            log = logging.getLogger()
-            log.debug(f'{self.ID} - Updating matrix heatmap figure.')
+            log_debug(f'{self.ID} - Updating matrix heatmap figure.')
 
             if ts_dm is None or not state_dm:
-                log.debug(f'{self.ID} - No data to update from.')
+                log_debug(f'{self.ID} - No data to update from.')
                 raise PreventUpdate
 
             # De-serialize the distance matrix store

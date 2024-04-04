@@ -29,6 +29,9 @@ class NetworkFormParameters(html.Div):
                 dbc.Offcanvas(
                     id=self.ID_CANVAS,
                     className="network-properties-container",
+                    style={
+                        "minWidth": "800px"
+                    },
                     scrollable=True,
                     title="Network Parameters",
                     is_open=False,

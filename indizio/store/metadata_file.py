@@ -27,7 +27,7 @@ class MetadataFile(BaseModel):
         Create a metadata file from the upload data.
         """
         delimiter = get_delimiter(data.path)
-        df = pd.read_table(data.path, sep=delimiter, index_col=0)
+        df = pd.read_table(data.path, sep=delimiter, index_col=0, encoding='latin-1')
         path, md5 = to_pickle_df(df)
         return cls(
             file_name=data.file_name,
