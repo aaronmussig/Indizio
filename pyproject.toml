@@ -1,13 +1,13 @@
+[build-system]
+requires = [
+    "setuptools >= 61.0",
+    "wheel"
+]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "indizio"
 version = "0.2.0"
-description = ""
-authors = [
-    { name = "Aaron Mussig", email = "aaronmussig@gmail.com" }
-]
-readme = "README.md"
-requires-python = ">= 3.9"
-license = "MIT"
 dependencies = [
     "dash[diskcache] ~= 2.16.1",
     "dash-bootstrap-components ~= 1.5.0",
@@ -27,17 +27,37 @@ dependencies = [
     "phylodm ~= 3.0.0",
     "typer[all] ~= 0.12.0"
 ]
+requires-python = ">= 3.9"
+authors = [
+    { name = "Robert Beiko" },
+    { name = "Ryan Fink" },
+    { name = "Alex Manuele" },
+    { name = "Aaron Mussig", email = "aaronmussig@gmail.com" }
+]
+description = "Visualization dashboard for presence/absence data, distance matrices, and phylogenetic trees."
+readme = "README.md"
+license = "MIT License"
+keywords = ["visualization", "dashboard", "presence-absence", "distance-matrices", "bioinformatics"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Programming Language :: Python",
+    "Framework :: Dash",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+    "Environment :: Web Environment"
+]
+
+[project.urls]
+Homepage = "https://github.com/beiko-lab/Indizio"
+Documentation = "https://github.com/beiko-lab/Indizio"
+Repository = "https://github.com/beiko-lab/Indizio.git"
+"Bug Tracker" = "https://github.com/beiko-lab/Indizio/issues"
 
 [project.scripts]
 indizio = "indizio.__main__:app"
-
-
-[build-system]
-requires = [
-    "setuptools >= 61.0",
-    "wheel"
-]
-build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
 include-package-data = true
