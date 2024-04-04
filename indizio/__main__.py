@@ -26,6 +26,7 @@ from indizio.store.tree_file import TreeFileStore
 from indizio.store.upload_form_store import UploadFormStore
 from indizio.util.log import hide_logs
 from indizio.util.log import log
+from rich.progress import Progress, SpinnerColumn, TextColumn
 
 # Load extra layouts
 cyto.load_extra_layouts()
@@ -56,49 +57,56 @@ def main(
     TMP_DIR.mkdir(exist_ok=True)
 
     try:
-        log(f'Indizio [blue]v{__version__}[/blue]')
+        log(f'Indizio [bold blue]v{__version__}[/bold blue]')
         log(f'Writing temporary files to: {TMP_DIR.as_posix()}', level=LogLevel.DEBUG)
 
-        # Create the Dash application
-        dash_app = dash.Dash(
-            __name__,
-            use_pages=True,
-            suppress_callback_exceptions=True,
-            external_stylesheets=[dbc.themes.JOURNAL, dbc.icons.FONT_AWESOME],
-            background_callback_manager=CACHE_MANAGER,
-        )
-        hide_logs('dash.dash')
+        with Progress(
+                SpinnerColumn(),
+                TextColumn("[progress.description]{task.description}"),
+                transient=True,
+        ) as progress:
+            progress.add_task(description="Starting server...", total=None)
 
-        # Create the default layout
-        dash_app.layout = dbc.Container(
-            className="container-main",
-            fluid=True,
-            children=
-            [
-                # Future Stores will need to be declared here
-                NetworkFormStore(),
-                UploadFormStore(),
-                PresenceAbsenceStore(),
-                DistanceMatrixStore(),
-                MetadataFileStore(),
-                TreeFileStore(),
-                DistanceMatrixGraphStore(),
-                MatrixParametersStore(),
-                ClustergramParametersStore(),
-                NetworkInteractionStore(),
+            # Create the Dash application
+            dash_app = dash.Dash(
+                __name__,
+                use_pages=True,
+                suppress_callback_exceptions=True,
+                external_stylesheets=[dbc.themes.JOURNAL, dbc.icons.FONT_AWESOME],
+                background_callback_manager=CACHE_MANAGER,
+            )
+            hide_logs('dash.dash')
 
-                # Add the default page content
-                NavBar(),
-                dcc.Location(id=RELOAD_ID, refresh=True),
-                dbc.Container(
-                    fluid=True,
-                    children=
-                    [
-                        dash.page_container,
-                    ]
-                )
-            ]
-        )
+            # Create the default layout
+            dash_app.layout = dbc.Container(
+                className="container-main",
+                fluid=True,
+                children=
+                [
+                    # Future Stores will need to be declared here
+                    NetworkFormStore(),
+                    UploadFormStore(),
+                    PresenceAbsenceStore(),
+                    DistanceMatrixStore(),
+                    MetadataFileStore(),
+                    TreeFileStore(),
+                    DistanceMatrixGraphStore(),
+                    MatrixParametersStore(),
+                    ClustergramParametersStore(),
+                    NetworkInteractionStore(),
+
+                    # Add the default page content
+                    NavBar(),
+                    dcc.Location(id=RELOAD_ID, refresh=True),
+                    dbc.Container(
+                        fluid=True,
+                        children=
+                        [
+                            dash.page_container,
+                        ]
+                    )
+                ]
+            )
 
         log(f'To access Indizio, visit [link]http://{host}:{port}[/link]')
         dash_app.run(debug=debug, host=host, port=port)
