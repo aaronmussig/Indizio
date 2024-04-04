@@ -5,7 +5,6 @@ import networkx as nx
 from dash import Output, Input, callback, html, dcc, State
 from dash.exceptions import PreventUpdate
 
-from indizio.cache import CACHE_MANAGER
 from indizio.store.dm_graph import DistanceMatrixGraphStore, DmGraph
 from indizio.store.network_form_store import NetworkFormStore, NetworkFormStoreData
 

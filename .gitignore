@@ -2,3 +2,4 @@ data/
 *.ipynb
 deprecated/
 .idea/
+dist/*

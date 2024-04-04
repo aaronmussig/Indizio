@@ -1,0 +1,28 @@
+name: Version, build, publish
+
+on:
+  pull_request:
+    branches:
+      - master
+jobs:
+
+  build:
+    name: Python build *.tar.gz
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: 3.12
+
+      - name: Install Poetry
+        run: pipx install poetry==1.8.2
+
+      - name: Check package
+        run: poetry check
+
+      - name: Publish package
+        run: poetry config pypi-token.testpypi ${{ secrets.PYPI_TOKEN_TEST }}
+        run: poetry publish --build -r testpypi
