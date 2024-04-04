@@ -1,12 +1,10 @@
 import dash_bootstrap_components as dbc
-
 from dash import Output, Input, callback
 
 from indizio.store.distance_matrix import DistanceMatrixStore
 
 
 class NavBar(dbc.NavbarSimple):
-
     ID = 'navbar-container'
     ID_MATRIX = f'{ID}-matrix'
     ID_VIZ = f'{ID}-viz'
@@ -54,4 +52,3 @@ class NavBar(dbc.NavbarSimple):
                 viz=disabled,
                 stats=disabled
             )
-

@@ -1,32 +1,48 @@
-[tool.poetry]
+[project]
 name = "indizio"
-version = "0.1.0"
+version = "0.2.0"
 description = ""
-authors = ["Aaron Mussig <aaronmussig@gmail.com>"]
+authors = [
+    { name = "Aaron Mussig", email = "aaronmussig@gmail.com" }
+]
 readme = "README.md"
+requires-python = ">= 3.9"
+dependencies = [
+    "dash[diskcache] ~= 2.16.1",
+    "dash-bootstrap-components ~= 1.5.0",
+    "dash-cytoscape ~= 1.0.0",
+    "diskcache ~= 5.6.3",
+    "dash-bio ~= 1.0.2",
+    "pydantic ~= 2.6.4",
+    "networkx ~= 3.2.1",
+    "orjson ~= 3.10.0",
+    "dendropy ~= 4.6.1",
+    "frozendict ~= 2.4.1",
+    "pillow ~= 10.3.0",
+    "pandas ~= 2.2.1",
+    "numpy ~= 1.26.4",
+    "tqdm ~= 4.66.2",
+    "scipy ~= 1.13.0",
+    "phylodm ~= 3.0.0",
+    "typer[all] ~= 0.12.0"
+]
 
-[tool.poetry.dependencies]
-python = "^3.12"
-dash = {extras = ["diskcache"], version = "^2.16.1"}
-dash-bootstrap-components = "^1.5.0"
-dash-cytoscape = "^1.0.0"
-diskcache = "^5.6.3"
-dash-bio = "^1.0.2"
-pydantic = "^2.6.4"
-networkx = "^3.2.1"
-orjson = "^3.10.0"
-dendropy = "^4.6.1"
-frozendict = "^2.4.1"
-pillow = "^10.3.0"
-pandas = "^2.2.1"
-numpy = "^1.26.4"
-tqdm = "^4.66.2"
-scipy = "^1.13.0"
-phylodm = "^3.0.0"
+[project.scripts]
+indizio = "indizio.__main__:app"
 
-[tool.poetry.scripts]
-indizio = 'indizio.__main__:main'
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = [
+    "setuptools >= 61.0",
+    "wheel"
+]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+exclude = ["test*"]
+
+[tool.setuptools.package-data]
+indizio = ["example/*"]

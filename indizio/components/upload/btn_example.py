@@ -154,7 +154,5 @@ class UploadFormBtnExample(dbc.Button):
                 clustergram_params=clustergram_params.model_dump(mode='json'),
                 matrix_param_store=matrix_params.model_dump(mode='json'),
                 network_interaction=NetworkInteractionData().model_dump(mode='json'),
-                # matrix_graph_store=True,
-                # upload_form=upload_form.model_dump(mode='json'),
                 reload="/"
             )

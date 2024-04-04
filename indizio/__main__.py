@@ -1,13 +1,19 @@
-import logging
+import os
+import shutil
+import sys
+from typing import Optional
 
 import dash
 import dash_bootstrap_components as dbc
 import dash_cytoscape as cyto
+import typer
 from dash import dcc
 
+from indizio import __version__
 from indizio.cache import CACHE_MANAGER
 from indizio.components.navbar import NavBar
 from indizio.config import RELOAD_ID, TMP_DIR
+from indizio.interfaces.logging import LogLevel
 from indizio.store.clustergram_parameters import ClustergramParametersStore
 from indizio.store.distance_matrix import DistanceMatrixStore
 from indizio.store.dm_graph import DistanceMatrixGraphStore
@@ -18,37 +24,58 @@ from indizio.store.network_interaction import NetworkInteractionStore
 from indizio.store.presence_absence import PresenceAbsenceStore
 from indizio.store.tree_file import TreeFileStore
 from indizio.store.upload_form_store import UploadFormStore
-from indizio.util.log import setup_logger
-import shutil
+from indizio.util.log import hide_logs
+from indizio.util.log import log
+
 # Load extra layouts
 cyto.load_extra_layouts()
 
+# Create the CLI application
+app = typer.Typer(add_completion=False)
 
-def main():
+
+@app.command()
+def main(
+        logging: Optional[LogLevel] = LogLevel.INFO,
+        debug: bool = False,
+        port: int = 9001,
+        host: str = '0.0.0.0'
+):
+    # Hide non-critical messages from third-party packages
+    try:
+        hide_logs('werkzeug')
+        cli = sys.modules['flask.cli']
+        cli.show_server_banner = lambda *x: None
+    except Exception:
+        pass
+
+    # Store the logging level in the global context
+    os.environ["INDIZIO_LOG"] = str(logging.value)
+
+    # Create the temporary directory used by Indizio for storing files
     TMP_DIR.mkdir(exist_ok=True)
 
     try:
-        setup_logger()
-        log = logging.getLogger()
-
-        log.info(f'Writing temporary files to: {TMP_DIR.as_posix()}')
+        log(f'Indizio [blue]v{__version__}[/blue]')
+        log(f'Writing temporary files to: {TMP_DIR.as_posix()}', level=LogLevel.DEBUG)
 
         # Create the Dash application
-        app = dash.Dash(
+        dash_app = dash.Dash(
             __name__,
             use_pages=True,
             suppress_callback_exceptions=True,
             external_stylesheets=[dbc.themes.JOURNAL, dbc.icons.FONT_AWESOME],
             background_callback_manager=CACHE_MANAGER,
         )
+        hide_logs('dash.dash')
 
-        # Create the default layout TODO!
-        app.layout = dbc.Container(
+        # Create the default layout
+        dash_app.layout = dbc.Container(
             className="container-main",
             fluid=True,
             children=
             [
-                # Stores
+                # Future Stores will need to be declared here
                 NetworkFormStore(),
                 UploadFormStore(),
                 PresenceAbsenceStore(),
@@ -56,10 +83,11 @@ def main():
                 MetadataFileStore(),
                 TreeFileStore(),
                 DistanceMatrixGraphStore(),
-                MatrixParametersStore(),  # todo, add clear?
+                MatrixParametersStore(),
                 ClustergramParametersStore(),
                 NetworkInteractionStore(),
 
+                # Add the default page content
                 NavBar(),
                 dcc.Location(id=RELOAD_ID, refresh=True),
                 dbc.Container(
@@ -72,12 +100,16 @@ def main():
             ]
         )
 
-        app.run(debug=True, host="0.0.0.0", port=9001)
+        log(f'To access Indizio, visit [link]http://{host}:{port}[/link]')
+        dash_app.run(debug=debug, host=host, port=port)
 
     finally:
-        print('TODO')
-        # shutil.rmtree(TMP_DIR.as_posix())
+        log('Cleaning up temporary files.', level=LogLevel.DEBUG)
+        try:
+            shutil.rmtree(TMP_DIR.as_posix())
+        except Exception as e:
+            log(f'Unable to remove temporary files: {e}', level=LogLevel.ERROR)
 
 
 if __name__ == "__main__":
-    main()
+    app()

@@ -1,5 +1,7 @@
 from pathlib import Path
+from importlib.resources import files
 
 
 def get_package_root() -> Path:
-    return Path(__file__).parent.parent.parent
+    return files('indizio')
+
