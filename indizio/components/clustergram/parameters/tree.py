@@ -6,6 +6,7 @@ from dash import dcc
 from dash.exceptions import PreventUpdate
 
 from indizio.config import PERSISTENCE_TYPE
+from indizio.store.clustergram_parameters import ClustergramParametersStore, ClustergramParameters
 from indizio.store.distance_matrix import DistanceMatrixStore, DistanceMatrixData
 from indizio.store.tree_file import TreeFileStore, TreeData
 
@@ -45,22 +46,29 @@ class ClustergramParamsTree(dbc.Row):
             inputs=dict(
                 ts=Input(TreeFileStore.ID, "modified_timestamp"),
                 state=State(TreeFileStore.ID, "data"),
+                ts_param=Input(ClustergramParametersStore.ID, "modified_timestamp"),
+                state_param=State(ClustergramParametersStore.ID, "data"),
             )
         )
-        def update_values_on_dm_load(ts, state):
-            log = logging.getLogger()
-            log.debug(f'{self.ID} - Updating matrix options based on distance matrix.')
+        def update_values_on_dm_load(ts, state, ts_param, state_param):
 
-            if ts is None or state is None:
-                log.debug(f'{self.ID} - No data to update from.')
-                raise PreventUpdate
+            if state is None:
+                return dict(
+                    options=list(),
+                    value=None
+                )
+
+            value = None
+            if state_param is not None:
+                state_param = ClustergramParameters(**state_param)
+                value = state_param.tree
 
             # De-serialize the state
             state = TreeData(**state)
 
             # No need to de-serialize as the key values are the file names
             options = state.as_options()
-            default = options[0]['value'] if options else None
+            default = options[0]['value'] if value is None else value
             return dict(
                 options=options,
                 value=default

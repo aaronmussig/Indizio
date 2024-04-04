@@ -1,5 +1,6 @@
 import dash_bootstrap_components as dbc
 from dash import Output, Input, callback, State, html
+from dash.exceptions import PreventUpdate
 
 from indizio.config import ID_NETWORK_FORM_DEGREE_LOWER_VALUE, ID_NETWORK_FORM_DEGREE_UPPER_VALUE, \
     ID_NETWORK_FORM_DEGREE, ID_NETWORK_FORM_EDGES_TO_SELF
@@ -84,8 +85,10 @@ class NetworkFormDegree(dbc.Card):
             """
             Updates the degree filter item when the store is refreshed.
             """
-            params = NetworkFormStoreData(**state_params)
+            if ts_params is None or state_params is None:
+                raise PreventUpdate
 
+            params = NetworkFormStoreData(**state_params)
             return dict(
                 lower_value=params.degree.min_value,
                 upper_value=params.degree.max_value,

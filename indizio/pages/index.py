@@ -2,7 +2,7 @@ import dash
 from dash import html
 
 from indizio import config
-from indizio.components.upload_form import UploadFormContainer
+from indizio.components.upload import UploadFormContainer
 
 dash.register_page(__name__, path='/', name=config.PAGE_TITLE)
 

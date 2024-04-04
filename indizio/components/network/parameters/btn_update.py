@@ -4,10 +4,10 @@ import dash_bootstrap_components as dbc
 from dash import Output, Input, callback, State, ALL, ctx
 from dash.exceptions import PreventUpdate
 
-from indizio.components.network_form.layout import NetworkFormLayout
-from indizio.components.network_form.node_of_interest import NetworkFormNodeOfInterest
-from indizio.components.network_form.thresh_filter_item import NetworkThreshFilterItem
-from indizio.components.network_form.thresh_matching import NetworkThreshMatching
+from indizio.components.network.parameters.layout import NetworkFormLayout
+from indizio.components.network.parameters.node_of_interest import NetworkFormNodeOfInterest
+from indizio.components.network.parameters.thresh_filter_item import NetworkThreshFilterItem
+from indizio.components.network.parameters.thresh_matching import NetworkThreshMatching
 from indizio.config import ID_NETWORK_FORM_DEGREE_LOWER_VALUE, ID_NETWORK_FORM_DEGREE_UPPER_VALUE, \
     ID_NETWORK_FORM_EDGES_TO_SELF, ID_NETWORK_FORM_NODE_METADATA_COLOR_FILE, ID_NETWORK_FORM_NODE_METADATA_COLOR_COLUMN, \
     ID_NETWORK_FORM_NODE_METADATA_SIZE_FILE, ID_NETWORK_FORM_NODE_METADATA_SIZE_COLUMN
@@ -40,40 +40,46 @@ class NetworkFormBtnUpdate(dbc.Button):
             ),
             inputs=dict(
                 n_clicks=Input(self.ID, "n_clicks"),
+
                 layout=State(NetworkFormLayout.ID, "value"),
+
                 node_of_interest=State(NetworkFormNodeOfInterest.ID, "value"),
-                state=State(NetworkFormStore.ID, "data"),
+
+                node_color_file=State(ID_NETWORK_FORM_NODE_METADATA_COLOR_FILE, 'value'),
+                node_color_column=State(ID_NETWORK_FORM_NODE_METADATA_COLOR_COLUMN, 'value'),
+                node_size_file=State(ID_NETWORK_FORM_NODE_METADATA_SIZE_FILE, 'value'),
+                node_size_column=State(ID_NETWORK_FORM_NODE_METADATA_SIZE_COLUMN, 'value'),
+
+                degree_lower_value=State(ID_NETWORK_FORM_DEGREE_LOWER_VALUE, 'value'),
+                degree_upper_value=State(ID_NETWORK_FORM_DEGREE_UPPER_VALUE, 'value'),
+                edges_to_self=State(ID_NETWORK_FORM_EDGES_TO_SELF, 'value'),
+
                 corr_lower_bound=State({'type': NetworkThreshFilterItem.ID_LEFT_BOUND, 'file_id': ALL}, 'value'),
                 corr_upper_bound=State({'type': NetworkThreshFilterItem.ID_RIGHT_BOUND, 'file_id': ALL}, 'value'),
                 corr_lower_value=State({'type': NetworkThreshFilterItem.ID_LEFT_VALUE, 'file_id': ALL}, 'value'),
                 corr_upper_value=State({'type': NetworkThreshFilterItem.ID_RIGHT_VALUE, 'file_id': ALL}, 'value'),
                 corr_matching=State(NetworkThreshMatching.ID, 'value'),
-                degree_lower_value=State(ID_NETWORK_FORM_DEGREE_LOWER_VALUE, 'value'),
-                degree_upper_value=State(ID_NETWORK_FORM_DEGREE_UPPER_VALUE, 'value'),
-                edges_to_self=State(ID_NETWORK_FORM_EDGES_TO_SELF, 'value'),
-                node_color_file=State(ID_NETWORK_FORM_NODE_METADATA_COLOR_FILE, 'value'),
-                node_color_column=State(ID_NETWORK_FORM_NODE_METADATA_COLOR_COLUMN, 'value'),
-                node_size_file=State(ID_NETWORK_FORM_NODE_METADATA_SIZE_FILE, 'value'),
-                node_size_column=State(ID_NETWORK_FORM_NODE_METADATA_SIZE_COLUMN, 'value'),
+
+                # state=State(NetworkFormStore.ID, "data"),
+
             ),
         )
         def on_submit(
                 n_clicks,
                 layout,
                 node_of_interest,
-                state,
+                node_color_file,
+                node_color_column,
+                node_size_file,
+                node_size_column,
+                degree_lower_value,
+                degree_upper_value,
+                edges_to_self,
                 corr_lower_bound,
                 corr_upper_bound,
                 corr_lower_value,
                 corr_upper_value,
                 corr_matching,
-                degree_lower_value,
-                degree_upper_value,
-                edges_to_self,
-                node_color_file,
-                node_color_column,
-                node_size_file,
-                node_size_column
         ):
             log = logging.getLogger()
             log.debug(f'{self.ID} - Updating network parameters.')
@@ -81,15 +87,11 @@ class NetworkFormBtnUpdate(dbc.Button):
                 raise PreventUpdate
 
             # Serialise the network form state data
-            network_form_state = NetworkFormStoreData(**state)
+            network_form_state = NetworkFormStoreData()
+
             network_form_state.layout = NetworkFormLayoutOption(layout)
+
             network_form_state.node_of_interest = node_of_interest or list()
-            network_form_state.thresh_matching = BooleanAllAny(corr_matching)
-            network_form_state.degree = NetworkParamDegree(
-                min_value=min(degree_lower_value or 0.0, degree_upper_value or 1.0),
-                max_value=max(degree_lower_value or 0.0, degree_upper_value or 1.0),
-            )
-            network_form_state.show_edges_to_self = BooleanShowHide(edges_to_self)
 
             # Create the Node metadata options (if they're set)
             if node_color_file and node_color_column:
@@ -120,6 +122,13 @@ class NetworkFormBtnUpdate(dbc.Button):
                     left_value=min(d_lower_vals[file_id], d_upper_vals[file_id]),
                     right_value=max(d_lower_vals[file_id], d_upper_vals[file_id])
                 )
+
+            network_form_state.thresh_matching = BooleanAllAny(corr_matching)
+            network_form_state.degree = NetworkParamDegree(
+                min_value=min(degree_lower_value or 0.0, degree_upper_value or 1.0),
+                max_value=max(degree_lower_value or 0.0, degree_upper_value or 1.0),
+            )
+            network_form_state.show_edges_to_self = BooleanShowHide(edges_to_self)
 
             # Serialize and return the data
             return dict(

@@ -120,7 +120,6 @@ class NetworkVizGraph(html.Div):
                 (Output(self.ID_GRAPH, 'style'), {'visibility': 'hidden'}, {'visibility': 'visible'}),
                 (Output(ID_NETWORK_VIZ_NODE_EDGE_COUNT, 'children'), 'Loading...', 'No distance matrix loaded.'),
             ],
-            prevent_initial_call=False,
             background=True,
         )
         def draw_graph(ts_graph, ts_param, state_graph, state_params, state_meta):

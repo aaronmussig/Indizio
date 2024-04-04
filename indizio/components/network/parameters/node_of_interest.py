@@ -39,24 +39,31 @@ class NetworkFormNodeOfInterest(dbc.Card):
                 value=Output(self.ID, "value"),
             ),
             inputs=dict(
-                ts=Input(DistanceMatrixGraphStore.ID, "modified_timestamp"),
-                state=State(DistanceMatrixGraphStore.ID, "data"),
-                state_params=State(NetworkFormStore.ID, "data"),
-            )
+                ts_graph=Input(DistanceMatrixGraphStore.ID, "modified_timestamp"),
+                ts_param=Input(NetworkFormStore.ID, "modified_timestamp"),
+                state_graph=State(DistanceMatrixGraphStore.ID, "data"),
+                state_param=State(NetworkFormStore.ID, "data"),
+            ),
         )
-        def update_options_on_file_upload(ts, state, state_params):
+        def update_options_on_file_upload(ts_graph, ts_param, state_graph, state_param):
             log = logging.getLogger()
             log.debug(f'{self.ID} - Updating the nodes of interest selection from user file update.')
 
-            if ts is None or state is None:
-                log.debug(f'{self.ID} - No data to update from.')
-                raise PreventUpdate
+            value = None
+            if state_param is not None:
+                params = NetworkFormStoreData(**state_param)
+                value = params.node_of_interest
+
+            if state_graph is None:
+                return dict(
+                    options=list(),
+                    value=value
+                )
 
             # De-serialize the graph and return the nodes
-            graph = DmGraph(**state).read()
-            params = NetworkFormStoreData(**state_params)
+            graph = DmGraph(**state_graph).read()
 
             return dict(
-                options=list(graph.nodes),
-                value=params.node_of_interest
+                options=sorted(graph.nodes),
+                value=value
             )

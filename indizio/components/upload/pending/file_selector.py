@@ -2,7 +2,7 @@ from typing import Optional
 
 import dash_bootstrap_components as dbc
 
-from indizio.components.upload_form.close_btn import UploadFormCloseButton
+from indizio.components.upload.pending.close_btn import UploadFormCloseButton
 from indizio.interfaces.file_type import UserFileType
 
 

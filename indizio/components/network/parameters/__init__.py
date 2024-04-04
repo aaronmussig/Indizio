@@ -1,12 +1,12 @@
 import dash_bootstrap_components as dbc
 from dash import Output, Input, State, html, callback
 
-from indizio.components.network_form.btn_update import NetworkFormBtnUpdate
-from indizio.components.network_form.degree import NetworkFormDegree
-from indizio.components.network_form.layout import NetworkFormLayout
-from indizio.components.network_form.node_metadata import NetworkFormNodeMetadata
-from indizio.components.network_form.node_of_interest import NetworkFormNodeOfInterest
-from indizio.components.network_form.thresh_filter_container import NetworkThreshFilterContainer
+from indizio.components.network.parameters.btn_update import NetworkFormBtnUpdate
+from indizio.components.network.parameters.degree import NetworkFormDegree
+from indizio.components.network.parameters.layout import NetworkFormLayout
+from indizio.components.network.parameters.node_metadata import NetworkFormNodeMetadata
+from indizio.components.network.parameters.node_of_interest import NetworkFormNodeOfInterest
+from indizio.components.network.parameters.thresh_filter_container import NetworkThreshFilterContainer
 
 
 class NetworkFormParameters(html.Div):

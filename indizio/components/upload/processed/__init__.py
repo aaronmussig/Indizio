@@ -2,14 +2,13 @@ import logging
 
 from dash import Output, Input, html, callback, State
 
-from indizio.components.uploaded_files.uploaded_file import UploadedFileDisplay
+from indizio.components.upload.processed.uploaded_file import UploadedFileDisplay
 from indizio.interfaces.file_type import UserFileType
 from indizio.store.distance_matrix import DistanceMatrixStore, DistanceMatrixData
 from indizio.store.metadata_file import MetadataFileStore, MetadataData
 from indizio.store.presence_absence import PresenceAbsenceStore, PresenceAbsenceData
 from indizio.store.tree_file import TreeFileStore, TreeData
 
-import dash_bootstrap_components as dbc
 
 class UploadedFileContainer(html.Div):
     """

@@ -6,7 +6,6 @@ from dash.exceptions import PreventUpdate
 
 from indizio.components.clustergram.parameters import ClustergramParamsMetric, ClustergramParamsTree, \
     ClustergramParamsMetadata, ClustergramParamsClusterOn, ClustergramParamsOptimalLeafOrder
-from indizio.components.matrix.parameters import MatrixParamsMetric
 from indizio.interfaces.boolean import BooleanYesNo
 from indizio.interfaces.cluster_on import ClusterOn
 from indizio.store.clustergram_parameters import ClustergramParametersStore, ClustergramParameters
@@ -34,8 +33,6 @@ class ClustergramParamsUpdateButton(dbc.Button):
                 metadata=Input(ClustergramParamsMetadata.ID, 'value'),
                 cluster_on=Input(ClustergramParamsClusterOn.ID, 'value'),
                 optimal_leaf_ordering=Input(ClustergramParamsOptimalLeafOrder.ID, 'value'),
-                # bin_option=Input(MatrixParamsBinningOption.ID, 'value'),
-                # slider=Input(MatrixParamsColorSlider.ID_RANGE, 'value'),
             )
         )
         def update_options_on_file_upload(n_clicks, metric, tree, metadata, cluster_on, optimal_leaf_ordering):
@@ -54,4 +51,32 @@ class ClustergramParamsUpdateButton(dbc.Button):
                     cluster_on=ClusterOn(cluster_on),
                     optimal_leaf_order=BooleanYesNo(optimal_leaf_ordering),
                 ).model_dump(mode='json')
+            )
+
+        @callback(
+            output=dict(
+                disabled=Output(self.ID, "disabled"),
+            ),
+            inputs=dict(
+                metric=Input(ClustergramParamsMetric.ID, "value"),
+                tree=Input(ClustergramParamsTree.ID, 'value'),
+                metadata=Input(ClustergramParamsMetadata.ID, 'value'),
+                cluster_on=Input(ClustergramParamsClusterOn.ID, 'value'),
+                optimal_leaf_ordering=Input(ClustergramParamsOptimalLeafOrder.ID, 'value'),
+            )
+        )
+        def toggle_disabled(metric, tree, metadata, cluster_on, optimal_leaf_ordering):
+            disabled = False
+            if metric is None:
+                disabled = True
+            if tree is None:
+                disabled = True
+            if metadata is None:
+                disabled = True
+            if cluster_on is None:
+                disabled = True
+            if optimal_leaf_ordering is None:
+                disabled = True
+            return dict(
+                disabled=disabled
             )

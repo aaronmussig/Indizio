@@ -6,6 +6,7 @@ from dash import dcc
 from dash.exceptions import PreventUpdate
 
 from indizio.config import PERSISTENCE_TYPE
+from indizio.store.clustergram_parameters import ClustergramParametersStore, ClustergramParameters
 from indizio.store.metadata_file import MetadataFileStore, MetadataData
 
 
@@ -29,8 +30,6 @@ class ClustergramParamsMetadata(dbc.Row):
                         options=[],
                         value=None,
                         className="bg-light text-dark",
-                        persistence=True,
-                        persistence_type=PERSISTENCE_TYPE
                     ),
                 ),
             ]
@@ -44,22 +43,28 @@ class ClustergramParamsMetadata(dbc.Row):
             inputs=dict(
                 ts=Input(MetadataFileStore.ID, "modified_timestamp"),
                 state=State(MetadataFileStore.ID, "data"),
+                ts_params=Input(ClustergramParametersStore.ID, "modified_timestamp"),
+                state_params=State(ClustergramParametersStore.ID, "data"),
             )
         )
-        def update_values_on_dm_load(ts, state):
-            log = logging.getLogger()
-            log.debug(f'{self.ID} - Updating matrix options based on distance matrix.')
+        def update_values_on_dm_load(ts, state, ts_params, state_params):
+            if state is None:
+                return dict(
+                    options=list(),
+                    value=None
+                )
 
-            if ts is None or state is None:
-                log.debug(f'{self.ID} - No data to update from.')
-                raise PreventUpdate
+            value = None
+            if state_params is not None:
+                state_params = ClustergramParameters(**state_params)
+                value = state_params.metadata
 
             # De-serialize the state
             state = MetadataData(**state)
 
             # No need to de-serialize as the key values are the file names
             options = state.as_options()
-            default = options[0]['value'] if options else None
+            default = options[0]['value'] if value is None else value
             return dict(
                 options=options,
                 value=default

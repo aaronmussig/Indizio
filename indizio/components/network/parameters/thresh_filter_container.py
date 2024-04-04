@@ -2,8 +2,8 @@ import dash_bootstrap_components as dbc
 from dash import Output, Input, callback, State, html
 from dash.exceptions import PreventUpdate
 
-from indizio.components.network_form.thresh_filter_item import NetworkThreshFilterItem
-from indizio.components.network_form.thresh_matching import NetworkThreshMatching
+from indizio.components.network.parameters.thresh_filter_item import NetworkThreshFilterItem
+from indizio.components.network.parameters.thresh_matching import NetworkThreshMatching
 from indizio.store.dm_graph import DistanceMatrixGraphStore, DmGraph
 from indizio.store.network_form_store import NetworkFormStoreData, NetworkParamThreshold, \
     NetworkFormStore

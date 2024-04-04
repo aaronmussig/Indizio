@@ -1,13 +1,12 @@
 import dash_bootstrap_components as dbc
 from dash import html
 
-from indizio.components.upload_form.btn_clear import UploadFormBtnClear
-from indizio.components.upload_form.btn_example import UploadFormBtnExample
-from indizio.components.upload_form.btn_upload import UploadFormBtnUpload
-from indizio.components.upload_form.file_selector import UploadFormFileSelector
-from indizio.components.upload_form.file_selector_container import UploadFormFileSelectorContainer
-from indizio.components.upload_form.file_upload_form import UploadFormFileUploadForm
-from indizio.components.uploaded_files import UploadedFileContainer
+from indizio.components.upload.btn_clear import UploadFormBtnClear
+from indizio.components.upload.btn_example import UploadFormBtnExample
+from indizio.components.upload.btn_upload import UploadFormBtnUpload
+from indizio.components.upload.pending.file_selector_container import UploadFormFileSelectorContainer
+from indizio.components.upload.pending.file_upload_form import UploadFormFileUploadForm
+from indizio.components.upload.processed import UploadedFileContainer
 
 
 class UploadFormContainer(html.Div):

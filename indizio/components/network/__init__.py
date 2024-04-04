@@ -1,12 +1,11 @@
 import dash_bootstrap_components as dbc
 from dash import html
 
-from indizio.components.network_form import NetworkFormParameters
-from indizio.components.network_form.btn_dl_graphml import DownloadGraphMlButton
-from indizio.components.network_viz.network_graph import NetworkVizGraph
-from indizio.components.network_viz.node_edge_count import NetworkVizNodeEdgeCount
-from indizio.components.network_viz.progress_bar import NetworkVizProgressBar
-from indizio.components.network_viz.reset_view import NetworkVizResetView
+from indizio.components.network.btn_dl_graphml import DownloadGraphMlButton
+from indizio.components.network.parameters import NetworkFormParameters
+from indizio.components.network.network_graph import NetworkVizGraph
+from indizio.components.network.node_edge_count import NetworkVizNodeEdgeCount
+from indizio.components.network.reset_view import NetworkVizResetView
 
 
 class NetworkVizContainer(dbc.Card):

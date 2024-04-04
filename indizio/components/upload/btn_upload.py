@@ -4,9 +4,8 @@ import dash_bootstrap_components as dbc
 from dash import Output, Input, callback, State, ALL, ctx
 from dash.exceptions import PreventUpdate
 
-from indizio.components.upload_form.file_selector import UploadFormFileSelector
+from indizio.components.upload.pending.file_selector import UploadFormFileSelector
 from indizio.config import RELOAD_ID
-from indizio.interfaces.bound import Bound
 from indizio.interfaces.file_type import UserFileType
 from indizio.store.distance_matrix import DistanceMatrixStore, DistanceMatrixFile, DistanceMatrixData
 from indizio.store.dm_graph import DmGraph, DistanceMatrixGraphStore
@@ -15,7 +14,6 @@ from indizio.store.network_form_store import NetworkFormStore, NetworkFormStoreD
 from indizio.store.presence_absence import PresenceAbsenceStore, PresenceAbsenceFile, PresenceAbsenceData
 from indizio.store.tree_file import TreeFile, TreeFileStore, TreeData
 from indizio.store.upload_form_store import UploadFormStore, UploadFormData
-from indizio.util.types import ProgressFn
 
 
 class UploadFormBtnUpload(dbc.Button):

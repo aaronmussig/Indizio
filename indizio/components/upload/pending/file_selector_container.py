@@ -4,7 +4,7 @@ import dash_bootstrap_components as dbc
 from dash import Output, Input, html, callback
 from dash.exceptions import PreventUpdate
 
-from indizio.components.upload_form.file_selector import UploadFormFileSelector
+from indizio.components.upload.pending.file_selector import UploadFormFileSelector
 from indizio.store.upload_form_store import UploadFormStore, UploadFormData
 
 

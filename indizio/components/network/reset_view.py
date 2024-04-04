@@ -4,7 +4,7 @@ import dash_bootstrap_components as dbc
 from dash import Output, Input, callback
 from dash.exceptions import PreventUpdate
 
-from indizio.components.network_viz import NetworkVizGraph
+from indizio.components.network import NetworkVizGraph
 
 
 class NetworkVizResetView(dbc.Button):

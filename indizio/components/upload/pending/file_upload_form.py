@@ -5,7 +5,7 @@ from dash import Output, Input, html, callback, State
 from dash import dcc
 from dash.exceptions import PreventUpdate
 
-from indizio.components.upload_form import UploadFormFileSelector
+from indizio.components.upload.pending.file_selector import UploadFormFileSelector
 from indizio.store.upload_form_store import UploadFormStore, UploadFormItem, UploadFormData
 from indizio.util.files import to_file
 from indizio.util.hashing import calc_md5

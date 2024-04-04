@@ -1,6 +1,7 @@
 import dash_bootstrap_components as dbc
 from dash import Output, Input, callback, State
 from dash import html
+from dash.exceptions import PreventUpdate
 
 from indizio.config import PERSISTENCE_TYPE
 from indizio.store.dm_graph import DistanceMatrixGraphStore
@@ -23,8 +24,6 @@ class NetworkFormLayout(html.Div):
                         dbc.Select(
                             id=self.ID,
                             options=NetworkFormLayoutOption.to_options(),
-                            persistence=True,
-                            persistence_type=PERSISTENCE_TYPE,
                             value=NetworkFormStoreData().layout.value,
                         )
                     ])
@@ -36,11 +35,13 @@ class NetworkFormLayout(html.Div):
                 value=Output(self.ID, "value"),
             ),
             inputs=dict(
-                ts=Input(DistanceMatrixGraphStore.ID, "modified_timestamp"),
+                ts=Input(NetworkFormStore.ID, "modified_timestamp"),
                 state=State(NetworkFormStore.ID, "data"),
             )
         )
-        def update_options_on_file_upload(ts, state):
+        def reflect_store_parameters(ts, state):
+            if ts is None or state is None:
+                raise PreventUpdate
             params = NetworkFormStoreData(**state)
             return dict(
                 value=params.layout.value
