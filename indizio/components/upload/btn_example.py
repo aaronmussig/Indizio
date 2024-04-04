@@ -6,18 +6,18 @@ from dash.exceptions import PreventUpdate
 
 from indizio.config import RELOAD_ID
 from indizio.interfaces.boolean import BooleanYesNo
-from indizio.interfaces.bound import Bound
 from indizio.interfaces.cluster_on import ClusterOn
 from indizio.store.clustergram_parameters import ClustergramParametersStore, ClustergramParameters
 from indizio.store.distance_matrix import DistanceMatrixStore, DistanceMatrixFile, DistanceMatrixData
 from indizio.store.dm_graph import DistanceMatrixGraphStore, DmGraph
-from indizio.store.matrix_parameters import MatrixParametersStore, MatrixParameters, MatrixBinOption
+from indizio.store.matrix_parameters import MatrixParametersStore, MatrixParameters
 from indizio.store.metadata_file import MetadataFileStore, MetadataFile, MetadataData
-from indizio.store.network_form_store import NetworkFormStore, NetworkFormLayoutOption, NetworkFormStoreData, \
+from indizio.store.network_form_store import NetworkFormStore, NetworkFormStoreData, \
     NetworkParamThreshold, NetworkParamDegree
+from indizio.store.network_interaction import NetworkInteractionStore, NetworkInteractionData
 from indizio.store.presence_absence import PresenceAbsenceStore, PresenceAbsenceFile, PresenceAbsenceData
 from indizio.store.tree_file import TreeFileStore, TreeFile, TreeData
-from indizio.store.upload_form_store import UploadFormStore, UploadFormData, UploadFormItem
+from indizio.store.upload_form_store import UploadFormStore, UploadFormItem
 from indizio.util.package import get_package_root
 
 
@@ -42,15 +42,16 @@ class UploadFormBtnExample(dbc.Button):
 
         @callback(
             output=dict(
-                network_store=Output(NetworkFormStore.ID, "data", allow_duplicate=True),
-                upload_store=Output(UploadFormStore.ID, "clear_data", allow_duplicate=True),
-                presence_absence_store=Output(PresenceAbsenceStore.ID, "data", allow_duplicate=True),
+                clustergram_params=Output(ClustergramParametersStore.ID, "data", allow_duplicate=True),
                 distance_matrix_store=Output(DistanceMatrixStore.ID, "data", allow_duplicate=True),
-                metadata_store=Output(MetadataFileStore.ID, "data", allow_duplicate=True),
-                tree_store=Output(TreeFileStore.ID, "data", allow_duplicate=True),
                 dm_graph_store=Output(DistanceMatrixGraphStore.ID, "data", allow_duplicate=True),
                 matrix_param_store=Output(MatrixParametersStore.ID, "data", allow_duplicate=True),
-                clustergram_params=Output(ClustergramParametersStore.ID, "data", allow_duplicate=True),
+                metadata_store=Output(MetadataFileStore.ID, "data", allow_duplicate=True),
+                network_store=Output(NetworkFormStore.ID, "data", allow_duplicate=True),
+                network_interaction=Output(NetworkInteractionStore.ID, "data", allow_duplicate=True),
+                upload_store=Output(UploadFormStore.ID, "clear_data", allow_duplicate=True),
+                presence_absence_store=Output(PresenceAbsenceStore.ID, "data", allow_duplicate=True),
+                tree_store=Output(TreeFileStore.ID, "data", allow_duplicate=True),
                 reload=Output(RELOAD_ID, "href", allow_duplicate=True),
             ),
             inputs=dict(
@@ -152,6 +153,7 @@ class UploadFormBtnExample(dbc.Button):
                 dm_graph_store=graph_store.model_dump(mode='json'),
                 clustergram_params=clustergram_params.model_dump(mode='json'),
                 matrix_param_store=matrix_params.model_dump(mode='json'),
+                network_interaction=NetworkInteractionData().model_dump(mode='json'),
                 # matrix_graph_store=True,
                 # upload_form=upload_form.model_dump(mode='json'),
                 reload="/"
