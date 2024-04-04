@@ -1,10 +1,11 @@
+import csv
 import io
 import pickle
 from pathlib import Path
 from typing import Optional, Tuple
 
 import pandas as pd
-import csv
+
 from indizio.config import TMP_DIR
 from indizio.util.hashing import calc_md5
 
@@ -78,6 +79,9 @@ def to_file(data: bytes, name: Optional[str] = None) -> Path:
 
 
 def get_delimiter(file_path: Path, n_lines=5):
+    """
+    Automatic detection of a delimiter used in a file.
+    """
     sniffer = csv.Sniffer()
     lines = list()
     with file_path.open() as f:

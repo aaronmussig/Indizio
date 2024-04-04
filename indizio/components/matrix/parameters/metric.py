@@ -10,6 +10,10 @@ from indizio.store.distance_matrix import DistanceMatrixStore, DistanceMatrixDat
 
 
 class MatrixParamsMetric(dbc.Row):
+    """
+    This component contains the option to select what data to be displayed.
+    """
+
     ID = ID_MATRIX_PARAMS_METRIC
 
     def __init__(self):

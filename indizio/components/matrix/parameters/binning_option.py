@@ -1,28 +1,20 @@
-import dash_bootstrap_components as dbc
-
-from indizio.config import PERSISTENCE_TYPE
-from indizio.store.matrix_parameters import MatrixBinOption, MatrixParameters
-import plotly.express as px
-from dash import dcc
-
-from indizio.config import PERSISTENCE_TYPE
-from indizio.store.matrix_parameters import MatrixParameters, MatrixParametersStore
 import logging
-from functools import lru_cache
 
-import numpy as np
+import dash_bootstrap_components as dbc
 from dash import Output, Input, callback
-from dash import dcc, State, ctx
+from dash import State
 from dash.exceptions import PreventUpdate
 
-from indizio.config import PERSISTENCE_TYPE, ID_MATRIX_PARAMS_METRIC
-from indizio.store.distance_matrix import DistanceMatrixStore, DistanceMatrixData
+from indizio.store.matrix_parameters import MatrixBinOption
 from indizio.store.matrix_parameters import MatrixParameters
-from indizio.util.cache import freezeargs
-
+from indizio.store.matrix_parameters import MatrixParametersStore
 
 
 class MatrixParamsBinningOption(dbc.Row):
+    """
+    This component contains the binning option used for the matrix scale.
+    """
+
     ID = "matrix-params-binning-option"
 
     def __init__(self):
@@ -48,7 +40,6 @@ class MatrixParamsBinningOption(dbc.Row):
             ]
         )
 
-
         @callback(
             output=dict(
                 value=Output(self.ID, "value"),
@@ -71,4 +62,3 @@ class MatrixParamsBinningOption(dbc.Row):
             return dict(
                 value=dm_store.bin_option.value
             )
-

@@ -15,8 +15,9 @@ from indizio.util.plot import get_color
 
 class MatrixPlot(dcc.Loading):
     """
-    The cytoscape network graph component.
+    This contains the heatmap used in the matrix plot.
     """
+
     ID = 'matrix-plot'
     ID_LOADING = 'matrix-plot-loading'
 
@@ -106,9 +107,7 @@ class MatrixPlot(dcc.Loading):
                 zmax=slidervals[-1],
                 customdata=xy_labels_full,
                 hovertemplate='%{customdata[0]}<br>%{customdata[1]}'
-                # colorbar=colorbar,
             )
-
 
             f = go.Figure(ava_hm)
             for data in f.data:

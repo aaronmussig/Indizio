@@ -1,25 +1,20 @@
+import logging
+
 import dash_bootstrap_components as dbc
 import plotly.express as px
-from dash import dcc
-
-from indizio.config import PERSISTENCE_TYPE
-from indizio.store.matrix_parameters import MatrixParameters, MatrixParametersStore
-import logging
-from functools import lru_cache
-
-import numpy as np
 from dash import Output, Input, callback
-from dash import dcc, State, ctx
+from dash import dcc, State
 from dash.exceptions import PreventUpdate
 
-from indizio.config import PERSISTENCE_TYPE, ID_MATRIX_PARAMS_METRIC
-from indizio.store.distance_matrix import DistanceMatrixStore, DistanceMatrixData
 from indizio.store.matrix_parameters import MatrixParameters
-from indizio.util.cache import freezeargs
-
+from indizio.store.matrix_parameters import MatrixParametersStore
 
 
 class MatrixParamsColorScale(dbc.Row):
+    """
+    This component contains the color scale used for the matrix.
+    """
+
     ID = "matrix-params-color-scale"
 
     def __init__(self):
@@ -66,4 +61,3 @@ class MatrixParamsColorScale(dbc.Row):
             return dict(
                 value=dm_store.color_scale
             )
-

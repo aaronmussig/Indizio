@@ -7,14 +7,12 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 from dash import Output, Input, callback, State, dcc
-from dash.exceptions import PreventUpdate
 from phylodm import PhyloDM
 from plotly.subplots import make_subplots
 from scipy.spatial.distance import squareform, pdist
 
 from indizio.interfaces.boolean import BooleanYesNo
 from indizio.store.clustergram_parameters import ClustergramParametersStore, ClustergramParameters
-from indizio.store.dm_graph import DistanceMatrixGraphStore, DmGraph
 from indizio.store.metadata_file import MetadataFileStore, MetadataData
 from indizio.store.network_interaction import NetworkInteractionStore, NetworkInteractionData
 from indizio.store.presence_absence import PresenceAbsenceStore, PresenceAbsenceData
@@ -22,6 +20,10 @@ from indizio.store.tree_file import TreeFileStore, TreeData
 
 
 class ClustergramPlot(dcc.Graph):
+    """
+    This component is the main clustergram plot.
+    """
+
     ID = 'clustergram-plot'
 
     def __init__(self):
@@ -79,7 +81,6 @@ class ClustergramPlot(dcc.Graph):
 
             # Load the distance matrix based on what was used to generate the graph
 
-
             # Optionally load the metadata
             if params.metadata is not None:
                 df_meta = state_meta.get_file(params.metadata).read()
@@ -109,7 +110,6 @@ class ClustergramPlot(dcc.Graph):
 
             # Using the DashBio data, create our own Clustergram figure
             # as the DashBio doesn't allow for multiple colour grouping (meta)
-            print('creating fig')
             fig = generate_annotation_heatmap(feature_df, cg_traces, df_meta)
 
             # Disable the heatmap levend as only boolean values are shown
@@ -179,7 +179,6 @@ def generate_clustergram(
     else:
         dist_fun = pdist
 
-    print('creating CG')
     clustergram, traces = dash_bio.Clustergram(
         data=feature_df.values,
         row_labels=feature_df.index.to_list(),

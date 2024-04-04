@@ -11,8 +11,9 @@ from indizio.components.network.parameters.thresh_filter_container import Networ
 
 class NetworkFormParameters(html.Div):
     """
-    This class wraps the network form.
+    This contains the parameters for the network.
     """
+
     ID = 'network-form'
     ID_TOGGLE_BTN = f'{ID}-toggle-btn'
     ID_CANVAS = f'{ID}-canvas'

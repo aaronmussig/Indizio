@@ -8,6 +8,10 @@ from indizio.components.network import NetworkVizGraph
 
 
 class NetworkVizResetView(dbc.Button):
+    """
+    This component will reset the view of the network graph to center.
+    """
+
     ID = "network-viz-reset-view"
 
     def __init__(self):

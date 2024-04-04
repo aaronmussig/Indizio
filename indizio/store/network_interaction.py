@@ -7,6 +7,10 @@ from indizio.config import PERSISTENCE_TYPE
 
 
 class NetworkInteractionData(BaseModel):
+    """
+    This is the actual model for the data in the network interaction store.
+    """
+
     node_selected: Optional[str] = None
     edge_nodes: List[str] = list()
 
@@ -28,6 +32,9 @@ class NetworkInteractionData(BaseModel):
 
 
 class NetworkInteractionStore(dcc.Store):
+    """
+    This class is used to represent the store for the network interaction.
+    """
     ID = 'network-interaction-store'
 
     def __init__(self):

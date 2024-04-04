@@ -1,11 +1,15 @@
 import dash_bootstrap_components as dbc
-from dash import html, dcc
+from dash import html
 
 from indizio.interfaces.bound import Bound
 from indizio.store.network_form_store import NetworkParamThreshold
 
 
 class NetworkThreshFilterItem(html.Tr):
+    """
+    This component is a general use row for threshold filtering.
+    """
+
     ID = "network-thresh-filter-item"
     ID_LEFT_BOUND = f"{ID}-left-bound"
     ID_RIGHT_BOUND = f"{ID}-right-bound"

@@ -8,10 +8,9 @@ from indizio.interfaces.file_type import UserFileType
 
 class UploadFormFileSelector(dbc.Row):
     """
-    This is the card that is used to display each file that the user has
-    uploaded. A drop-down menu option allows the user to select the
-    file type.
+    This component is used to display a file that has been uploaded but not yet processed.
     """
+
     ID = 'upload-form-file-selector'
     ID_TYPE = f'{ID}-type'
     ID_NAME = f'{ID}-name'

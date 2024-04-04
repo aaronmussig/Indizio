@@ -3,7 +3,6 @@ import logging
 import dash_bootstrap_components as dbc
 from dash import Output, Input, callback, State
 from dash import html, dcc
-from dash.exceptions import PreventUpdate
 
 from indizio.store.dm_graph import DistanceMatrixGraphStore, DmGraph
 from indizio.store.network_form_store import NetworkFormStore, NetworkFormStoreData
@@ -11,9 +10,9 @@ from indizio.store.network_form_store import NetworkFormStore, NetworkFormStoreD
 
 class NetworkFormNodeOfInterest(dbc.Card):
     """
-    Dropdown menu option in the network form, that allows users to
-    select nodes of interest.
+    This component will show the nodes of interest (filtering).
     """
+
     ID = "network-form-node-of-interest"
 
     def __init__(self):

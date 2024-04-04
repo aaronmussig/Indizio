@@ -1,16 +1,14 @@
-import logging
-
 import dash_bootstrap_components as dbc
-from dash import Output, Input, callback, State
-from dash import dcc
-from dash.exceptions import PreventUpdate
+from dash import Output, Input, callback, State, dcc
 
-from indizio.config import PERSISTENCE_TYPE
 from indizio.store.clustergram_parameters import ClustergramParametersStore, ClustergramParameters
 from indizio.store.metadata_file import MetadataFileStore, MetadataData
 
 
 class ClustergramParamsMetadata(dbc.Row):
+    """
+    This component allows the user to select the metadata file used for highlighting.
+    """
     ID = 'clustergram-params-metadata'
 
     def __init__(self):

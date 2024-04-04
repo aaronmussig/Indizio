@@ -7,6 +7,10 @@ from indizio.store.network_form_store import NetworkFormStoreData, NetworkFormSt
 
 
 class NetworkThreshMatching(dbc.InputGroup):
+    """
+    This component will allow users to select if threshold matching type.
+    """
+
     ID = "network-thresh-matching"
 
     def __init__(self):

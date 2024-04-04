@@ -11,6 +11,9 @@ from indizio.util.files import to_pickle, from_pickle
 
 
 class TreeFile(BaseModel):
+    """
+    This class is the actual model for the tree file.
+    """
     file_name: str
     file_id: str
     path: Path
@@ -57,6 +60,9 @@ class TreeData(BaseModel):
 
 
 class TreeFileStore(dcc.Store):
+    """
+    This class is used to represent the store for the tree files.
+    """
     ID = 'tree-file-store'
 
     def __init__(self):

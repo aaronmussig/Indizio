@@ -7,16 +7,11 @@ from indizio.components.clustergram.parameters.metric import ClustergramParamsMe
 from indizio.components.clustergram.parameters.optimal_leaf_order import ClustergramParamsOptimalLeafOrder
 from indizio.components.clustergram.parameters.tree import ClustergramParamsTree
 from indizio.components.clustergram.parameters.update_button import ClustergramParamsUpdateButton
-from indizio.components.matrix.parameters.binning_option import MatrixParamsBinningOption
-from indizio.components.matrix.parameters.color_scale import MatrixParamsColorScale
-from indizio.components.matrix.parameters.color_slider import MatrixParamsColorSlider
-from indizio.components.matrix.parameters.metric import MatrixParamsMetric
-from indizio.components.matrix.parameters.update_button import MatrixParamsUpdateButton
 
 
 class ClustergramParametersCanvas(dbc.Card):
     """
-    This component shows the values that are selected in the NetworkForm component.
+    This is the main card that wraps the Clustergram parameters.
     """
     ID = "clustergram-parameters-canvas"
 
@@ -29,8 +24,6 @@ class ClustergramParametersCanvas(dbc.Card):
                         dbc.Row(ClustergramParamsMetric()),
                         dbc.Row(ClustergramParamsTree(), className="mt-2"),
                         dbc.Row(ClustergramParamsMetadata(), className="mt-2"),
-                        # dbc.Row(MatrixParamsBinningOption(), className="mt-2"),
-                        # dbc.Row(MatrixParamsColorSlider(), className="mt-2"),
                         dbc.Row(ClustergramParamsClusterOn(), className='mt-2'),
                         dbc.Row(ClustergramParamsOptimalLeafOrder(), className='mt-2'),
                         dbc.Row(ClustergramParamsUpdateButton(), className="mt-2")

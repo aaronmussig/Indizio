@@ -10,6 +10,9 @@ from indizio.components.upload.processed import UploadedFileContainer
 
 
 class UploadFormContainer(html.Div):
+    """
+    This form contains the upload form and the uploaded files.
+    """
 
     def __init__(self):
         super().__init__(

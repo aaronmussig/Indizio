@@ -1,14 +1,9 @@
-import io
-import json
-from typing import Optional, Tuple, List
+from typing import Optional, List
 
-import pandas as pd
 from dash import dcc
 from pydantic import BaseModel
 
 from indizio.config import PERSISTENCE_TYPE
-from indizio.store.upload_form_store import UploadFormItem
-
 from indizio.interfaces.html_option import HtmlOption
 
 
@@ -19,7 +14,11 @@ class MatrixBinOption(HtmlOption):
     CONTINUOUS = 'Continuous'
     BINNED = 'Binned'
 
+
 class MatrixParameters(BaseModel):
+    """
+    This class is the actual model for the data in the matrix parameters.
+    """
     metric: Optional[str] = None
     color_scale: str = 'inferno'
     bin_option: MatrixBinOption = MatrixBinOption.CONTINUOUS
@@ -27,6 +26,9 @@ class MatrixParameters(BaseModel):
 
 
 class MatrixParametersStore(dcc.Store):
+    """
+    This class is used to represent the store for the matrix parameters.
+    """
     ID = 'matrix-parameters-store'
 
     def __init__(self):

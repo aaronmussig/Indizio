@@ -7,6 +7,11 @@ from indizio.interfaces.file_type import UserFileType
 
 
 class UploadedFileDisplay(dbc.Card):
+    """
+    This is a general use component that displays the files that have been
+    uploaded and processed.
+    """
+
     ID = 'uploaded-files-uploaded-file'
 
     def __init__(

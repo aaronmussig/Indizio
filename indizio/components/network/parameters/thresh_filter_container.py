@@ -10,6 +10,10 @@ from indizio.store.network_form_store import NetworkFormStoreData, NetworkParamT
 
 
 class NetworkThreshFilterContainer(dbc.Card):
+    """
+    This component contains the threshold filtering for the network.
+    """
+
     ID = "network-thresh-filter-container"
     ID_TABLE = f"{ID}-table"
 

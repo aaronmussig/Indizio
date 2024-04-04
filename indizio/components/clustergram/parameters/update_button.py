@@ -12,6 +12,10 @@ from indizio.store.clustergram_parameters import ClustergramParametersStore, Clu
 
 
 class ClustergramParamsUpdateButton(dbc.Button):
+    """
+    This component will store the Clustergram parameters in the store.
+    """
+
     ID = "clustergram-params-update-button"
 
     def __init__(self):

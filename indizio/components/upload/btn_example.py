@@ -23,7 +23,7 @@ from indizio.util.package import get_package_root
 
 class UploadFormBtnExample(dbc.Button):
     """
-    This component will load the example data.
+    This component will load the example data from: ./indizio/example
     """
 
     ID = "upload-form-upload-button-example"

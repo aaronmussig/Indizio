@@ -3,8 +3,6 @@ from dash import Output, Input, callback, State
 from dash import html
 from dash.exceptions import PreventUpdate
 
-from indizio.config import PERSISTENCE_TYPE
-from indizio.store.dm_graph import DistanceMatrixGraphStore
 from indizio.store.network_form_store import NetworkFormLayoutOption
 from indizio.store.network_form_store import NetworkFormStore, NetworkFormStoreData
 
@@ -13,6 +11,7 @@ class NetworkFormLayout(html.Div):
     """
     This component is the drop-down menu selector for the network layout.
     """
+
     ID = "network-form-layout"
 
     def __init__(self):

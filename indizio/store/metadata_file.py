@@ -11,6 +11,9 @@ from indizio.util.files import to_pickle_df, from_pickle_df, get_delimiter
 
 
 class MetadataFile(BaseModel):
+    """
+    This class is used to represent a single metadata file that has been uploaded.
+    """
     file_name: str
     file_id: Optional[str] = None
     path: Path
@@ -40,6 +43,9 @@ class MetadataFile(BaseModel):
 
 
 class MetadataData(BaseModel):
+    """
+    This class is used to represent a collection of metadata files.
+    """
     data: Dict[str, MetadataFile] = dict()
 
     def add_item(self, item: MetadataFile):
@@ -60,6 +66,10 @@ class MetadataData(BaseModel):
 
 
 class MetadataFileStore(dcc.Store):
+    """
+    This class is used to represent the store for the metadata files.
+    """
+
     ID = 'metadata-file-store'
 
     def __init__(self):

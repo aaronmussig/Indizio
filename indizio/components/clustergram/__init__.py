@@ -6,6 +6,10 @@ from indizio.components.clustergram.parameters import ClustergramParametersCanva
 
 
 class ClustergramContainer(dbc.Card):
+    """
+    This component is the main container for the clustergram plot.
+    """
+
     ID = 'clustergram-container'
 
     def __init__(self):

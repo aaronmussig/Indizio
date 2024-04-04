@@ -10,6 +10,10 @@ from indizio.store.matrix_parameters import MatrixParametersStore, MatrixParamet
 
 
 class MatrixParamsUpdateButton(dbc.Button):
+    """
+    This component will save the changes for the matrix parameters.
+    """
+
     ID = "matrix-params-update-button"
 
     def __init__(self):
@@ -45,7 +49,7 @@ class MatrixParamsUpdateButton(dbc.Button):
             if slider is None:
                 disabled = True
             return dict(
-               disabled=disabled
+                disabled=disabled
             )
 
         @callback(

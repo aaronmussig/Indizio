@@ -1,5 +1,4 @@
 import logging
-from functools import lru_cache
 
 import dash_bootstrap_components as dbc
 import numpy as np
@@ -7,13 +6,16 @@ from dash import Output, Input, callback
 from dash import dcc, State, ctx
 from dash.exceptions import PreventUpdate
 
-from indizio.config import PERSISTENCE_TYPE, ID_MATRIX_PARAMS_METRIC
+from indizio.config import PERSISTENCE_TYPE
 from indizio.store.distance_matrix import DistanceMatrixStore, DistanceMatrixData
 from indizio.store.matrix_parameters import MatrixParameters, MatrixParametersStore
-from indizio.util.cache import freezeargs
 
 
 class MatrixParamsColorSlider(dbc.Row):
+    """
+    This component contains the color slider used for the matrix.
+    """
+
     ID = "matrix-params-color-slider"
 
     ID_BTN_MINUS = f"{ID}-btn-minus"
@@ -86,7 +88,6 @@ class MatrixParamsColorSlider(dbc.Row):
 
             triggered_id = ctx.triggered_id
 
-            print(prev_value)
             min_value = min(prev_value)
             max_value = max(prev_value)
             n_values = len(prev_value)
@@ -149,7 +150,6 @@ class MatrixParamsColorSlider(dbc.Row):
                 round(matrix_min, 2): dict(label=f'{matrix_min:.2f}'),
                 round(matrix_max, 2): dict(label=f'{matrix_max:.2f}')
             }
-            print(marks)
             return dict(
                 min=matrix_min,
                 max=matrix_max,

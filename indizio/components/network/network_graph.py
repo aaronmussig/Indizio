@@ -17,6 +17,12 @@ from indizio.util.plot import numerical_colorscale
 
 
 class NetworkVizStyleSheet:
+    """
+    This is the default network stylesheet. This should be carefully modified
+    as needed. It's instantiated as a class to faciliate this.
+
+    Changes are made to this in order to display toggled nodes.
+    """
     DEFAULT = {
         "node": {
             "width": "mapData(size, 0, 100, 15, 80)",

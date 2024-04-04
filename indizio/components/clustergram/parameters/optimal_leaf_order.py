@@ -6,6 +6,10 @@ from indizio.store.clustergram_parameters import ClustergramParameters, Clusterg
 
 
 class ClustergramParamsOptimalLeafOrder(dbc.Row):
+    """
+    This component allows the user to select if optimal leaf ordering should be used.
+    """
+
     ID = 'clustergram-params-optimal-leaf-order'
 
     def __init__(self):

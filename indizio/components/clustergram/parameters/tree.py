@@ -1,17 +1,17 @@
-import logging
-
 import dash_bootstrap_components as dbc
 from dash import Output, Input, callback, State
 from dash import dcc
-from dash.exceptions import PreventUpdate
 
 from indizio.config import PERSISTENCE_TYPE
 from indizio.store.clustergram_parameters import ClustergramParametersStore, ClustergramParameters
-from indizio.store.distance_matrix import DistanceMatrixStore, DistanceMatrixData
 from indizio.store.tree_file import TreeFileStore, TreeData
 
 
 class ClustergramParamsTree(dbc.Row):
+    """
+    This component allows the user to specify the tree used for clustering.
+    """
+
     ID = 'clustergram-params-tree'
 
     def __init__(self):

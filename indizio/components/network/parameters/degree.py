@@ -9,6 +9,10 @@ from indizio.store.network_form_store import NetworkFormStoreData, NetworkFormSt
 
 
 class NetworkFormDegree(dbc.Card):
+    """
+    This component contains the degree filtering for the network.
+    """
+
     ID = ID_NETWORK_FORM_DEGREE
     ID_LOWER_VALUE = ID_NETWORK_FORM_DEGREE_LOWER_VALUE
     ID_UPPER_VALUE = ID_NETWORK_FORM_DEGREE_UPPER_VALUE
@@ -26,42 +30,42 @@ class NetworkFormDegree(dbc.Card):
                 dbc.CardBody(
                     dbc.Table(
                         children=[
-                        html.Thead(html.Tr([
-                            html.Th("Minimum"),
-                            html.Th("Maximum"),
-                            html.Th("Edges to self"),
-                        ])),
-                        html.Tbody([
-                            html.Tr([
-                                html.Td(
-                                    dbc.Input(
-                                        id=self.ID_LOWER_VALUE,
-                                        type="number",
-                                        value=0,
-                                        step=1,
-                                        size='sm'
-                                    )
-                                ),
-                                html.Td(
-                                    dbc.Input(
-                                        id=self.ID_UPPER_VALUE,
-                                        type="number",
-                                        value=1,
-                                        step=1,
-                                        size='sm'
-                                    )
-                                ),
-                                html.Td(
-                                    dbc.Select(
-                                        id=self.ID_SHOW_EDGES_TO_SELF,
-                                        options=BooleanShowHide.to_options(),
-                                        value=1,
-                                        size='sm'
-                                    )
-                                ),
-                            ])
-                        ]),
-                    ],
+                            html.Thead(html.Tr([
+                                html.Th("Minimum"),
+                                html.Th("Maximum"),
+                                html.Th("Edges to self"),
+                            ])),
+                            html.Tbody([
+                                html.Tr([
+                                    html.Td(
+                                        dbc.Input(
+                                            id=self.ID_LOWER_VALUE,
+                                            type="number",
+                                            value=0,
+                                            step=1,
+                                            size='sm'
+                                        )
+                                    ),
+                                    html.Td(
+                                        dbc.Input(
+                                            id=self.ID_UPPER_VALUE,
+                                            type="number",
+                                            value=1,
+                                            step=1,
+                                            size='sm'
+                                        )
+                                    ),
+                                    html.Td(
+                                        dbc.Select(
+                                            id=self.ID_SHOW_EDGES_TO_SELF,
+                                            options=BooleanShowHide.to_options(),
+                                            value=1,
+                                            size='sm'
+                                        )
+                                    ),
+                                ])
+                            ]),
+                        ],
                         hover=True,
                         size='sm',
                         className='mb-0'

@@ -1,15 +1,15 @@
 from typing import Optional
 
-from dash import html
+import dash_bootstrap_components as dbc
 
 from indizio.config import ID_NETWORK_VIZ_NODE_EDGE_COUNT
 
-import dash_bootstrap_components as dbc
 
 class NetworkVizNodeEdgeCount(dbc.Badge):
     """
-    The cytoscape network graph component.
+    This component shows the number of nodes and edges in the network.
     """
+
     ID = ID_NETWORK_VIZ_NODE_EDGE_COUNT
 
     def __init__(self, node_count: Optional[int] = None, edge_count: Optional[int] = None):
@@ -24,8 +24,4 @@ class NetworkVizNodeEdgeCount(dbc.Badge):
             ],
             pill=True,
             style={'marginLeft': '15px'}
-            # style={
-            #     'backgroundColor': '#eb6864',
-            #     'color': '#FFFFFF'
-            # }
         )

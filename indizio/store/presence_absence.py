@@ -99,6 +99,9 @@ class PresenceAbsenceData(BaseModel):
 
 
 class PresenceAbsenceStore(dcc.Store):
+    """
+    This class is used to represent the store for the presence absence files.
+    """
     ID = 'presence-absence-store'
 
     def __init__(self):

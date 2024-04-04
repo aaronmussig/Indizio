@@ -1,12 +1,15 @@
 import dash_bootstrap_components as dbc
-from dash import Output, Input, callback, State
-from dash import dcc
+from dash import Output, Input, callback, State, dcc
 
 from indizio.interfaces.cluster_on import ClusterOn
 from indizio.store.clustergram_parameters import ClustergramParameters, ClustergramParametersStore
 
 
 class ClustergramParamsClusterOn(dbc.Row):
+    """
+    This component allows the user to select the clustering method.
+    """
+
     ID = 'clustergram-params-cluster-on'
 
     def __init__(self):

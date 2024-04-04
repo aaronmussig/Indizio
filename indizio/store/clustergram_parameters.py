@@ -9,6 +9,9 @@ from indizio.interfaces.cluster_on import ClusterOn
 
 
 class ClustergramParameters(BaseModel):
+    """
+    This class is the actual model for the data in the clustergram parameters.
+    """
     metric: Optional[str] = None
     tree: Optional[str] = None
     metadata: Optional[str] = None
@@ -17,6 +20,10 @@ class ClustergramParameters(BaseModel):
 
 
 class ClustergramParametersStore(dcc.Store):
+    """
+    This class is used to represent the store for the clustergram parameters.
+    """
+
     ID = 'clustergram-parameters-store'
 
     def __init__(self):

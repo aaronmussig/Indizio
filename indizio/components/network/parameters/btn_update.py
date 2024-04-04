@@ -19,10 +19,9 @@ from indizio.store.network_form_store import NetworkFormStore, NetworkFormStoreD
 
 class NetworkFormBtnUpdate(dbc.Button):
     """
-    This component is the "Update Network" button.
-
-    On submission, this will update the store with the users selected parameters.
+    This component will store all network parameters in the store.
     """
+
     ID = "network-form-update-button"
 
     def __init__(self):

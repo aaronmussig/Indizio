@@ -9,10 +9,9 @@ from indizio.store.upload_form_store import UploadFormStore, UploadFormData
 
 class UploadFormCloseButton(dbc.Button):
     """
-    This is the card that is used to display each file that the user has
-    uploaded. A drop-down menu option allows the user to select the
-    file type.
+    This button is used to remove uploaded files that are not yet processed.
     """
+
     ID = 'uploaded-form-close-button'
 
     def __init__(

@@ -1,7 +1,6 @@
 import dash_bootstrap_components as dbc
 from dash import html
 
-
 from indizio.components.matrix.parameters.binning_option import MatrixParamsBinningOption
 from indizio.components.matrix.parameters.color_scale import MatrixParamsColorScale
 from indizio.components.matrix.parameters.color_slider import MatrixParamsColorSlider
@@ -11,7 +10,7 @@ from indizio.components.matrix.parameters.update_button import MatrixParamsUpdat
 
 class MatrixParametersCanvas(dbc.Card):
     """
-    This component shows the values that are selected in the NetworkForm component.
+    This component contains the matrix parameters.
     """
     ID = "matrix-parameters-canvas"
 

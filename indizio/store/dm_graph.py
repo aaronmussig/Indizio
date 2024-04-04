@@ -19,6 +19,9 @@ from indizio.util.hashing import calc_md5
 
 
 class DmGraph(BaseModel):
+    """
+    This is the actual model for the distance matrix graph.
+    """
     path: Path
     matrices: List[DistanceMatrixFile]
     hash: str
@@ -170,7 +173,6 @@ class DmGraph(BaseModel):
         filtered_graph = self.filter(params)
 
         # Convert the graph to cytoscape format
-        print('converitng to cytoscape')
         cyto_data = nx.cytoscape_data(filtered_graph)
         out_graph = cyto_data['elements']
 
@@ -184,6 +186,9 @@ class DmGraph(BaseModel):
 
 
 class DistanceMatrixGraphStore(dcc.Store):
+    """
+    This class is used to represent the store for the distance matrix graph.
+    """
     ID = 'distance-matrix-graph-store'
 
     def __init__(self):

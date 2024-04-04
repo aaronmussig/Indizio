@@ -40,8 +40,6 @@ def freezeargs(func):
 
     @functools.wraps(func)
     def wrapped(*args, **kwargs):
-        print(args)
-        print(kwargs)
         args_frozen = to_hashable(args)
         kwargs_frozen = to_hashable(kwargs)
         return func(*args_frozen, **kwargs_frozen)
@@ -81,22 +79,16 @@ def cache_by(kwargs_to_cache):
             cache_key = orjson.dumps(cache_key, option=orjson.OPT_SORT_KEYS)
             cache_key = calc_md5(cache_key)
 
-            print(f"kwargs_to_cache: {cache_key}")
-
             # Check the cache to see if the result already exists
             with Cache(CACHE.directory) as cache:
                 existing_result = cache.get(cache_key)
                 if existing_result:
-                    print('found existing result')
                     return existing_result
 
             # Otherwise, run the function and save the result
             result = func(*args, **kwargs)
-            print('result')
             with Cache(CACHE.directory) as cache:
-                print('saving to cache')
                 cache.set(cache_key, result)
-                print('done saving')
             return result
 
         return wrapper

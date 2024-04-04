@@ -5,6 +5,10 @@ from indizio.store.distance_matrix import DistanceMatrixStore
 
 
 class NavBar(dbc.NavbarSimple):
+    """
+    This component is the default Navigation bar shown on all pages.
+    """
+
     ID = 'navbar-container'
     ID_MATRIX = f'{ID}-matrix'
     ID_VIZ = f'{ID}-viz'

@@ -2,6 +2,10 @@ from enum import Enum
 
 
 class LogLevel(str, Enum):
+    """
+    This class is a helper method used to keep track of the logging level
+    requested / messages used in the application.
+    """
     DEBUG = "debug"
     INFO = "info"
     WARNING = "warning"
@@ -9,6 +13,10 @@ class LogLevel(str, Enum):
     CRITICAL = "critical"
 
     def as_numeric(self):
+        """
+        This method is used to determine if the logging level is sufficient to
+        display a message.
+        """
         if self is LogLevel.DEBUG:
             return 10
         elif self is LogLevel.INFO:

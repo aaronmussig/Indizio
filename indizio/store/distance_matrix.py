@@ -11,6 +11,9 @@ from indizio.util.files import to_pickle_df, from_pickle_df, get_delimiter
 
 
 class DistanceMatrixFile(BaseModel):
+    """
+    This class is used to represent a single distance matrix that has been uploaded.
+    """
     file_name: str
     file_id: str
     path: Path
@@ -42,14 +45,23 @@ class DistanceMatrixFile(BaseModel):
         )
 
     def read(self) -> pd.DataFrame:
+        """
+        Read the distance matrix from disk.
+        """
         return from_pickle_df(self.path)
 
     def get_min_max(self) -> Tuple[float, float]:
+        """
+        Obtain the minimum and maximum values from the distance matrix.
+        """
         df = self.read()
         return float(df.min().min()), float(df.max().max())
 
 
 class DistanceMatrixData(BaseModel):
+    """
+    This class is the actual model for the data in the distance matrix store.
+    """
     data: Dict[str, DistanceMatrixFile] = dict()
 
     def add_item(self, item: DistanceMatrixFile):
@@ -70,6 +82,10 @@ class DistanceMatrixData(BaseModel):
 
 
 class DistanceMatrixStore(dcc.Store):
+    """
+    This class is used to represent the store for the distance matrix files.
+    """
+
     ID = 'distance-matrix-file-store'
 
     def __init__(self):

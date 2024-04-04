@@ -19,7 +19,7 @@ from indizio.store.upload_form_store import UploadFormStore
 
 class UploadFormBtnClear(dbc.Button):
     """
-    This component is the button that triggers the upload and processing of files.
+    This component resets ALL STATES to empty. Future states need to be added here.
     """
 
     ID = "upload-form-upload-button-clear"

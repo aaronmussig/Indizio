@@ -38,6 +38,9 @@ class UploadFormData(BaseModel):
 
 
 class UploadFormStore(dcc.Store):
+    """
+    This class is used to represent the store for the upload form.
+    """
     ID = 'upload-form-store'
 
     def __init__(self):

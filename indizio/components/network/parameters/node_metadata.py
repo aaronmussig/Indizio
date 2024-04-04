@@ -10,6 +10,10 @@ from indizio.store.network_form_store import NetworkFormStore, NetworkFormStoreD
 
 
 class NetworkFormNodeMetadata(dbc.Card):
+    """
+    This component contains the drop-down menu selector for the node metadata.
+    """
+
     ID = 'network-form-node-metadata'
 
     def __init__(self):

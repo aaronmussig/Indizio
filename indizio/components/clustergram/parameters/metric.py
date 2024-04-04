@@ -1,16 +1,16 @@
-import logging
-
 import dash_bootstrap_components as dbc
-from dash import Output, Input, callback, State
-from dash import dcc
-from dash.exceptions import PreventUpdate
+from dash import Output, Input, callback, State, dcc
 
-from indizio.config import PERSISTENCE_TYPE, ID_CLUSTERGRAM_PARAMS_METRIC
+from indizio.config import ID_CLUSTERGRAM_PARAMS_METRIC
 from indizio.store.clustergram_parameters import ClustergramParametersStore, ClustergramParameters
 from indizio.store.presence_absence import PresenceAbsenceStore, PresenceAbsenceData
 
 
 class ClustergramParamsMetric(dbc.Row):
+    """
+    This component allows the user to select the P/A file used for the data.
+    """
+
     ID = ID_CLUSTERGRAM_PARAMS_METRIC
 
     def __init__(self):

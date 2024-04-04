@@ -2,6 +2,10 @@ from indizio.interfaces.html_option import HtmlOption
 
 
 class ClusterOn(HtmlOption):
+    """
+    This class is used to represent the options for the clustering on.
+    """
+
     NOTHING = 'No clustering'
     FEATURES = 'Features'
     IDS = 'Identifiers'
