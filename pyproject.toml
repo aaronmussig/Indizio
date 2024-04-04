@@ -36,7 +36,7 @@ authors = [
 ]
 description = "Visualization dashboard for presence/absence data, distance matrices, and phylogenetic trees."
 readme = "README.md"
-license = "MIT License"
+license = { file = "LICENSE" }
 keywords = ["visualization", "dashboard", "presence-absence", "distance-matrices", "bioinformatics"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
@@ -61,9 +61,11 @@ indizio = "indizio.__main__:app"
 
 [tool.setuptools]
 include-package-data = true
+license-files = ["LICENSE"]
 
 [tool.setuptools.packages.find]
 exclude = ["test*"]
 
 [tool.setuptools.package-data]
 indizio = ["example/*"]
+"*" = ["LICENSE"]

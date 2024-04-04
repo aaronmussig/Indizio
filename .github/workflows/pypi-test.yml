@@ -1,8 +1,8 @@
-name: Version, build, publish
+name: Publish to test PyPI
 
 on:
   release:
-    types: [prereleased]
+    types: [ prereleased ]
 
 jobs:
 
@@ -10,21 +10,45 @@ jobs:
     name: Python build *.tar.gz
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v3
+      - name: Setup Python
+        uses: actions/setup-python@v4
         with:
-          python-version: 3.12
+          python-version: 3.9
 
-      - name: Install Poetry
-        run: pipx install poetry==1.8.2
-
-      - name: Check package
-        run: poetry check
-
-      - name: Publish package
+      - name: Build
         run: |
-          poetry config repositories.test-pypi https://test.pypi.org/legacy/
-          poetry config pypi-token.test-pypi ${{ secrets.PYPI_TOKEN_TEST }}
-          poetry publish --build -r test-pypi
+          python -m pip install -U pip
+          python -m pip install -U build setuptools wheel
+          python -m build --sdist --wheel
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: indizio-build
+          path: dist
+          retention-days: 1
+
+  publish:
+    name: Publish to test PyPI
+    needs:
+      - build
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://test.pypi.org/project/indizio/
+    permissions:
+      id-token: write
+
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: indizio-build
+          path: dist/
+
+      - name: Publish
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
