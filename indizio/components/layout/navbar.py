@@ -33,8 +33,8 @@ class NavBar(dbc.NavbarSimple):
                     id=self.ID_VIZ
                 )),
                 dbc.NavItem(dbc.NavLink(
-                    "Network Statistics",
-                    href="/stats",
+                    "Clustergram",
+                    href="/clustergram",
                     id=self.ID_STATS
                 )),
             ])

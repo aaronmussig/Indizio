@@ -5,7 +5,7 @@ from dash import html
 from indizio import config
 from indizio.components.clustergram import ClustergramContainer, ClustergramParametersCanvas
 
-dash.register_page(__name__, name=f'{config.PAGE_TITLE} - Statistics')
+dash.register_page(__name__, name=f'{config.PAGE_TITLE} - Clustergram')
 
 layout = html.Div(
     className='pt-3',
@@ -18,7 +18,6 @@ layout = html.Div(
                 ),
                 dbc.Col(
                     ClustergramContainer()
-
                 )
             ]
         )

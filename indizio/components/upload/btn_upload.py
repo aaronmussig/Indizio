@@ -1,9 +1,8 @@
-import logging
-
 import dash_bootstrap_components as dbc
 from dash import Output, Input, callback, State, ALL, ctx
 from dash.exceptions import PreventUpdate
 
+from indizio.components.layout.message import LayoutMessage
 from indizio.components.upload.pending.file_selector import UploadFormFileSelector
 from indizio.config import RELOAD_ID
 from indizio.interfaces.file_type import UserFileType
@@ -14,6 +13,8 @@ from indizio.store.network_form_store import NetworkFormStore, NetworkFormStoreD
 from indizio.store.presence_absence import PresenceAbsenceStore, PresenceAbsenceFile, PresenceAbsenceData
 from indizio.store.tree_file import TreeFile, TreeFileStore, TreeData
 from indizio.store.upload_form_store import UploadFormStore, UploadFormData
+from indizio.util.callbacks import notify_user
+from indizio.util.log import log_debug, log_info, log_warn
 
 
 class UploadFormBtnUpload(dbc.Button):
@@ -47,6 +48,9 @@ class UploadFormBtnUpload(dbc.Button):
                 network_params=Output(NetworkFormStore.ID, 'data', allow_duplicate=True),
                 upload_store_clear=Output(UploadFormStore.ID, 'clear_data', allow_duplicate=True),
                 reload=Output(RELOAD_ID, "href", allow_duplicate=True),
+                message=Output(LayoutMessage.ID_MESSAGE, 'children'),
+                message_ex=Output(LayoutMessage.ID_EXCEPTION, 'children'),
+                message_show=Output(LayoutMessage.ID_TOAST, 'is_open')
             ),
             inputs=dict(
                 n_clicks=Input(self.ID, 'n_clicks'),
@@ -66,8 +70,7 @@ class UploadFormBtnUpload(dbc.Button):
             background=False,
         )
         def upload_content(n_clicks, values, names, state_upload, state_pa, state_dm,
-                           state_meta,
-                           state_tree, state_network_params):
+                           state_meta, state_tree, state_network_params):
             """
             Processess each of the uploaded files as per their file type.
 
@@ -75,97 +78,128 @@ class UploadFormBtnUpload(dbc.Button):
             browser memory.
             """
 
-            # Validate the input to see if data needs to be processed.
-            log = logging.getLogger()
-            if n_clicks is None or not values:
-                log.debug(f'{self.ID} - Nothing to do, updated prevented.')
+            # Ensure that this was triggered by a user clicking the button
+            if n_clicks is None:
+                log_debug(f'{self.ID} - Nothing to do, updated prevented.')
                 raise PreventUpdate
-            log.debug(f'{self.ID} - Processing files: {values}')
+            log_debug(f'{self.ID} - Processing files: {values}')
 
             # Load the existing state of the stores (if present)
-            pa_store = PresenceAbsenceData(**state_pa) if state_pa else PresenceAbsenceData()
-            dm_store = DistanceMatrixData(**state_dm) if state_dm else DistanceMatrixData()
-            meta_store = MetadataData(**state_meta) if state_meta else MetadataData()
-            tree_store = TreeData(**state_tree) if state_tree else TreeData()
-            upload_store = UploadFormData(**state_upload)
+            try:
+                pa_store = PresenceAbsenceData(**state_pa) if state_pa else PresenceAbsenceData()
+                dm_store = DistanceMatrixData(**state_dm) if state_dm else DistanceMatrixData()
+                meta_store = MetadataData(**state_meta) if state_meta else MetadataData()
+                tree_store = TreeData(**state_tree) if state_tree else TreeData()
+                upload_store = UploadFormData(**state_upload)
+            except Exception as e:
+                return notify_user('Unable to load previous data, restart the application and close your current tab',
+                                   e)
 
             # This extracts the content from the pattern matching state input
             # Ignores files that do not have a file type specified
-            d_file_types = dict()
-            for cur_state in ctx.states_list[0]:
-                cur_type_str = cur_state['value']
-                if cur_type_str:
-                    d_file_types[cur_state['id']['hash']] = UserFileType(cur_type_str)
-            log.debug(f'{self.ID} - Found the following files: {d_file_types}')
+            try:
+                d_file_types = dict()
+                for cur_state in ctx.states_list[0]:
+                    cur_type_str = cur_state['value']
+                    if cur_type_str:
+                        d_file_types[cur_state['id']['hash']] = UserFileType(cur_type_str)
+                log_debug(f'{self.ID} - Found the following files: {d_file_types}')
+            except Exception as e:
+                return notify_user('Unable to parse the HTML input, please report this error', e)
 
             # Extract the file names provided from the pattern matching input
-            d_file_names = dict()
-            for cur_state in ctx.states_list[1]:
-                cur_file_name = cur_state['value']
-                if cur_file_name:
-                    d_file_names[cur_state['id']['hash']] = cur_state['value']
+            try:
+                d_file_names = dict()
+                for cur_state in ctx.states_list[1]:
+                    cur_file_name = cur_state['value']
+                    if cur_file_name:
+                        d_file_names[cur_state['id']['hash']] = cur_state['value']
+            except Exception as e:
+                return notify_user('Unable to parse file names, please report this error.', e)
 
             # Do nothing if no file types have been provided
             if len(d_file_types) == 0:
-                log.debug(f'No files were provided.')
-                raise PreventUpdate
+                return notify_user('No files were provided, ensure each file has a type.')
 
             # Classify the files into their respective types
             for file_obj in upload_store.data.values():
                 file_type = d_file_types.get(file_obj.hash)
                 file_obj.name = d_file_names.get(file_obj.hash, file_obj.name)
                 if file_type is UserFileType.PA:
-                    pa_store.add_item(PresenceAbsenceFile.from_upload_data(file_obj))
+                    try:
+                        pa_store.add_item(PresenceAbsenceFile.from_upload_data(file_obj))
+                    except Exception as e:
+                        return notify_user('Unable to parse the Presence/Absence file, check your formatting!', e)
                 elif file_type is UserFileType.DM:
-                    dm_store.add_item(DistanceMatrixFile.from_upload_data(file_obj))
+                    try:
+                        dm_store.add_item(DistanceMatrixFile.from_upload_data(file_obj))
+                    except Exception as e:
+                        return notify_user('Unable to parse the Distance Matrix file, check your formatting!', e)
                 elif file_type is UserFileType.META:
-                    meta_store.add_item(MetadataFile.from_upload_data(file_obj))
+                    try:
+                        meta_store.add_item(MetadataFile.from_upload_data(file_obj))
+                    except Exception as e:
+                        return notify_user('Unable to parse the Metadata file, check your formatting!', e)
                 elif file_type is UserFileType.TREE:
-                    tree_store.add_item(TreeFile.from_upload_data(file_obj))
+                    try:
+                        tree_store.add_item(TreeFile.from_upload_data(file_obj))
+                    except Exception as e:
+                        return notify_user('Unable to parse the Tree file, check your formatting!', e)
                 else:
-                    log.warning(f'{self.ID} - Skipping file: {file_obj.file_name} of unknown type {file_type}')
+                    log_warn(f'{self.ID} - Skipping file: {file_obj.file_name} of unknown type {file_type}')
                     continue
 
             # If no distance matrices were provided, then create and calculate
             # one from the presence/absence file.
             if len(dm_store.data) == 0:
-                log.info(f'{self.ID} - No distance matrices provided, creating one from presence/absence file.')
+                log_info(f'{self.ID} - No distance matrices provided, creating one from presence/absence file.')
                 if len(pa_store.data) == 0:
-                    log.warning(f'{self.ID} - No presence/absence file provided.')
-                    raise PreventUpdate
+                    return notify_user('A Presence/Absence matrix must be provided.')
                 # Otherwise, compute one from each presence absence file
                 else:
                     for pa_file in pa_store.data.values():
-                        dm_store.add_item(pa_file.as_distance_matrix())
+                        try:
+                            dm_store.add_item(pa_file.as_distance_matrix())
+                        except Exception as e:
+                            return notify_user(f'Unable to convert {pa_file.file_name} to a Distance Matrix.', e)
 
             # Create the graph
-            graph = DmGraph.from_distance_matricies(dm_store.get_files())
+            try:
+                graph = DmGraph.from_distance_matricies(dm_store.get_files())
+            except Exception as e:
+                return notify_user('Unable to create Graph from Distance Matricies.', e)
 
             # Load the graph
-            graph_nx = graph.read()
-            graph_nodes = frozenset(graph_nx.nodes)
-            graph_max_degree = max(d for _, d in graph_nx.degree)
+            try:
+                graph_nx = graph.read()
+                graph_nodes = frozenset(graph_nx.nodes)
+                graph_max_degree = max(d for _, d in graph_nx.degree)
+            except Exception as e:
+                return notify_user('Unable to read NetworkX Graph.', e)
 
             # Create the network parameters
-            network_params = NetworkFormStoreData(**state_network_params)
-            network_thresholds = dict()
-            for cur_dm in dm_store.get_files():
-                if cur_dm.file_id in network_params:
-                    network_thresholds[cur_dm.file_id] = network_params[cur_dm.file_id]
-                else:
-                    network_thresholds[cur_dm.file_id] = NetworkParamThreshold(
-                        file_id=cur_dm.file_id,
-                        left_value=cur_dm.min_value if len(graph_nodes) < 100 else round(cur_dm.max_value * 0.9, 2),
-                        right_value=cur_dm.max_value,
-                    )
-            network_params.thresholds = network_thresholds
-            network_params.node_of_interest = [x for x in network_params.node_of_interest if x in graph_nodes]
-            network_params.degree.min_value = 0
-            network_params.degree.max_value = graph_max_degree
+            try:
+                network_params = NetworkFormStoreData(**state_network_params)
+                network_thresholds = dict()
+                for cur_dm in dm_store.get_files():
+                    if cur_dm.file_id in network_params:
+                        network_thresholds[cur_dm.file_id] = network_params[cur_dm.file_id]
+                    else:
+                        network_thresholds[cur_dm.file_id] = NetworkParamThreshold(
+                            file_id=cur_dm.file_id,
+                            left_value=cur_dm.min_value if len(graph_nodes) < 100 else round(cur_dm.max_value * 0.9, 2),
+                            right_value=cur_dm.max_value,
+                        )
+                network_params.thresholds = network_thresholds
+                network_params.node_of_interest = [x for x in network_params.node_of_interest if x in graph_nodes]
+                network_params.degree.min_value = 0
+                network_params.degree.max_value = graph_max_degree
+            except Exception as e:
+                return notify_user('Unable to create Network Parameters.', e)
 
             # Now that we've calculated everything, we need to serialize the content
             # into JSON so that it can be stored in the browser
-            log.debug(f'{self.ID} - Finished processing files, returning data to stores.')
+            log_debug(f'{self.ID} - Finished processing files, returning data to stores.')
             return dict(
                 pa=pa_store.model_dump(mode='json'),
                 dm=dm_store.model_dump(mode='json'),
@@ -175,4 +209,6 @@ class UploadFormBtnUpload(dbc.Button):
                 upload_store_clear=True,
                 network_params=network_params.model_dump(mode='json'),
                 reload='/',
+                message='',
+                message_show=False
             )

@@ -4,6 +4,7 @@ import dash_bootstrap_components as dbc
 from dash import Output, Input, callback
 from dash.exceptions import PreventUpdate
 
+from indizio.components.layout.message import LayoutMessage
 from indizio.config import RELOAD_ID
 from indizio.store.clustergram_parameters import ClustergramParametersStore
 from indizio.store.distance_matrix import DistanceMatrixStore

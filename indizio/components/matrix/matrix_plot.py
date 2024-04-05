@@ -1,4 +1,3 @@
-import logging
 from functools import lru_cache
 
 import numpy as np
@@ -6,13 +5,12 @@ import plotly.graph_objects as go
 from dash import Output, Input, callback, State, dcc
 from dash.exceptions import PreventUpdate
 
-from indizio.interfaces.logging import LogLevel
 from indizio.store.distance_matrix import DistanceMatrixStore, DistanceMatrixData
 from indizio.store.matrix_parameters import MatrixParametersStore, MatrixParameters, MatrixBinOption
 from indizio.util.cache import freezeargs
 from indizio.util.graph import format_axis_labels
-from indizio.util.plot import get_color
 from indizio.util.log import log_debug
+from indizio.util.plot import get_color
 
 
 class MatrixPlot(dcc.Loading):
@@ -96,10 +94,10 @@ class MatrixPlot(dcc.Loading):
             for y in feature_df.index:
                 cur_vals = list()
                 for x in feature_df.columns:
-                    cur_vals.append((y, x))
+                    cur_vals.append((y, x, feature_df[y][x]))
                 xy_labels_full.append(cur_vals)
 
-            ava_hm = go.Heatmap(
+            heatmap = go.Heatmap(
                 x=format_axis_labels(feature_df.columns),
                 y=format_axis_labels(feature_df.index),
                 z=feature_df,
@@ -107,10 +105,11 @@ class MatrixPlot(dcc.Loading):
                 zmin=slidervals[0],
                 zmax=slidervals[-1],
                 customdata=xy_labels_full,
-                hovertemplate='%{customdata[0]}<br>%{customdata[1]}'
+                name="",
+                hovertemplate='%{customdata[0]}<br>%{customdata[1]}<br>%{customdata[2]}'
             )
 
-            f = go.Figure(ava_hm)
+            f = go.Figure(heatmap)
             for data in f.data:
                 fig.add_trace(data)
 

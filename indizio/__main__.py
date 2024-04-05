@@ -11,7 +11,8 @@ from dash import dcc
 
 from indizio import __version__
 from indizio.cache import CACHE_MANAGER
-from indizio.components.navbar import NavBar
+from indizio.components.layout.message import LayoutMessage
+from indizio.components.layout.navbar import NavBar
 from indizio.config import RELOAD_ID, TMP_DIR
 from indizio.interfaces.logging import LogLevel
 from indizio.store.clustergram_parameters import ClustergramParametersStore
@@ -101,6 +102,7 @@ def main(
 
                     # Add the default page content
                     NavBar(),
+                    LayoutMessage(),
                     dcc.Location(id=RELOAD_ID, refresh=True),
                     dbc.Container(
                         fluid=True,

@@ -32,8 +32,20 @@ def log(msg, level: LogLevel = LogLevel.INFO):
     rich.print(f'[bold][{ts}][/bold] [bold {color}]{level.value.upper()}[/bold {color}] - {msg}')
 
 
-def log_debug(msg):
+def log_debug(msg: str):
     log(msg, level=LogLevel.DEBUG)
+
+
+def log_info(msg: str):
+    log(msg, level=LogLevel.INFO)
+
+
+def log_warn(msg: str):
+    log(msg, level=LogLevel.WARNING)
+
+
+def log_err(msg: str):
+    log(msg, level=LogLevel.ERROR)
 
 
 def hide_logs(name: str):
