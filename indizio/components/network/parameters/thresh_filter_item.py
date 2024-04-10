@@ -41,7 +41,6 @@ class NetworkThreshFilterItem(html.Tr):
                         },
                         type="number",
                         value=threshold.left_value,
-                        step=0.1,
                         size='sm'
                     )
                 ),
@@ -53,7 +52,6 @@ class NetworkThreshFilterItem(html.Tr):
                         },
                         type="number",
                         value=threshold.right_value,
-                        step=0.1,
                         size='sm'
                     )
                 ),
