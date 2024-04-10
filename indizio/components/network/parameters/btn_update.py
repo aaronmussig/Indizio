@@ -10,11 +10,13 @@ from indizio.components.network.parameters.thresh_filter_item import NetworkThre
 from indizio.components.network.parameters.thresh_matching import NetworkThreshMatching
 from indizio.config import ID_NETWORK_FORM_DEGREE_LOWER_VALUE, ID_NETWORK_FORM_DEGREE_UPPER_VALUE, \
     ID_NETWORK_FORM_EDGES_TO_SELF, ID_NETWORK_FORM_NODE_METADATA_COLOR_FILE, ID_NETWORK_FORM_NODE_METADATA_COLOR_COLUMN, \
-    ID_NETWORK_FORM_NODE_METADATA_SIZE_FILE, ID_NETWORK_FORM_NODE_METADATA_SIZE_COLUMN
+    ID_NETWORK_FORM_NODE_METADATA_SIZE_FILE, ID_NETWORK_FORM_NODE_METADATA_SIZE_COLUMN, ID_NETWORK_PARAM_EDGE_WEIGHTS, \
+    ID_NETWORK_PARAM_METRIC_SELECT
 from indizio.interfaces.boolean import BooleanAllAny, BooleanShowHide
 from indizio.interfaces.bound import Bound
+from indizio.interfaces.edge_weights import EdgeWeights
 from indizio.store.network_form_store import NetworkFormStore, NetworkFormStoreData, NetworkFormLayoutOption, \
-    NetworkParamThreshold, NetworkParamDegree, NetworkParamNodeColor, NetworkParamNodeSize
+    NetworkParamThreshold, NetworkParamDegree, NetworkParamNodeColor, NetworkParamNodeSize, NetworkParamEdgeWeights
 
 
 class NetworkFormBtnUpdate(dbc.Button):
@@ -53,6 +55,9 @@ class NetworkFormBtnUpdate(dbc.Button):
                 degree_upper_value=State(ID_NETWORK_FORM_DEGREE_UPPER_VALUE, 'value'),
                 edges_to_self=State(ID_NETWORK_FORM_EDGES_TO_SELF, 'value'),
 
+                edge_weights=State(ID_NETWORK_PARAM_EDGE_WEIGHTS, 'value'),
+                edge_weights_metric=State(ID_NETWORK_PARAM_METRIC_SELECT, 'value'),
+
                 corr_lower_bound=State({'type': NetworkThreshFilterItem.ID_LEFT_BOUND, 'file_id': ALL}, 'value'),
                 corr_upper_bound=State({'type': NetworkThreshFilterItem.ID_RIGHT_BOUND, 'file_id': ALL}, 'value'),
                 corr_lower_value=State({'type': NetworkThreshFilterItem.ID_LEFT_VALUE, 'file_id': ALL}, 'value'),
@@ -74,6 +79,8 @@ class NetworkFormBtnUpdate(dbc.Button):
                 degree_lower_value,
                 degree_upper_value,
                 edges_to_self,
+                edge_weights,
+                edge_weights_metric,
                 corr_lower_bound,
                 corr_upper_bound,
                 corr_lower_value,
@@ -128,6 +135,12 @@ class NetworkFormBtnUpdate(dbc.Button):
                 max_value=max(degree_lower_value or 0.0, degree_upper_value or 1.0),
             )
             network_form_state.show_edges_to_self = BooleanShowHide(edges_to_self)
+
+            if edge_weights is not None and edge_weights_metric is not None:
+                network_form_state.edge_weights = NetworkParamEdgeWeights(
+                    file_id=edge_weights_metric,
+                    value=EdgeWeights(edge_weights)
+                )
 
             # Serialize and return the data
             return dict(

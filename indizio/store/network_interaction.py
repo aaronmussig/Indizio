@@ -1,4 +1,4 @@
-from typing import Optional, List, Set
+from typing import Set
 
 from dash import dcc
 from pydantic import BaseModel
@@ -11,24 +11,19 @@ class NetworkInteractionData(BaseModel):
     This is the actual model for the data in the network interaction store.
     """
 
-    node_selected: Optional[str] = None
-    edge_nodes: List[str] = list()
+    nodes_selected: Set[str] = set()
+    nodes_visible: Set[str] = set()
 
-    def select_node(self, node: str):
-        if node == self.node_selected:
-            self.node_selected = None
+    def toggle_node(self, node_id: str):
+
+        # Toggle the node active/inactive
+        if node_id in self.nodes_selected:
+            self.nodes_selected.remove(node_id)
         else:
-            self.node_selected = node
-        self.edge_nodes = list()
+            self.nodes_selected.add(node_id)
 
-    def add_edge_node(self, node: str):
-        self.edge_nodes.append(node)
-
-    def has_node_selected(self) -> bool:
-        return self.node_selected is not None
-
-    def get_all_nodes(self) -> Set[str]:
-        return set([self.node_selected] + self.edge_nodes)
+    def set_visible_nodes(self, nodes):
+        self.nodes_visible = nodes
 
 
 class NetworkInteractionStore(dcc.Store):

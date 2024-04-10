@@ -113,18 +113,7 @@ class UploadFormBtnExample(dbc.Button):
             dm_store = DistanceMatrixData()
             meta_store = MetadataData()
             tree_store = TreeData()
-            network_store = NetworkFormStoreData(
-                thresholds={
-                    dm_file.file_id: NetworkParamThreshold(
-                        file_id=dm_file.file_id,
-                        left_value=0,
-                        right_value=100
-                    )
-                },
-                degree=NetworkParamDegree(
-                    max_value=100.0,
-                )
-            )
+
             clustergram_params = ClustergramParameters(
                 metric=pa_file.file_id,
                 tree=tree_file.file_id,
@@ -142,6 +131,21 @@ class UploadFormBtnExample(dbc.Button):
             meta_store.add_item(meta_file)
             tree_store.add_item(tree_file)
             graph_store = DmGraph.from_distance_matricies(dm_store.get_files())
+
+            # Compute the maximum/minimum threshold values from the distance matricies
+            network_store_thresholds = dict()
+            for cur_dm_file in dm_store.get_files():
+                network_store_thresholds[cur_dm_file.file_id] = NetworkParamThreshold(
+                    file_id=dm_file.file_id,
+                    left_value=cur_dm_file.min_value,
+                    right_value=cur_dm_file.max_value
+                )
+            network_store = NetworkFormStoreData(
+                thresholds=network_store_thresholds,
+                degree=NetworkParamDegree(
+                    max_value=max(x[1] for x in graph_store.read().degree),
+                )
+            )
 
             return dict(
                 network_store=network_store.model_dump(mode='json'),

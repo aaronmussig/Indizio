@@ -210,5 +210,6 @@ class UploadFormBtnUpload(dbc.Button):
                 network_params=network_params.model_dump(mode='json'),
                 reload='/',
                 message='',
+                message_ex='',
                 message_show=False
             )

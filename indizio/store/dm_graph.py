@@ -182,6 +182,13 @@ class DmGraph(BaseModel):
             node['data']['label'] = node['data']['name']
             del node['data']['name']
 
+        # Add an identifier to each edge composed from the source/target
+        for edge in out_graph['edges']:
+            source = edge['data']['source']
+            target = edge['data']['target']
+            edge_id = sorted([f'{source}-{target}', f'{target}-{source}'])[0]
+            edge['data']['id'] = edge_id
+
         return out_graph
 
 

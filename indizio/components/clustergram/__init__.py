@@ -15,7 +15,7 @@ class ClustergramContainer(dbc.Card):
     def __init__(self):
         super().__init__(
             children=[
-                dbc.CardHeader(html.H4('Network Statistics')),
+                dbc.CardHeader(html.H4('Clustergram')),
                 dbc.CardBody([
                     ClustergramPlot()
                 ])

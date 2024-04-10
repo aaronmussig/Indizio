@@ -3,6 +3,7 @@ from dash import Output, Input, State, html, callback
 
 from indizio.components.network.parameters.btn_update import NetworkFormBtnUpdate
 from indizio.components.network.parameters.degree import NetworkFormDegree
+from indizio.components.network.parameters.display_properties import NetworkParamsDisplayProperties
 from indizio.components.network.parameters.layout import NetworkFormLayout
 from indizio.components.network.parameters.node_metadata import NetworkFormNodeMetadata
 from indizio.components.network.parameters.node_of_interest import NetworkFormNodeOfInterest
@@ -38,7 +39,6 @@ class NetworkFormParameters(html.Div):
                     children=[
                         NetworkFormLayout(),
 
-
                         html.Div(
                             className='mt-3',
                             children=[
@@ -58,18 +58,26 @@ class NetworkFormParameters(html.Div):
                                 NetworkFormDegree(),
                             ]),
 
+                        html.Div(
+                            className='mt-3',
+                            children=[
+                                NetworkParamsDisplayProperties(),
+                            ]
+                        ),
 
                         html.Div(
                             className='mt-3',
                             children=[
                                 NetworkThreshFilterContainer(),
-                            ]),
+                            ]
+                        ),
 
                         html.Div(
                             className='mt-3',
                             children=[
                                 NetworkFormBtnUpdate(),
-                            ])
+                            ]
+                        )
 
                     ]
                 ),

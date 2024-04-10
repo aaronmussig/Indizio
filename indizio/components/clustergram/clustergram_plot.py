@@ -73,12 +73,6 @@ class ClustergramPlot(dcc.Graph):
             state_meta = MetadataData(**state_meta)
             state_interaction = NetworkInteractionData(**state_interaction)
 
-            # Check if any nodes are selected, as we will subset the distance matrix
-            # to those nodes
-            nodes_to_keep = set()
-            if state_interaction.has_node_selected():
-                nodes_to_keep = state_interaction.get_all_nodes()
-
             # Load the distance matrix based on what was used to generate the graph
 
             # Optionally load the metadata
@@ -99,12 +93,28 @@ class ClustergramPlot(dcc.Graph):
             else:
                 feature_df = state_dm.get_file(params.metric).read()
 
+            # If there are nodes selected from the network page, then subset
+            # the dataframe to those nodes
+            if len(state_interaction.nodes_selected) > 0:
+                visible_selected = state_interaction.nodes_visible.intersection(state_interaction.nodes_selected)
+                subset_cols = [x for x in feature_df.columns if x in visible_selected]
+                feature_df = feature_df[subset_cols]
+            else:
+                subset_cols = [x for x in feature_df.columns if x in state_interaction.nodes_visible]
+                feature_df = feature_df[subset_cols]
+
+            # To prevent an error on only one column visible, do not cluster
+            if len(feature_df.columns) < 2:
+                cluster_features = False
+            else:
+                cluster_features = params.cluster_on.is_features()
+
             # Generate the Clustergram using DashBio and return the traces
             feature_df, cg_traces = generate_clustergram(
                 feature_df=feature_df,
                 tree=tree,
                 optimal_leaf_ordering=params.optimal_leaf_order is BooleanYesNo.YES,
-                cluster_features=params.cluster_on.is_features(),
+                cluster_features=cluster_features,
                 cluster_ids=params.cluster_on.is_identifiers(),
             )
 
@@ -196,6 +206,7 @@ def generate_clustergram(
             [1.0, '#EF553B']
         ],
         return_computed_traces=True,
+        line_width=2.0,
     )
     return feature_df, traces
 
@@ -250,6 +261,8 @@ def generate_annotation_heatmap(feature_df: pd.DataFrame, cg_traces, df_meta: Op
         cg_traces['heatmap'],
         colorscale=((0.0, '#FFFFFF'), (1.0, '#EF553B')),
         showscale=False,
+        xgap=1,
+        ygap=1,
         hovertemplate='<b>ID:</b> %{y}<br><b>Feature:</b> %{x}',
         name=''
     )
@@ -285,12 +298,16 @@ def generate_annotation_heatmap(feature_df: pd.DataFrame, cg_traces, df_meta: Op
     Add the metadata grouping
     """
     if df_meta is not None:
-        left_meta, left_meta_x_ticks, left_meta_y_ticks = generate_metadata_heatmap(feature_df, cg_traces, main_heatmap,
-                                                                                    df_meta)
+        left_meta, left_meta_x_ticks, left_meta_y_ticks = generate_metadata_heatmap(
+            feature_df,
+            cg_traces,
+            main_heatmap,
+            df_meta
+        )
         fig.add_trace(left_meta, row=row_meta_left, col=col_meta_left)
         fig.update_xaxes(
             ticktext=left_meta_x_ticks, tickvals=left_meta.x,
-            row=row_meta_left, col=col_meta_left, tickangle=-90
+            row=row_meta_left, col=col_meta_left, tickangle=-60
         )
         fig.update_yaxes(
             ticktext=left_meta_y_ticks, tickvals=left_meta.y,

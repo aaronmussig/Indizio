@@ -7,6 +7,7 @@ from pydantic import BaseModel
 from indizio.config import PERSISTENCE_TYPE
 from indizio.interfaces.boolean import BooleanAllAny, BooleanShowHide
 from indizio.interfaces.bound import Bound
+from indizio.interfaces.edge_weights import EdgeWeights
 from indizio.interfaces.html_option import HtmlOption
 
 
@@ -58,6 +59,10 @@ class NetworkParamNodeSize(BaseModel):
     file_id: str
     column: str
 
+class NetworkParamEdgeWeights(BaseModel):
+    file_id: str
+    value: EdgeWeights = EdgeWeights.HIDDEN
+
 
 class NetworkFormStoreData(BaseModel):
     """
@@ -72,6 +77,7 @@ class NetworkFormStoreData(BaseModel):
     show_edges_to_self: BooleanShowHide = BooleanShowHide.HIDE
     node_color: Optional[NetworkParamNodeColor] = None
     node_size: Optional[NetworkParamNodeSize] = None
+    edge_weights: Optional[NetworkParamEdgeWeights] = None
 
     def get_focal_node_str(self):
         """Returns the string output of the focal node."""

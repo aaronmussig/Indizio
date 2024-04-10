@@ -28,9 +28,15 @@ ID_NETWORK_FORM_DEGREE_LOWER_VALUE = f'{ID_NETWORK_FORM_DEGREE}-lower-value'
 ID_NETWORK_FORM_DEGREE_UPPER_VALUE = f'{ID_NETWORK_FORM_DEGREE}-upper-value'
 ID_NETWORK_FORM_EDGES_TO_SELF = f'{ID_NETWORK_FORM_DEGREE}-show-edges-to-self'
 
-ID_NETWORK_VIZ_NODE_EDGE_COUNT = 'network-viz-node-edge-count'
+ID_NETWORK_VIZ_EDGE_COUNT = 'network-viz-edge-count'
+ID_NETWORK_VIZ_NODE_COUNT = 'network-viz-node-count'
+ID_NETWORK_VIZ_FILTERING_APPLIED = 'network-viz-filtering-applied'
 
 ID_NETWORK_FORM_NODE_METADATA_COLOR_FILE = 'network-form-node-metadata-color-file'
 ID_NETWORK_FORM_NODE_METADATA_COLOR_COLUMN = 'network-form-node-metadata-color-column'
 ID_NETWORK_FORM_NODE_METADATA_SIZE_FILE = 'network-form-node-metadata-size-file'
 ID_NETWORK_FORM_NODE_METADATA_SIZE_COLUMN = 'network-form-node-metadata-size-column'
+
+
+ID_NETWORK_PARAM_EDGE_WEIGHTS = 'network-parameters-edge-weights'
+ID_NETWORK_PARAM_METRIC_SELECT = 'network-parameters-metric-select'
