@@ -38,6 +38,16 @@ class MetadataFile(BaseModel):
             n_rows=int(df.shape[0])
         )
 
+    def get_cols_as_html_options(self) -> List[Dict[str, str]]:
+        out = list()
+        df = self.read()
+        for col in df.columns:
+            out.append(dict(
+                label=col,
+                value=col
+            ))
+        return out
+
     def read(self) -> pd.DataFrame:
         return from_pickle_df(self.path)
 

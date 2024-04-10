@@ -4,6 +4,7 @@ import plotly
 import plotly.express as px
 from PIL import ImageColor
 from _plotly_utils.basevalidators import ColorscaleValidator
+import numpy as np
 
 
 ################################################################################
@@ -88,6 +89,23 @@ def numerical_colorscale(values, colorscale):
     }
 
     return d_val_to_hex
+
+def categorical_colorscale(values, colorscale=px.colors.qualitative.Dark24):
+    unq_values = list()
+    seen = set()
+    for value in values:
+        if value not in seen:
+            unq_values.append(value)
+            seen.add(value)
+    out = dict()
+    for i, value in enumerate(unq_values):
+        if isinstance(value, float) and value is np.isnan(value):
+            color = '#FFFFFF'
+        else:
+            color = colorscale[i % len(colorscale)]
+        out[value] = color
+    return out
+
 
 
 def rgb_tuple_to_hex(rgb: Tuple[int, int, int]) -> str:

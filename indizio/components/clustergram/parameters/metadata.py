@@ -10,6 +10,7 @@ class ClustergramParamsMetadata(dbc.Row):
     This component allows the user to select the metadata file used for highlighting.
     """
     ID = 'clustergram-params-metadata'
+    ID_COLS = f'{ID}-cols'
 
     def __init__(self):
         super().__init__(
@@ -28,6 +29,17 @@ class ClustergramParamsMetadata(dbc.Row):
                         options=[],
                         value=None,
                         className="bg-light text-dark",
+                        placeholder='Metadata file'
+                    ),
+                ),
+                dbc.Col(
+                    dcc.Dropdown(
+                        id=self.ID_COLS,
+                        options=[],
+                        value=[],
+                        className="bg-light text-dark",
+                        multi=True,
+                        placeholder='Columns visible'
                     ),
                 ),
             ]
@@ -66,4 +78,40 @@ class ClustergramParamsMetadata(dbc.Row):
             return dict(
                 options=options,
                 value=default
+            )
+
+        @callback(
+            output=dict(
+                options=Output(self.ID_COLS, "options"),
+                value=Output(self.ID_COLS, "value"),
+            ),
+            inputs=dict(
+                metadata_value=Input(self.ID, "value"),
+                state_meta=State(MetadataFileStore.ID, "data"),
+                ts_params=Input(ClustergramParametersStore.ID, "modified_timestamp"),
+                state_params=State(ClustergramParametersStore.ID, "data"),
+            )
+        )
+        def update_column_values_on_change(metadata_value, state_meta, ts_params, state_params):
+            if metadata_value is None or state_meta is None:
+                return dict(
+                    options=list(),
+                    value=list()
+                )
+
+            # De-serialize the state
+            state = MetadataData(**state_meta)
+            meta_file = state.get_file(metadata_value)
+            meta_cols = meta_file.get_cols_as_html_options()
+
+            # Update the state to reflect the store
+            if state_params is not None:
+                state_params = ClustergramParameters(**state_params)
+                value = state_params.metadata_cols
+            else:
+                value = list()
+
+            return dict(
+                options=meta_cols,
+                value=value
             )

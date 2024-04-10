@@ -15,9 +15,30 @@ class ClustergramContainer(dbc.Card):
     def __init__(self):
         super().__init__(
             children=[
-                dbc.CardHeader(html.H4('Clustergram')),
-                dbc.CardBody([
-                    ClustergramPlot()
-                ])
+                dbc.CardHeader(
+                    [
+                        html.Div(
+                            className='d-flex',
+                            style={'alignItems': 'center'},
+                            children=[
+                                html.H4("Clustergram", className='mt-1'),
+                                html.Div(
+                                    className='d-flex',
+                                    style={'marginLeft': 'auto', 'marginRight': '0px'},
+                                    children=[
+                                        ClustergramParametersCanvas(),
+                                    ]
+                                ),
+                            ]
+                        ),
+
+                        dbc.CardBody(
+                            className='p-0',
+                            children=[
+                                ClustergramPlot()
+                            ]
+                        )
+                    ]
+                )
             ]
         )

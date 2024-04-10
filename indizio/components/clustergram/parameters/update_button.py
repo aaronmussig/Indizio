@@ -20,7 +20,7 @@ class ClustergramParamsUpdateButton(dbc.Button):
 
     def __init__(self):
         super().__init__(
-            "Update Heatmap",
+            "Update Clustergram",
             id=self.ID,
             color="success",
             n_clicks=0,
@@ -37,9 +37,10 @@ class ClustergramParamsUpdateButton(dbc.Button):
                 metadata=Input(ClustergramParamsMetadata.ID, 'value'),
                 cluster_on=Input(ClustergramParamsClusterOn.ID, 'value'),
                 optimal_leaf_ordering=Input(ClustergramParamsOptimalLeafOrder.ID, 'value'),
+                metadata_cols=Input(ClustergramParamsMetadata.ID_COLS, 'value')
             )
         )
-        def update_options_on_file_upload(n_clicks, metric, tree, metadata, cluster_on, optimal_leaf_ordering):
+        def update_options_on_file_upload(n_clicks, metric, tree, metadata, cluster_on, optimal_leaf_ordering, metadata_cols):
             log = logging.getLogger()
             log.debug(f'{self.ID} - Updating clustergram visualization parameters.')
 
@@ -54,6 +55,7 @@ class ClustergramParamsUpdateButton(dbc.Button):
                     metadata=metadata,
                     cluster_on=ClusterOn(cluster_on),
                     optimal_leaf_order=BooleanYesNo(optimal_leaf_ordering),
+                    metadata_cols=metadata_cols if metadata_cols else list()
                 ).model_dump(mode='json')
             )
 

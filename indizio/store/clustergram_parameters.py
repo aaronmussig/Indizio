@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 
 from dash import dcc
 from pydantic import BaseModel
@@ -17,7 +17,7 @@ class ClustergramParameters(BaseModel):
     metadata: Optional[str] = None
     cluster_on: ClusterOn = ClusterOn.IDS
     optimal_leaf_order: BooleanYesNo = BooleanYesNo.NO
-
+    metadata_cols: List[str] = list()
 
 class ClustergramParametersStore(dcc.Store):
     """

@@ -13,7 +13,7 @@ from indizio.store.dm_graph import DistanceMatrixGraphStore, DmGraph
 from indizio.store.matrix_parameters import MatrixParametersStore, MatrixParameters
 from indizio.store.metadata_file import MetadataFileStore, MetadataFile, MetadataData
 from indizio.store.network_form_store import NetworkFormStore, NetworkFormStoreData, \
-    NetworkParamThreshold, NetworkParamDegree
+    NetworkParamThreshold, NetworkParamDegree, NetworkParamNodeColor, NetworkParamNodeSize
 from indizio.store.network_interaction import NetworkInteractionStore, NetworkInteractionData
 from indizio.store.presence_absence import PresenceAbsenceStore, PresenceAbsenceFile, PresenceAbsenceData
 from indizio.store.tree_file import TreeFileStore, TreeFile, TreeData
@@ -99,12 +99,20 @@ class UploadFormBtnExample(dbc.Button):
                     hash='422bd885e40e8cae0f5aded841573a98'
                 )
             )
-            meta_file = MetadataFile.from_upload_data(
+            meta_file_pa = MetadataFile.from_upload_data(
                 UploadFormItem(
-                    file_name='metadata.tsv',
-                    name='Metadata (Example)',
-                    path=example_dir / 'metadata.tsv',
-                    hash='8df2f2b92401c5b4a8b3eeb165f924d5'
+                    file_name='metadata_pa.tsv',
+                    name='PA Metadata (Example)',
+                    path=example_dir / 'metadata_pa.tsv',
+                    hash='549f0e1e5a6cf1f6212994ce0ad91fbc'
+                )
+            )
+            meta_file_graph = MetadataFile.from_upload_data(
+                UploadFormItem(
+                    file_name='metadata_graph.tsv',
+                    name='Graph Metadata (Example)',
+                    path=example_dir / 'metadata_graph.tsv',
+                    hash='462381af92bb1d76167f78d3a15b505b'
                 )
             )
 
@@ -117,9 +125,10 @@ class UploadFormBtnExample(dbc.Button):
             clustergram_params = ClustergramParameters(
                 metric=pa_file.file_id,
                 tree=tree_file.file_id,
-                metadata=meta_file.file_id,
+                metadata=meta_file_pa.file_id,
                 cluster_on=ClusterOn.BOTH,
-                optimal_leaf_order=BooleanYesNo.YES
+                optimal_leaf_order=BooleanYesNo.YES,
+                metadata_cols=['Genus', 'Factor']
             )
             matrix_params = MatrixParameters(
                 metric=dm_file.file_id,
@@ -128,7 +137,8 @@ class UploadFormBtnExample(dbc.Button):
 
             pa_store.add_item(pa_file)
             dm_store.add_item(dm_file)
-            meta_store.add_item(meta_file)
+            meta_store.add_item(meta_file_pa)
+            meta_store.add_item(meta_file_graph)
             tree_store.add_item(tree_file)
             graph_store = DmGraph.from_distance_matricies(dm_store.get_files())
 
@@ -144,6 +154,14 @@ class UploadFormBtnExample(dbc.Button):
                 thresholds=network_store_thresholds,
                 degree=NetworkParamDegree(
                     max_value=max(x[1] for x in graph_store.read().degree),
+                ),
+                node_color=NetworkParamNodeColor(
+                    file_id=meta_file_graph.file_id,
+                    column='Group'
+                ),
+                node_size=NetworkParamNodeSize(
+                    file_id=meta_file_graph.file_id,
+                    column='Importance'
                 )
             )
 

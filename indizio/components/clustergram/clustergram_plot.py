@@ -4,7 +4,6 @@ from typing import Optional
 import dash_bio
 import numpy as np
 import pandas as pd
-import plotly.express as px
 import plotly.graph_objects as go
 from dash import Output, Input, callback, State, dcc
 from phylodm import PhyloDM
@@ -17,28 +16,36 @@ from indizio.store.metadata_file import MetadataFileStore, MetadataData
 from indizio.store.network_interaction import NetworkInteractionStore, NetworkInteractionData
 from indizio.store.presence_absence import PresenceAbsenceStore, PresenceAbsenceData
 from indizio.store.tree_file import TreeFileStore, TreeData
+from indizio.util.data import is_numeric
 
 
-class ClustergramPlot(dcc.Graph):
+class ClustergramPlot(dcc.Loading):
     """
     This component is the main clustergram plot.
     """
 
     ID = 'clustergram-plot'
+    ID_GRAPH = f'{ID}-graph'
+    ID_LOADING = f'{ID}-loading'
 
     def __init__(self):
         super().__init__(
-            id=self.ID,
-            style={
-                'width': 'min(calc(100vh - 170px), 100vw)',
-                'height': 'min(calc(100vh - 170px), 100vw)'
-            },
-            responsive=True,
+            id=self.ID_LOADING,
+            children=[
+                dcc.Graph(
+                    id=self.ID_GRAPH,
+                    style={
+                        'width': '100%',
+                        'height': 'calc(100vh - 170px)'
+                    },
+                    responsive=True,
+                )
+            ]
         )
 
         @callback(
             output=dict(
-                fig=Output(self.ID, "figure"),
+                fig=Output(self.ID_GRAPH, "figure"),
             ),
             inputs=dict(
                 ts_params=Input(ClustergramParametersStore.ID, "modified_timestamp"),
@@ -60,7 +67,7 @@ class ClustergramPlot(dcc.Graph):
                 state_tree, state_meta, state_interaction
         ):
             log = logging.getLogger()
-            log.debug(f'{self.ID} - Updating clustergram figure.')
+            log.debug(f'{self.ID_GRAPH} - Updating clustergram figure.')
 
             # if ts_dm is None or not state_dm:
             #     log.debug(f'{self.ID} - No data to update from.')
@@ -99,7 +106,7 @@ class ClustergramPlot(dcc.Graph):
                 visible_selected = state_interaction.nodes_visible.intersection(state_interaction.nodes_selected)
                 subset_cols = [x for x in feature_df.columns if x in visible_selected]
                 feature_df = feature_df[subset_cols]
-            else:
+            elif len(state_interaction.nodes_visible) > 0:
                 subset_cols = [x for x in feature_df.columns if x in state_interaction.nodes_visible]
                 feature_df = feature_df[subset_cols]
 
@@ -120,7 +127,7 @@ class ClustergramPlot(dcc.Graph):
 
             # Using the DashBio data, create our own Clustergram figure
             # as the DashBio doesn't allow for multiple colour grouping (meta)
-            fig = generate_annotation_heatmap(feature_df, cg_traces, df_meta)
+            fig = generate_annotation_heatmap(feature_df, cg_traces, df_meta, params)
 
             # Disable the heatmap levend as only boolean values are shown
             # for cur_item in clustergram.data:
@@ -211,67 +218,67 @@ def generate_clustergram(
     return feature_df, traces
 
 
-def generate_annotation_heatmap(feature_df: pd.DataFrame, cg_traces, df_meta: Optional[MetadataData]):
+def generate_annotation_heatmap(feature_df: pd.DataFrame, cg_traces, df_meta: Optional[MetadataData],
+                                params: ClustergramParameters):
     """
     Creates the main clustergram figure
     """
+    has_metadata = df_meta is not None and params.metadata is not None and len(params.metadata_cols) > 0
+    n_meta_cols = len(params.metadata_cols) if has_metadata else 0
 
     # As the ordering of indices may have changed in the main heatmap, get the
     # names of the rows and columns in the correct order
     idx_to_row_label = [feature_df.index[x] for x in cg_traces['row_ids']]
     idx_to_col_label = [feature_df.columns[x] for x in cg_traces['column_ids']]
 
+    # Set the dimensions/identifiers for the plot (variable columns)
+    row_meta_left = 2
+    row_dend_left, col_dend_left = 2, 1
+    row_dend_top, col_dend_top = 1, 2 + n_meta_cols
+    row_heat_main, col_heat_main = 2, 2 + n_meta_cols
+
+    # The remaining space will be used by the metadata columns (if present)
+    col_left_dendro_width = 20
+    col_main_heatmap_width = 70 if n_meta_cols > 0 else 80
+    if n_meta_cols > 0:
+        col_meta_each = (100 - (col_main_heatmap_width + col_left_dendro_width)) / n_meta_cols
+        column_widths = [col_left_dendro_width]
+        [column_widths.append(col_meta_each) for _ in range(n_meta_cols)]
+        column_widths.append(col_main_heatmap_width)
+    else:
+        column_widths = [col_left_dendro_width, col_main_heatmap_width]
+
     """
     Create subplots equal to the following:
-        [empty]      [empty]      [dendro_col] 
-        [dendro_row] [meta_row]   [heatmap]   
+        [empty]      [empty * params.metadata_cols]      [dendro_col] 
+        [dendro_row] [meta_row * params.metadata_cols]   [heatmap]   
     """
-
-    subplot_spacing = [25, 10, 80]
     fig = make_subplots(
         rows=2,
-        cols=3,
+        cols=2 + n_meta_cols,
         vertical_spacing=0,
         horizontal_spacing=0,
         shared_xaxes=True,
         shared_yaxes=True,
-        column_widths=[20, 10, 70],
+        column_widths=column_widths,
         row_heights=[20, 80],
     )
-
-    row_meta_left, col_meta_left = 2, 2
-    row_dend_left, col_dend_left = 2, 1
-
-    row_dend_top, col_dend_top = 1, 3
-
-    row_heat_main, col_heat_main = 2, 3
-
-    # for trace in go.Figure(clustergram).data:
-    #     fig.add_trace(trace, row=1, col=2)
-    # fig.add_trace(test, row=1, col=1)
-
-    # fig.update_layout(clustergram.layout)
 
     """
     Create the main heatmap
     """
-
     # Use the pre-computed matrix from the DashBio library
     main_heatmap = go.Heatmap(
         cg_traces['heatmap'],
-        colorscale=((0.0, '#FFFFFF'), (1.0, '#EF553B')),
+        colorscale=((0.0, 'rgba(0,0,0,0)'), (1.0, '#EF553B')),
         showscale=False,
         xgap=1,
         ygap=1,
         hovertemplate='<b>ID:</b> %{y}<br><b>Feature:</b> %{x}',
-        name=''
+        name='',
     )
 
     fig.add_trace(main_heatmap, row=row_heat_main, col=col_heat_main)
-
-    # Remove the colorbar as it is not needed
-    # trace_heatmap.update_layout(coloraxis_showscale=False)
-    # main_heatmap.data[0].showscale = False
 
     # Add the tick labls
     fig.update_xaxes(
@@ -297,22 +304,26 @@ def generate_annotation_heatmap(feature_df: pd.DataFrame, cg_traces, df_meta: Op
     """
     Add the metadata grouping
     """
-    if df_meta is not None:
-        left_meta, left_meta_x_ticks, left_meta_y_ticks = generate_metadata_heatmap(
-            feature_df,
-            cg_traces,
-            main_heatmap,
-            df_meta
-        )
-        fig.add_trace(left_meta, row=row_meta_left, col=col_meta_left)
-        fig.update_xaxes(
-            ticktext=left_meta_x_ticks, tickvals=left_meta.x,
-            row=row_meta_left, col=col_meta_left, tickangle=-60
-        )
-        fig.update_yaxes(
-            ticktext=left_meta_y_ticks, tickvals=left_meta.y,
-            row=row_meta_left, col=col_meta_left
-        )
+    if has_metadata:
+        for meta_col_idx, meta_col_value in enumerate(params.metadata_cols):
+            meta_col_idx += 2
+
+            left_meta, left_meta_y_ticks = generate_metadata_heatmap(
+                feature_df,
+                cg_traces,
+                main_heatmap,
+                df_meta,
+                meta_col_value
+            )
+            fig.add_trace(left_meta, row=row_meta_left, col=meta_col_idx)
+            fig.update_xaxes(
+                ticktext=[meta_col_value], tickvals=left_meta.x,
+                row=row_meta_left, col=meta_col_idx, tickangle=-60
+            )
+            fig.update_yaxes(
+                ticktext=left_meta_y_ticks, tickvals=left_meta.y,
+                row=row_meta_left, col=meta_col_idx
+            )
 
     """
     Styling
@@ -328,71 +339,60 @@ def generate_annotation_heatmap(feature_df: pd.DataFrame, cg_traces, df_meta: Op
     })
 
     # Hide the axis labels for all subplots
-    fig.update_xaxes(showticklabels=False)
-    fig.update_yaxes(showticklabels=False)
+    fig.update_xaxes(showticklabels=False, showgrid=False, zerolinecolor='rgba(0,0,0,0)')
+    fig.update_yaxes(showticklabels=False, showgrid=False, zerolinecolor='rgba(0,0,0,0)')
 
     # Show axis labels for select subplots
-    fig.update_xaxes(showticklabels=True, row=row_meta_left, col=col_meta_left)
     fig.update_xaxes(showticklabels=True, row=row_heat_main, col=col_heat_main)
     fig.update_yaxes(showticklabels=True, row=row_heat_main, col=col_heat_main)
 
     # Change the location of the axes for select subplots
     fig.update_yaxes(side="right", row=row_heat_main, col=col_heat_main)
 
-    # Prevent zooming for certain axes
-    fig.update_xaxes(fixedrange=True, row=row_meta_left, col=col_meta_left)
+    # Update the metadata axes
+    for meta_col_idx in range(n_meta_cols):
+        meta_col_idx += 2
+
+        # Show axis labels for select subplots
+        fig.update_xaxes(showticklabels=True, row=row_meta_left, col=meta_col_idx)
+
+        # Prevent zooming for certain axes
+        fig.update_xaxes(fixedrange=True, row=row_meta_left, col=meta_col_idx)
 
     return fig
 
 
-def generate_metadata_heatmap(feature_df: pd.DataFrame, cg_traces, main_heatmap, df_meta: pd.DataFrame):
-    # Extract relevant information from the feature dataframe
-    d_id_to_row_idx = {x: i for i, x in enumerate(feature_df.index)}
-
-    # Assign a unique color index to each unique value in each column
-    colors = px.colors.qualitative.Plotly
-    cur_color = 1  # the first colour is reserved for nothing
-    d_col_to_colors = dict()
-    column_names = list()
-    for col_idx, meta_col in enumerate(df_meta.columns):
-        d_col_colors = dict()
-        d_value_to_color = dict()
-        for row_idx, meta_row in enumerate(df_meta.index):
-            cur_value = df_meta.values[row_idx, col_idx]
-            if cur_value not in d_value_to_color:
-                d_value_to_color[cur_value] = cur_color
-                cur_color += 1
-            d_col_colors[meta_row] = d_value_to_color[cur_value]
-        d_col_to_colors[meta_col] = d_col_colors
-        column_names.append(meta_col)
-
-    # Add any missing values to the color dictionary
-    all_ids = frozenset(feature_df.index)
-    for cur_col in d_col_to_colors:
-        for cur_id in all_ids - set(d_col_to_colors[cur_col]):
-            d_col_to_colors[cur_col][cur_id] = 0
-
-    # Assign the Z value for each cell in the heatmap
-    step = round(1 / cur_color, 10)
-    heat_data = np.zeros((feature_df.shape[0], df_meta.shape[1]), dtype=float)
+def generate_metadata_heatmap(
+        feature_df: pd.DataFrame,
+        cg_traces,
+        main_heatmap,
+        df_meta: pd.DataFrame,
+        column_name: str
+):
+    # Create the data matrix
+    heat_data = np.zeros((feature_df.shape[0], 1), dtype=float)
     heat_text = np.zeros(heat_data.shape, dtype=object)
-    heat_text.fill('N/A')
-    for col_idx, meta_col in enumerate(df_meta.columns):
-        for meta_row in df_meta.index:
-            row_idx = d_id_to_row_idx[meta_row]
-            heat_data[row_idx, col_idx] = d_col_to_colors[meta_col][meta_row] * step
-            heat_text[row_idx, col_idx] = df_meta.values[row_idx, col_idx]
 
-    # Create the colorscale to contain discrete bins
-    colorscale_new = list()
-    for i in range(cur_color):
-        if i == 0:
-            cur_color_hex = '#FFFFFF'
-        else:
-            cur_color_hex = colors[i % len(colors)]
-        colorscale_new.append([i * step, cur_color_hex])
-        colorscale_new.append([(i + 1) * step, cur_color_hex])
-    colorscale_new[-1][0] = 1.0
+    # Extract the values for this column
+    cur_col = df_meta[column_name]
+
+    # Check if this is a numerical or categorical column
+    all_numeric = all(is_numeric(x, nan_not_numeric=False) for x in cur_col.values)
+
+    # If this is a numeric column, assign a color gradient to the values
+    if not all_numeric:
+        d_value_to_idx = {k: i for i, k in enumerate(cur_col.values)}
+
+        # Iterate over each value in the current column to assign a value
+        for row_idx, cur_value in enumerate(cur_col.values):
+            heat_data[row_idx, 0] = d_value_to_idx[cur_value]
+            heat_text[row_idx, 0] = cur_value
+
+    else:
+        # Iterate over each value in the current column to assign a value
+        for row_idx, cur_value in enumerate(cur_col.values):
+            heat_data[row_idx, 0] = cur_value
+            heat_text[row_idx, 0] = cur_value
 
     # Re-order the heatmap to be consistent with the main heatmap clustering
     heat_data = heat_data[cg_traces['row_ids'], :]
@@ -403,7 +403,7 @@ def generate_metadata_heatmap(feature_df: pd.DataFrame, cg_traces, main_heatmap,
         x=list(range(heat_data.shape[1])),
         y=main_heatmap.y,
         z=heat_data,
-        colorscale=colorscale_new,
+        colorscale='agsunset',
         showscale=False,
         name='',
         customdata=heat_text,
@@ -411,4 +411,4 @@ def generate_metadata_heatmap(feature_df: pd.DataFrame, cg_traces, main_heatmap,
     )
 
     row_names = [feature_df.index[x] for x in cg_traces['row_ids']]
-    return left_meta, column_names, row_names
+    return left_meta, row_names
