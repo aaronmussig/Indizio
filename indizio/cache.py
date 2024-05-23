@@ -1,5 +1,6 @@
 import diskcache
 from dash import DiskcacheManager
+from joblib import Memory
 
 from indizio.config import TMP_DIR
 
@@ -9,3 +10,5 @@ CACHE = diskcache.Cache(TMP_DIR)
 CACHE_MANAGER = DiskcacheManager(
     CACHE,
 )
+
+MEMORY = Memory(TMP_DIR)

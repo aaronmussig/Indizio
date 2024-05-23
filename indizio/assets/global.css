@@ -18,10 +18,17 @@ node {
     content: data(label)
 }
 
+/*
+Without this, icons on the buttons will stop hyperlinks from working
+on non-chromium browsers
+*/
+.fas {
+    z-index: 1;
+}
 
 /*
 Additional CSS added below
- */
+*/
 
 .container-main {
     padding: 0;

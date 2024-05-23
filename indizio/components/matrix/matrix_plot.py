@@ -7,6 +7,7 @@ from dash.exceptions import PreventUpdate
 
 from indizio.store.distance_matrix import DistanceMatrixStore, DistanceMatrixData
 from indizio.store.matrix_parameters import MatrixParametersStore, MatrixParameters, MatrixBinOption
+from indizio.store.network_interaction import NetworkInteractionStore, NetworkInteractionData
 from indizio.util.cache import freezeargs
 from indizio.util.graph import format_axis_labels
 from indizio.util.log import log_debug
@@ -43,13 +44,15 @@ class MatrixPlot(dcc.Loading):
             inputs=dict(
                 ts_params=Input(MatrixParametersStore.ID, "modified_timestamp"),
                 ts_dm=Input(DistanceMatrixStore.ID, "modified_timestamp"),
+                ts_interaction=Input(NetworkInteractionStore.ID, "modified_timestamp"),
                 state_params=State(MatrixParametersStore.ID, "data"),
                 state_dm=State(DistanceMatrixStore.ID, "data"),
+                state_interaction=State(NetworkInteractionStore.ID, "data")
             )
         )
         @freezeargs
         @lru_cache
-        def update_options_on_file_upload(ts_params, ts_dm, state_params, state_dm):
+        def update_options_on_file_upload(ts_params, ts_dm, ts_interaction, state_params, state_dm, state_interaction):
             log_debug(f'{self.ID} - Updating matrix heatmap figure.')
 
             if ts_dm is None or not state_dm:
@@ -59,12 +62,18 @@ class MatrixPlot(dcc.Loading):
             # De-serialize the distance matrix store
             state_dm = DistanceMatrixData(**state_dm)
             params = MatrixParameters(**state_params)
+            state_interaction = NetworkInteractionData(**state_interaction)
 
             # If the metric is not set from the parameters, choose the first one
             if params.metric is None:
                 feature_df = state_dm.get_files()[0].read()
             else:
                 feature_df = state_dm.get_file(params.metric).read()
+
+            # Read the network interaction data to determine what nodes should be displayed
+            if len(state_interaction.nodes_visible) > 0:
+                subset_cols = [x for x in feature_df.columns if x in state_interaction.nodes_visible]
+                feature_df = feature_df.loc[subset_cols, subset_cols]
 
             # empty initially
             fig = go.Figure()

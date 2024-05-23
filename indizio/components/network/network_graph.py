@@ -1,6 +1,5 @@
 from typing import List, Dict, Optional
 
-import dash
 import dash_cytoscape as cyto
 import plotly.express as px
 from dash import Output, Input, callback, State, dcc
@@ -294,7 +293,6 @@ class NetworkVizGraph(dcc.Loading):
 
             # Update on node selection
             if node_input is not None:
-
                 # Obtain the node id that was selected
                 node_id = node_input['data']['id']
 

@@ -2,7 +2,7 @@ import dash_bootstrap_components as dbc
 from dash import Output, Input, callback
 
 from indizio.store.distance_matrix import DistanceMatrixStore
-
+from indizio import __version__
 
 class NavBar(dbc.NavbarSimple):
     """
@@ -16,7 +16,18 @@ class NavBar(dbc.NavbarSimple):
 
     def __init__(self):
         super().__init__(
-            brand='Indizio',
+            brand=[
+                'Indizio',
+                dbc.Badge(
+                    pill=True,
+                    children=f'v{__version__}',
+                    color='#ed9390',
+                    style={
+                        'marginLeft': '5px',
+                        'fontSize': '10px',
+                    }
+                )
+            ],
             brand_href='/',
             color="primary",
             dark=True,
