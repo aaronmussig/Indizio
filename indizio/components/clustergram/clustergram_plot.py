@@ -9,7 +9,7 @@ from dash import Output, Input, callback, State, dcc
 from phylodm import PhyloDM
 from plotly.subplots import make_subplots
 from scipy.spatial.distance import squareform, pdist
-
+from scipy.cluster.hierarchy import linkage as linkage_fn
 from indizio.interfaces.boolean import BooleanYesNo
 from indizio.store.clustergram_parameters import ClustergramParametersStore, ClustergramParameters
 from indizio.store.metadata_file import MetadataFileStore, MetadataData
@@ -17,6 +17,7 @@ from indizio.store.network_interaction import NetworkInteractionStore, NetworkIn
 from indizio.store.presence_absence import PresenceAbsenceStore, PresenceAbsenceData
 from indizio.store.tree_file import TreeFileStore, TreeData
 from indizio.util.data import is_numeric
+from indizio.util.trees import convert_dendropy_tree_to_linkage_matrix, create_dendrogram_plot
 
 
 class ClustergramPlot(dcc.Loading):
@@ -117,7 +118,7 @@ class ClustergramPlot(dcc.Loading):
                 cluster_features = params.cluster_on.is_features()
 
             # Generate the Clustergram using DashBio and return the traces
-            feature_df, cg_traces = generate_clustergram(
+            feature_df, cg_traces, dendro_traces = generate_clustergram(
                 feature_df=feature_df,
                 tree=tree,
                 optimal_leaf_ordering=params.optimal_leaf_order is BooleanYesNo.YES,
@@ -127,7 +128,7 @@ class ClustergramPlot(dcc.Loading):
 
             # Using the DashBio data, create our own Clustergram figure
             # as the DashBio doesn't allow for multiple colour grouping (meta)
-            fig = generate_annotation_heatmap(feature_df, cg_traces, df_meta, params)
+            fig = generate_annotation_heatmap(feature_df, cg_traces, df_meta, params, dendro_traces)
 
             # Disable the heatmap levend as only boolean values are shown
             # for cur_item in clustergram.data:
@@ -157,21 +158,30 @@ def generate_clustergram(
 
     # Determine what type of clustering based on the input argument
     if cluster_features and cluster_ids:
-        cluster_arg = 'all'
+        cluster_arg = 'col'
     elif cluster_features:
         cluster_arg = 'col'
     elif cluster_ids:
-        cluster_arg = 'row'
+        cluster_arg = 'col'
     else:
         cluster_arg = None
 
     # If a tree has been provided then subset both the matrix and tree
     # to only those present in both and compute the distance matrix
+    tree_taxa_ordered = None
     if tree is not None and cluster_ids:
-        common_taxa = {x.label for x in tree.taxon_namespace}.intersection(set(feature_df.index))
+
+        # Get the order of the leaf nodes (postorder)
+        tree_taxa_ordered = [x.taxon.label for x in tree.leaf_node_iter()]
+
+        # Subset feature dataframe to only those those present in the tree
+        common_taxa = set(tree_taxa_ordered).intersection(set(feature_df.index))
         common_taxa = [x for x in feature_df.index if x in common_taxa]
         tree = tree.extract_tree_with_taxa_labels(common_taxa)
         feature_df = feature_df.filter(items=common_taxa, axis=0)
+
+        # Order the Y axis values of the feature dataframe to match the tree
+        feature_df = feature_df.loc[tree_taxa_ordered]
 
         # Convert the tree to a linkage object
         tree_pdm = PhyloDM.load_from_dendropy(tree)
@@ -193,17 +203,30 @@ def generate_clustergram(
             else:
                 return pdist(X, metric='euclidean', out=out, **kwargs)
 
+        # def linkage_fun(x, **kwargs):
+        #
+        #     # If this is true, we are computng the linkage for the tree
+        #     if tree_dm_square.shape == x.shape and np.all(tree_dm_square == x):
+        #
+        #         # We now need to compute the linkage matrix as-per the dendrogram
+        #         return convert_dendropy_tree_to_linkage_matrix(tree, list(feature_df.index))
+        #
+        #     # Otherwise, this is the column linkage to compute
+        #     return linkage_fn(x, "complete", **kwargs)
+
     else:
         dist_fun = pdist
+        linkage_fun = None
 
     clustergram, traces = dash_bio.Clustergram(
         data=feature_df.values,
         row_labels=feature_df.index.to_list(),
         column_labels=feature_df.columns.to_list(),
         optimal_leaf_order=optimal_leaf_ordering,
-        # link_fun=phylo_linkage,
+        link_fun=None,
         dist_fun=dist_fun,
-        row_dist='euclidean' if not tree else 'row_dist',
+        # row_dist='euclidean', #  if not tree else 'row_dist'
+        # col_dist='euclidean',
         cluster=cluster_arg,
         # hidden_labels='row',
         # height=900,
@@ -215,11 +238,19 @@ def generate_clustergram(
         return_computed_traces=True,
         line_width=2.0,
     )
-    return feature_df, traces
+
+    # Now that we have the positional information from the clustergram,
+    # we generate the dendrogram (if requested)
+    dendro_traces = list()
+    if cluster_ids:
+        cluster_y_pos = traces['heatmap']['y']
+        dendro_traces = create_dendrogram_plot(tree, cluster_y_pos, tree_taxa_ordered)
+
+    return feature_df, traces, dendro_traces
 
 
 def generate_annotation_heatmap(feature_df: pd.DataFrame, cg_traces, df_meta: Optional[MetadataData],
-                                params: ClustergramParameters):
+                                params: ClustergramParameters, dendro_traces):
     """
     Creates the main clustergram figure
     """
@@ -293,9 +324,12 @@ def generate_annotation_heatmap(feature_df: pd.DataFrame, cg_traces, df_meta: Op
     """
     Create the dendrograms
     """
-    for trace in cg_traces['dendro_traces']['row']:
-        dendro_row = go.Scatter(trace, hoverinfo='skip')
-        fig.add_trace(dendro_row, row=row_dend_left, col=col_dend_left)
+    if dendro_traces is not None:
+        for dendro_trace in dendro_traces:
+            fig.add_trace(dendro_trace, row=row_dend_left, col=col_dend_left)
+    # for trace in cg_traces['dendro_traces']['row']:
+    #     dendro_row = go.Scatter(trace, hoverinfo='skip')
+    #     fig.add_trace(dendro_row, row=row_dend_left, col=col_dend_left)
 
     for trace in cg_traces['dendro_traces']['col']:
         dendro_col = go.Scatter(trace, hoverinfo='skip')
