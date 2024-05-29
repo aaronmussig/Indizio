@@ -6,10 +6,8 @@ import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 from dash import Output, Input, callback, State, dcc
-from phylodm import PhyloDM
 from plotly.subplots import make_subplots
-from scipy.spatial.distance import squareform, pdist
-from scipy.cluster.hierarchy import linkage as linkage_fn
+
 from indizio.interfaces.boolean import BooleanYesNo
 from indizio.store.clustergram_parameters import ClustergramParametersStore, ClustergramParameters
 from indizio.store.metadata_file import MetadataFileStore, MetadataData
@@ -17,7 +15,7 @@ from indizio.store.network_interaction import NetworkInteractionStore, NetworkIn
 from indizio.store.presence_absence import PresenceAbsenceStore, PresenceAbsenceData
 from indizio.store.tree_file import TreeFileStore, TreeData
 from indizio.util.data import is_numeric
-from indizio.util.trees import convert_dendropy_tree_to_linkage_matrix, create_dendrogram_plot
+from indizio.util.trees import create_dendrogram_plot
 
 
 class ClustergramPlot(dcc.Loading):
@@ -170,7 +168,6 @@ def generate_clustergram(
     # to only those present in both and compute the distance matrix
     tree_taxa_ordered = None
     if tree is not None and cluster_ids:
-
         # Get the order of the leaf nodes (postorder)
         tree_taxa_ordered = [x.taxon.label for x in tree.leaf_node_iter()]
 
@@ -183,48 +180,14 @@ def generate_clustergram(
         # Order the Y axis values of the feature dataframe to match the tree
         feature_df = feature_df.loc[tree_taxa_ordered]
 
-        # Convert the tree to a linkage object
-        tree_pdm = PhyloDM.load_from_dendropy(tree)
-        tree_pdm.compute_row_vec()
-
-        # Sort the PDM in the same order as given in the feature matrix
-        tree_dm = np.zeros((len(common_taxa), len(common_taxa)))
-        for i, taxon_i in enumerate(feature_df.index):
-            for j, taxon_j in enumerate(feature_df.index):
-                tree_dm[i, j] = tree_pdm.distance(taxon_i, taxon_j)
-
-        tree_dm_square = squareform(tree_dm)
-
-        def dist_fun(X, metric='euclidean', *, out=None, **kwargs):
-            # Check if the tree was provided, and if so, compute the distance using it
-            if metric == 'row_dist':
-                return tree_dm_square
-            # Column distances will always be computed without any additional tree info
-            else:
-                return pdist(X, metric='euclidean', out=out, **kwargs)
-
-        # def linkage_fun(x, **kwargs):
-        #
-        #     # If this is true, we are computng the linkage for the tree
-        #     if tree_dm_square.shape == x.shape and np.all(tree_dm_square == x):
-        #
-        #         # We now need to compute the linkage matrix as-per the dendrogram
-        #         return convert_dendropy_tree_to_linkage_matrix(tree, list(feature_df.index))
-        #
-        #     # Otherwise, this is the column linkage to compute
-        #     return linkage_fn(x, "complete", **kwargs)
-
-    else:
-        dist_fun = pdist
-        linkage_fun = None
-
+    # Compute the clustergram
     clustergram, traces = dash_bio.Clustergram(
         data=feature_df.values,
         row_labels=feature_df.index.to_list(),
         column_labels=feature_df.columns.to_list(),
         optimal_leaf_order=optimal_leaf_ordering,
         link_fun=None,
-        dist_fun=dist_fun,
+        # dist_fun=dist_fun,
         # row_dist='euclidean', #  if not tree else 'row_dist'
         # col_dist='euclidean',
         cluster=cluster_arg,
