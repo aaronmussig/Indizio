@@ -4,15 +4,6 @@ from dash import dcc
 from pydantic import BaseModel
 
 from indizio.config import PERSISTENCE_TYPE
-from indizio.interfaces.html_option import HtmlOption
-
-
-class MatrixBinOption(HtmlOption):
-    """
-    These are the select options provided when a user uploads a file.
-    """
-    CONTINUOUS = 'Continuous'
-    BINNED = 'Binned'
 
 
 class MatrixParameters(BaseModel):
@@ -21,7 +12,6 @@ class MatrixParameters(BaseModel):
     """
     metric: Optional[str] = None
     color_scale: str = 'inferno'
-    bin_option: MatrixBinOption = MatrixBinOption.CONTINUOUS
     slider: List[float] = [0.0, 1.0]
 
 

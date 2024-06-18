@@ -4,9 +4,8 @@ import dash_bootstrap_components as dbc
 from dash import Output, Input, callback, ctx
 from dash.exceptions import PreventUpdate
 
-from indizio.components.matrix.parameters import MatrixParamsMetric, MatrixParamsColorScale, MatrixParamsBinningOption, \
-    MatrixParamsColorSlider
-from indizio.store.matrix_parameters import MatrixParametersStore, MatrixParameters, MatrixBinOption
+from indizio.components.matrix.parameters import MatrixParamsMetric, MatrixParamsColorScale,  MatrixParamsColorRange
+from indizio.store.matrix_parameters import MatrixParametersStore, MatrixParameters
 
 
 class MatrixParamsUpdateButton(dbc.Button):
@@ -29,13 +28,11 @@ class MatrixParamsUpdateButton(dbc.Button):
                 disabled=Output(self.ID, "disabled"),
             ),
             inputs=dict(
-                bin_option=Input(MatrixParamsBinningOption.ID, 'value'),
                 color_scale=Input(MatrixParamsColorScale.ID, 'value'),
-                slider=Input(MatrixParamsColorSlider.ID_RANGE, 'value'),
                 metric=Input(MatrixParamsMetric.ID, "value"),
             ),
         )
-        def toggle_disabled(metric, color_scale, bin_option, slider):
+        def toggle_disabled(metric, color_scale):
             log = logging.getLogger()
             log.debug(f'{self.ID} - Toggling update heatmap button.')
 
@@ -43,10 +40,6 @@ class MatrixParamsUpdateButton(dbc.Button):
             if metric is None:
                 disabled = True
             if color_scale is None:
-                disabled = True
-            if bin_option is None:
-                disabled = True
-            if slider is None:
                 disabled = True
             return dict(
                 disabled=disabled
@@ -60,12 +53,11 @@ class MatrixParamsUpdateButton(dbc.Button):
                 n_clicks=Input(self.ID, "n_clicks"),
                 metric=Input(MatrixParamsMetric.ID, "value"),
                 color_scale=Input(MatrixParamsColorScale.ID, 'value'),
-                bin_option=Input(MatrixParamsBinningOption.ID, 'value'),
-                slider=Input(MatrixParamsColorSlider.ID_RANGE, 'value'),
+                color_bins=Input(MatrixParamsColorRange.ID_BIN_TEXT, 'value')
             ),
             prevent_initial_call=True
         )
-        def update_options_on_file_upload(n_clicks, metric, color_scale, bin_option, slider):
+        def update_options_on_file_upload(n_clicks, metric, color_scale, color_bins):
             log = logging.getLogger()
             log.debug(f'{self.ID} - Updating matrix visualization parameters.')
 
@@ -73,11 +65,22 @@ class MatrixParamsUpdateButton(dbc.Button):
                 log.debug(f'{self.ID} - No data to update from.')
                 raise PreventUpdate
 
+            # Parse the color bins
+            new_bins = list()
+            if color_bins and ',' in color_bins:
+                for num in color_bins.split(','):
+                    try:
+                        new_bins.append(float(num))
+                    except Exception:
+                        pass
+            if len(new_bins) < 2:
+                new_bins = [0.0, 1.0]
+            slider = sorted(set(new_bins))
+
             return dict(
                 params=MatrixParameters(
                     metric=metric,
                     color_scale=color_scale,
-                    bin_option=MatrixBinOption(bin_option),
                     slider=slider
                 ).model_dump(mode='json')
             )

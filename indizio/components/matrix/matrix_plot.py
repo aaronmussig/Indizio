@@ -6,7 +6,7 @@ from dash import Output, Input, callback, State, dcc
 from dash.exceptions import PreventUpdate
 
 from indizio.store.distance_matrix import DistanceMatrixStore, DistanceMatrixData
-from indizio.store.matrix_parameters import MatrixParametersStore, MatrixParameters, MatrixBinOption
+from indizio.store.matrix_parameters import MatrixParametersStore, MatrixParameters
 from indizio.store.network_interaction import NetworkInteractionStore, NetworkInteractionData
 from indizio.util.cache import freezeargs
 from indizio.util.graph import format_axis_labels
@@ -86,7 +86,7 @@ class MatrixPlot(dcc.Loading):
                 slidervals = params.slider
             slidervals = sorted(slidervals)
 
-            if params.bin_option is MatrixBinOption.BINNED:
+            if len(params.slider) > 2:
                 colorscale = []
                 colors = get_color(params.color_scale, np.linspace(0, 1, len(slidervals) - 1))
                 minval = min(slidervals)
