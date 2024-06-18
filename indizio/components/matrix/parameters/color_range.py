@@ -45,7 +45,7 @@ class MatrixParamsColorRange(dbc.Row):
             log = logging.getLogger()
             log.debug(f'{self.ID} - Adjusting matrix slider min/max.')
 
-            if not mat_param_ts or not mat_param_store:
+            if not mat_param_store:
                 log.debug(f'{self.ID} - Nothing to do.')
                 raise PreventUpdate
 

@@ -6,8 +6,10 @@ from indizio.components.layout.message import LayoutMessage
 from indizio.components.upload.pending.file_selector import UploadFormFileSelector
 from indizio.config import RELOAD_ID
 from indizio.interfaces.file_type import UserFileType
+from indizio.store.clustergram_parameters import ClustergramParametersStore, ClustergramParameters
 from indizio.store.distance_matrix import DistanceMatrixStore, DistanceMatrixFile, DistanceMatrixData
 from indizio.store.dm_graph import DmGraph, DistanceMatrixGraphStore
+from indizio.store.matrix_parameters import MatrixParameters, MatrixParametersStore
 from indizio.store.metadata_file import MetadataFile, MetadataFileStore, MetadataData
 from indizio.store.network_form_store import NetworkFormStore, NetworkFormStoreData, NetworkParamThreshold
 from indizio.store.presence_absence import PresenceAbsenceStore, PresenceAbsenceFile, PresenceAbsenceData
@@ -50,7 +52,9 @@ class UploadFormBtnUpload(dbc.Button):
                 reload=Output(RELOAD_ID, "href", allow_duplicate=True),
                 message=Output(LayoutMessage.ID_MESSAGE, 'children'),
                 message_ex=Output(LayoutMessage.ID_EXCEPTION, 'children'),
-                message_show=Output(LayoutMessage.ID_TOAST, 'is_open')
+                message_show=Output(LayoutMessage.ID_TOAST, 'is_open'),
+                matrix_params=Output(MatrixParametersStore.ID, 'data', allow_duplicate=True),
+                cg_params=Output(ClustergramParametersStore.ID, 'data', allow_duplicate=True),
             ),
             inputs=dict(
                 n_clicks=Input(self.ID, 'n_clicks'),
@@ -163,6 +167,13 @@ class UploadFormBtnUpload(dbc.Button):
                         except Exception as e:
                             return notify_user(f'Unable to convert {pa_file.file_name} to a Distance Matrix.', e)
 
+            # Create the matrix parameters default values
+            first_matrix = dm_store.get_files()[0]
+            matrix_params = MatrixParameters(
+                metric=first_matrix.file_id,
+                slider=[first_matrix.min_value, first_matrix.max_value],
+            )
+
             # Create the graph
             try:
                 graph = DmGraph.from_distance_matricies(dm_store.get_files())
@@ -197,6 +208,12 @@ class UploadFormBtnUpload(dbc.Button):
             except Exception as e:
                 return notify_user('Unable to create Network Parameters.', e)
 
+            # Create the clustergram parameters
+            cg_params = ClustergramParameters(
+                metric=first_matrix.file_name,
+                tree=tree_store.get_files()[0].file_name if len(tree_store.get_files()) > 0 else None
+            )
+
             # Now that we've calculated everything, we need to serialize the content
             # into JSON so that it can be stored in the browser
             log_debug(f'{self.ID} - Finished processing files, returning data to stores.')
@@ -211,5 +228,7 @@ class UploadFormBtnUpload(dbc.Button):
                 reload='/',
                 message='',
                 message_ex='',
-                message_show=False
+                message_show=False,
+                matrix_params=matrix_params.model_dump(mode='json'),
+                cg_params=cg_params.model_dump(mode='json'),
             )
