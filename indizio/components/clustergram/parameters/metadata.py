@@ -74,7 +74,11 @@ class ClustergramParamsMetadata(dbc.Row):
 
             # No need to de-serialize as the key values are the file names
             options = state.as_options()
-            default = options[0]['value'] if value is None else value
+            if not options:
+                default = None
+            else:
+                default = options[0]['value'] if value is None else value
+
             return dict(
                 options=options,
                 value=default

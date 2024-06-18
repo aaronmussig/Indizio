@@ -155,12 +155,14 @@ def generate_clustergram(
     """
 
     # Determine what type of clustering based on the input argument
+    # Note this is a bit of legacy code left over from the original implementation
+    # Later on in the program, the dendrogram will be displayed if requested
     if cluster_features and cluster_ids:
         cluster_arg = 'col'
     elif cluster_features:
         cluster_arg = 'col'
     elif cluster_ids:
-        cluster_arg = 'col'
+        cluster_arg = None
     else:
         cluster_arg = None
 
@@ -205,7 +207,7 @@ def generate_clustergram(
     # Now that we have the positional information from the clustergram,
     # we generate the dendrogram (if requested)
     dendro_traces = list()
-    if cluster_ids:
+    if cluster_ids and tree:
         cluster_y_pos = traces['heatmap']['y']
         dendro_traces = create_dendrogram_plot(tree, cluster_y_pos, tree_taxa_ordered)
 

@@ -25,7 +25,7 @@ class TreeFile(BaseModel):
         """
         Convert the tree into a pickle.
         """
-        tree = dendropy.Tree.get_from_path(data.path.as_posix(), schema='newick')
+        tree = dendropy.Tree.get_from_path(data.path.as_posix(), schema='newick', preserve_underscores=True)
         path, md5 = to_pickle(tree)
         return cls(
             file_name=data.file_name,
