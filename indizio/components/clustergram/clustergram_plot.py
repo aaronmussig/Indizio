@@ -8,6 +8,7 @@ import plotly.graph_objects as go
 from dash import Output, Input, callback, State, dcc
 from plotly.subplots import make_subplots
 
+from indizio.config import GRAPH_AXIS_FONT_SIZE
 from indizio.interfaces.boolean import BooleanYesNo
 from indizio.store.clustergram_parameters import ClustergramParametersStore, ClustergramParameters
 from indizio.store.metadata_file import MetadataFileStore, MetadataData
@@ -15,6 +16,7 @@ from indizio.store.network_interaction import NetworkInteractionStore, NetworkIn
 from indizio.store.presence_absence import PresenceAbsenceStore, PresenceAbsenceData
 from indizio.store.tree_file import TreeFileStore, TreeData
 from indizio.util.data import is_numeric
+from indizio.util.graph import format_axis_labels
 from indizio.util.trees import create_dendrogram_plot
 
 
@@ -136,6 +138,9 @@ class ClustergramPlot(dcc.Loading):
             # clustergram.update_layout(
             #     yaxis_scaleanchor="x"
             # )
+
+            fig.update_xaxes(tickangle=45, tickfont=dict(size=GRAPH_AXIS_FONT_SIZE))
+            fig.update_yaxes(tickfont=dict(size=GRAPH_AXIS_FONT_SIZE))
 
             return dict(
                 fig=fig,
@@ -263,14 +268,24 @@ def generate_annotation_heatmap(feature_df: pd.DataFrame, cg_traces, df_meta: Op
     """
     Create the main heatmap
     """
-    # Use the pre-computed matrix from the DashBio library
+    # Create the hovertext for the heatmap
+    xy_labels_full = list()
+    for y in idx_to_row_label:
+        cur_vals = list()
+        for x in idx_to_col_label:
+            cur_vals.append((y, x))
+        xy_labels_full.append(cur_vals)
+
     main_heatmap = go.Heatmap(
-        cg_traces['heatmap'],
+        x=cg_traces['heatmap'].x,
+        y=cg_traces['heatmap'].y,
+        z=cg_traces['heatmap'].z,
         colorscale=((0.0, 'rgba(0,0,0,0)'), (1.0, '#EF553B')),
         showscale=False,
         xgap=1,
         ygap=1,
-        hovertemplate='<b>ID:</b> %{y}<br><b>Feature:</b> %{x}',
+        customdata=np.array(xy_labels_full),
+        hovertemplate='<b>ID:</b> %{customdata[0]}<br><b>Feature:</b> %{customdata[1]}',
         name='',
     )
 
@@ -278,12 +293,16 @@ def generate_annotation_heatmap(feature_df: pd.DataFrame, cg_traces, df_meta: Op
 
     # Add the tick labls
     fig.update_xaxes(
-        ticktext=idx_to_col_label, tickvals=main_heatmap.x,
-        row=row_heat_main, col=col_heat_main
+        ticktext=format_axis_labels(idx_to_col_label),
+        tickvals=main_heatmap.x,
+        row=row_heat_main,
+        col=col_heat_main
     )
     fig.update_yaxes(
-        ticktext=idx_to_row_label, tickvals=main_heatmap.y,
-        row=row_heat_main, col=col_heat_main
+        ticktext=format_axis_labels(idx_to_row_label),
+        tickvals=main_heatmap.y,
+        row=row_heat_main,
+        col=col_heat_main
     )
 
     """

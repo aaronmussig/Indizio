@@ -40,3 +40,7 @@ ID_NETWORK_FORM_NODE_METADATA_SIZE_COLUMN = 'network-form-node-metadata-size-col
 
 ID_NETWORK_PARAM_EDGE_WEIGHTS = 'network-parameters-edge-weights'
 ID_NETWORK_PARAM_METRIC_SELECT = 'network-parameters-metric-select'
+
+
+GRAPH_AXIS_FONT_SIZE = 10
+GRAPH_AXIS_MAX_LENGTH = 10

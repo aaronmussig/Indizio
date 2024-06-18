@@ -5,6 +5,7 @@ import plotly.graph_objects as go
 from dash import Output, Input, callback, State, dcc
 from dash.exceptions import PreventUpdate
 
+from indizio.config import GRAPH_AXIS_FONT_SIZE
 from indizio.store.distance_matrix import DistanceMatrixStore, DistanceMatrixData
 from indizio.store.matrix_parameters import MatrixParametersStore, MatrixParameters
 from indizio.store.network_interaction import NetworkInteractionStore, NetworkInteractionData
@@ -121,6 +122,9 @@ class MatrixPlot(dcc.Loading):
             f = go.Figure(heatmap)
             for data in f.data:
                 fig.add_trace(data)
+
+            fig.update_xaxes(tickangle=45, tickfont=dict(size=GRAPH_AXIS_FONT_SIZE))
+            fig.update_yaxes(tickfont=dict(size=GRAPH_AXIS_FONT_SIZE))
 
             return dict(
                 fig=fig
