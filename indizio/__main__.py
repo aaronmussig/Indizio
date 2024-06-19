@@ -10,7 +10,6 @@ import typer
 from dash import dcc
 
 from indizio import __version__
-from indizio.cache import CACHE_MANAGER
 from indizio.components.layout.message import LayoutMessage
 from indizio.components.layout.navbar import NavBar
 from indizio.config import RELOAD_ID, TMP_DIR
@@ -75,7 +74,6 @@ def main(
                 use_pages=True,
                 suppress_callback_exceptions=True,
                 external_stylesheets=[dbc.themes.JOURNAL, dbc.icons.FONT_AWESOME],
-                background_callback_manager=CACHE_MANAGER,
             )
             hide_logs('dash.dash')
 

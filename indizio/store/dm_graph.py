@@ -7,7 +7,6 @@ from dash import dcc
 from diskcache import Cache
 from pydantic import BaseModel
 
-from indizio.cache import CACHE
 from indizio.config import PERSISTENCE_TYPE, ENABLE_CACHE
 from indizio.interfaces.boolean import BooleanAllAny, BooleanShowHide
 from indizio.interfaces.bound import Bound
@@ -78,17 +77,17 @@ class DmGraph(BaseModel):
 
     def filter(self, params: NetworkFormStoreData):
 
-        if ENABLE_CACHE:
-            # Extract the caching key from the parameters
-            param_cache_key = params.get_cache_key()
-            combined_cache_key = calc_md5(self.hash.encode() + param_cache_key)
-            cache_key = f'cyto-graph-{combined_cache_key}'
+        # if ENABLE_CACHE:
+        #     # Extract the caching key from the parameters
+        #     param_cache_key = params.get_cache_key()
+        #     combined_cache_key = calc_md5(self.hash.encode() + param_cache_key)
+        #     cache_key = f'cyto-graph-{combined_cache_key}'
 
-            # Check if the graph is already cached
-            with Cache(CACHE.directory) as cache:
-                existing_result = cache.get(cache_key)
-                if existing_result:
-                    return existing_result
+            # # Check if the graph is already cached
+            # with Cache(CACHE.directory) as cache:
+            #     existing_result = cache.get(cache_key)
+            #     if existing_result:
+            #         return existing_result
 
         # No existing data were found, compute it
         G = self.read()
@@ -162,9 +161,9 @@ class DmGraph(BaseModel):
         composed = nx.Graph(composed)
 
         # Store the result in the cache
-        if ENABLE_CACHE:
-            with Cache(CACHE.directory) as cache:
-                cache.set(cache_key, composed)
+        # if ENABLE_CACHE:
+        #     with Cache(CACHE.directory) as cache:
+        #         cache.set(cache_key, composed)
 
         # Return the filtered graph
         return composed

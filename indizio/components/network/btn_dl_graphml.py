@@ -43,7 +43,7 @@ class DownloadGraphMlButton(html.Div):
                 (Output(self.ID, "disabled"), True, False),
             ],
             prevent_initial_call=True,
-            background=True,
+            background=False,
         )
         def on_click(n_clicks, state_graph, state_params):
             if not n_clicks:

@@ -52,8 +52,8 @@ class MatrixPlot(dcc.Loading):
                 state_interaction=State(NetworkInteractionStore.ID, "data")
             )
         )
-        # @freezeargs
-        # @lru_cache
+        @freezeargs
+        @lru_cache
         def update_options_on_file_upload(ts_params, ts_dm, ts_interaction, state_params, state_dm, state_interaction):
             log_debug(f'{self.ID} - Updating matrix heatmap figure.')
 

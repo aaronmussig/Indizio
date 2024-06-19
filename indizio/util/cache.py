@@ -3,12 +3,7 @@ import os
 import tempfile
 from pathlib import Path
 
-import orjson
-from diskcache import Cache
 from frozendict import frozendict
-
-from indizio.cache import CACHE
-from indizio.util.hashing import calc_md5
 
 
 def to_hashable(obj):
@@ -56,41 +51,40 @@ def get_tmp_dir() -> Path:
     tmp_root = tempfile.gettempdir()
     return Path(tmp_root) / f'indizio-{parent_pid}'
 
-
-def cache_by(kwargs_to_cache):
-    """
-    This wrapper will use the diskcache to memoize the function's results
-    based on the keys given.
-    """
-    # If a string is provided, convert it into a list for consistency
-    if isinstance(kwargs_to_cache, str):
-        kwargs_to_cache = [kwargs_to_cache]
-
-    def actual_decorator(func):
-        @functools.wraps(func)
-        def wrapper(*args, **kwargs):
-
-            # Generate the cache key
-            cache_key = {
-                'func': repr(func),
-            }
-            for key in kwargs_to_cache:
-                cache_key[key] = kwargs[key]
-            cache_key = orjson.dumps(cache_key, option=orjson.OPT_SORT_KEYS)
-            cache_key = calc_md5(cache_key)
-
-            # Check the cache to see if the result already exists
-            with Cache(CACHE.directory) as cache:
-                existing_result = cache.get(cache_key)
-                if existing_result:
-                    return existing_result
-
-            # Otherwise, run the function and save the result
-            result = func(*args, **kwargs)
-            with Cache(CACHE.directory) as cache:
-                cache.set(cache_key, result)
-            return result
-
-        return wrapper
-
-    return actual_decorator
+# def cache_by(kwargs_to_cache):
+#     """
+#     This wrapper will use the diskcache to memoize the function's results
+#     based on the keys given.
+#     """
+#     # If a string is provided, convert it into a list for consistency
+#     if isinstance(kwargs_to_cache, str):
+#         kwargs_to_cache = [kwargs_to_cache]
+#
+#     def actual_decorator(func):
+#         @functools.wraps(func)
+#         def wrapper(*args, **kwargs):
+#
+#             # Generate the cache key
+#             cache_key = {
+#                 'func': repr(func),
+#             }
+#             for key in kwargs_to_cache:
+#                 cache_key[key] = kwargs[key]
+#             cache_key = orjson.dumps(cache_key, option=orjson.OPT_SORT_KEYS)
+#             cache_key = calc_md5(cache_key)
+#
+#             # Check the cache to see if the result already exists
+#             with Cache(CACHE.directory) as cache:
+#                 existing_result = cache.get(cache_key)
+#                 if existing_result:
+#                     return existing_result
+#
+#             # Otherwise, run the function and save the result
+#             result = func(*args, **kwargs)
+#             with Cache(CACHE.directory) as cache:
+#                 cache.set(cache_key, result)
+#             return result
+#
+#         return wrapper
+#
+#     return actual_decorator

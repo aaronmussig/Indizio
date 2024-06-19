@@ -1,3 +1,4 @@
+from functools import lru_cache
 from typing import List, Dict, Optional
 
 import dash_cytoscape as cyto
@@ -12,6 +13,7 @@ from indizio.store.metadata_file import MetadataFileStore, MetadataData
 from indizio.store.network_form_store import NetworkFormStore, NetworkFormStoreData, NetworkParamNodeSize, \
     NetworkParamNodeColor
 from indizio.store.network_interaction import NetworkInteractionStore, NetworkInteractionData
+from indizio.util.cache import freezeargs
 from indizio.util.data import is_numeric
 from indizio.util.log import log_debug
 from indizio.util.plot import numerical_colorscale
@@ -166,11 +168,10 @@ class NetworkVizGraph(dcc.Loading):
                 prev_stylesheet=State(self.ID_GRAPH, 'stylesheet'),
                 network_interaction_state=State(NetworkInteractionStore.ID, 'data')
             ),
-            running=[
-                (Output(self.ID_GRAPH, 'style'), {'visibility': 'hidden'}, {'visibility': 'visible'}),
-                (Output(ID_NETWORK_VIZ_EDGE_COUNT, 'children'), 'Loading...', 'No distance matrix loaded.'),
-            ],
-            background=True,
+            # running=[
+            #     (Output(self.ID_GRAPH, 'style'), {'visibility': 'hidden'}, {'visibility': 'visible'}),
+            #     (Output(ID_NETWORK_VIZ_EDGE_COUNT, 'children'), 'Loading...', 'No distance matrix loaded.'),
+            # ],
         )
         def draw_graph(ts_graph, ts_param, state_graph, state_params, state_meta, prev_stylesheet,
                        network_interaction_state):
@@ -259,7 +260,7 @@ class NetworkVizGraph(dcc.Loading):
 
             # Return the graph
             return dict(
-                elements=out_graph,
+                elements=dict(out_graph),
                 layout={'name': params.layout.name.replace('_', '-'), 'animate': True},
                 edge_count=f'Edges: {n_edges_vis:,} / {n_edges_tot:,}',
                 node_count=f'Nodes: {n_nodes_vis:,} / {n_nodes_tot:,}',

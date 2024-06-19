@@ -1,4 +1,5 @@
 import logging
+from functools import lru_cache
 from typing import Optional
 
 import dash_bio
@@ -16,8 +17,10 @@ from indizio.store.metadata_file import MetadataFileStore, MetadataData
 from indizio.store.network_interaction import NetworkInteractionStore, NetworkInteractionData
 from indizio.store.presence_absence import PresenceAbsenceStore, PresenceAbsenceData
 from indizio.store.tree_file import TreeFileStore, TreeData
+from indizio.util.cache import freezeargs
 from indizio.util.data import is_numeric
 from indizio.util.graph import format_axis_labels
+from indizio.util.log import log_debug
 from indizio.util.trees import create_dendrogram_plot
 
 
@@ -62,14 +65,13 @@ class ClustergramPlot(dcc.Loading):
                 state_interaction=State(NetworkInteractionStore.ID, "data")
             )
         )
-        # @freezeargs
-        # @lru_cache
+        @freezeargs
+        @lru_cache
         def update_options_on_file_upload(
                 ts_params, ts_dm, ts_tree, ts_meta, ts_interaction, state_params, state_dm,
                 state_tree, state_meta, state_interaction
         ):
-            log = logging.getLogger()
-            log.debug(f'{self.ID_GRAPH} - Updating clustergram figure.')
+            log_debug(f'{self.ID_GRAPH} - Updating clustergram figure.')
 
             # if ts_dm is None or not state_dm:
             #     log.debug(f'{self.ID} - No data to update from.')

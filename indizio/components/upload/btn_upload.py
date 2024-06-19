@@ -71,7 +71,6 @@ class UploadFormBtnUpload(dbc.Button):
                 (Output(self.ID, "disabled"), True, False),
             ],
             prevent_initial_call=True,
-            background=False,
         )
         def upload_content(n_clicks, values, names, state_upload, state_pa, state_dm,
                            state_meta, state_tree, state_network_params):
