@@ -34,6 +34,7 @@ class MatrixParamsColorScale(dbc.Row):
                         options=px.colors.named_colorscales(),
                         value=MatrixParameters().color_scale,
                         className="bg-light text-dark",
+                        clearable=False
                     )
                 )
             ]

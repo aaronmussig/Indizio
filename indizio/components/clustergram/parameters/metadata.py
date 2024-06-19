@@ -29,7 +29,8 @@ class ClustergramParamsMetadata(dbc.Row):
                         options=[],
                         value=None,
                         className="bg-light text-dark",
-                        placeholder='Metadata file'
+                        placeholder='Metadata file',
+                        clearable=False
                     ),
                 ),
                 dbc.Col(

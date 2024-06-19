@@ -30,6 +30,7 @@ class ClustergramParamsMetric(dbc.Row):
                         options=[],
                         value=None,
                         className="bg-light text-dark",
+                        clearable=False
                     ),
                 ),
             ]

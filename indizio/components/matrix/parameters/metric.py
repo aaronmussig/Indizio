@@ -34,7 +34,8 @@ class MatrixParamsMetric(dbc.Row):
                         value=None,
                         className="bg-light text-dark",
                         persistence=True,
-                        persistence_type=PERSISTENCE_TYPE
+                        persistence_type=PERSISTENCE_TYPE,
+                        clearable=False
                     ),
                 ),
             ]

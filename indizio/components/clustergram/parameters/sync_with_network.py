@@ -25,6 +25,7 @@ class ClustergramParamsSyncWithNetwork(dbc.Row):
                         options=SyncWithNetwork.to_options(),
                         value=ClustergramParameters().sync_with_network.value,
                         className="bg-light text-dark",
+                        clearable=False
                     ),
                 ),
             ]

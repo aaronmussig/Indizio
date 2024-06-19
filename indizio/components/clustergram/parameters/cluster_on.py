@@ -29,6 +29,7 @@ class ClustergramParamsClusterOn(dbc.Row):
                         options=ClusterOn.to_options(),
                         value=ClustergramParameters().cluster_on.value,
                         className="bg-light text-dark",
+                        clearable=False
                     ),
                 ),
             ]

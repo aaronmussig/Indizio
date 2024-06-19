@@ -25,6 +25,7 @@ class MatrixParamsSyncWithNetwork(dbc.Row):
                         options=SyncWithNetwork.to_options(),
                         value=MatrixParameters().sync_with_network.value,
                         className="bg-light text-dark",
+                        clearable=False
                     ),
                 ),
             ]
