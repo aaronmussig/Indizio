@@ -73,10 +73,6 @@ class ClustergramPlot(dcc.Loading):
         ):
             log_debug(f'{self.ID_GRAPH} - Updating clustergram figure.')
 
-            # if ts_dm is None or not state_dm:
-            #     log.debug(f'{self.ID} - No data to update from.')
-            #     raise PreventUpdate
-
             # De-serialize the distance matrix store
             state_dm = PresenceAbsenceData(**state_dm)
             params = ClustergramParameters(**state_params)
@@ -131,21 +127,11 @@ class ClustergramPlot(dcc.Loading):
             # as the DashBio doesn't allow for multiple colour grouping (meta)
             fig = generate_annotation_heatmap(feature_df, cg_traces, df_meta, params, dendro_traces)
 
-            # Disable the heatmap levend as only boolean values are shown
-            # for cur_item in clustergram.data:
-            #     if isinstance(cur_item, go.Heatmap):
-            #         cur_item.showscale = False
-
-            # clustergram.update_layout(
-            #     yaxis_scaleanchor="x"
-            # )
-
             fig.update_xaxes(tickangle=45, tickfont=dict(size=GRAPH_AXIS_FONT_SIZE))
             fig.update_yaxes(tickfont=dict(size=GRAPH_AXIS_FONT_SIZE))
 
             return dict(
                 fig=fig,
-
             )
 
 

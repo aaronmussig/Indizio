@@ -4,17 +4,15 @@ from typing import List, Collection, FrozenSet
 
 import networkx as nx
 from dash import dcc
-from diskcache import Cache
 from pydantic import BaseModel
 
-from indizio.config import PERSISTENCE_TYPE, ENABLE_CACHE
+from indizio.config import PERSISTENCE_TYPE
 from indizio.interfaces.boolean import BooleanAllAny, BooleanShowHide
 from indizio.interfaces.bound import Bound
 from indizio.store.distance_matrix import DistanceMatrixFile
 from indizio.store.network_form_store import NetworkFormStoreData
 from indizio.util.dataframe import dataframe_to_pairs
 from indizio.util.files import to_pickle, from_pickle
-from indizio.util.hashing import calc_md5
 
 
 class DmGraph(BaseModel):
@@ -83,11 +81,11 @@ class DmGraph(BaseModel):
         #     combined_cache_key = calc_md5(self.hash.encode() + param_cache_key)
         #     cache_key = f'cyto-graph-{combined_cache_key}'
 
-            # # Check if the graph is already cached
-            # with Cache(CACHE.directory) as cache:
-            #     existing_result = cache.get(cache_key)
-            #     if existing_result:
-            #         return existing_result
+        # # Check if the graph is already cached
+        # with Cache(CACHE.directory) as cache:
+        #     existing_result = cache.get(cache_key)
+        #     if existing_result:
+        #         return existing_result
 
         # No existing data were found, compute it
         G = self.read()

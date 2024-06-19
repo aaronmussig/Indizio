@@ -8,6 +8,7 @@ import dash_bootstrap_components as dbc
 import dash_cytoscape as cyto
 import typer
 from dash import dcc
+from rich.progress import Progress, SpinnerColumn, TextColumn
 
 from indizio import __version__
 from indizio.components.layout.message import LayoutMessage
@@ -15,19 +16,8 @@ from indizio.components.layout.navbar import NavBar
 from indizio.config import RELOAD_ID, TMP_DIR
 from indizio.interfaces.logging import LogLevel
 from indizio.store.active_stores import ACTIVE_STORES
-from indizio.store.clustergram_parameters import ClustergramParametersStore
-from indizio.store.distance_matrix import DistanceMatrixStore
-from indizio.store.dm_graph import DistanceMatrixGraphStore
-from indizio.store.matrix_parameters import MatrixParametersStore
-from indizio.store.metadata_file import MetadataFileStore
-from indizio.store.network_form_store import NetworkFormStore
-from indizio.store.network_interaction import NetworkInteractionStore
-from indizio.store.presence_absence import PresenceAbsenceStore
-from indizio.store.tree_file import TreeFileStore
-from indizio.store.upload_form_store import UploadFormStore
 from indizio.util.log import hide_logs
 from indizio.util.log import log
-from rich.progress import Progress, SpinnerColumn, TextColumn
 
 # Load extra layouts
 cyto.load_extra_layouts()
@@ -41,7 +31,7 @@ def main(
         logging: Optional[LogLevel] = LogLevel.INFO,
         debug: bool = False,
         port: int = 9001,
-        host: str = '0.0.0.0'
+        host: str = 'localhost'
 ):
     # Hide non-critical messages from third-party packages
     try:
@@ -81,8 +71,8 @@ def main(
             dash_app.layout = dbc.Container(
                 className="container-main",
                 style={
-                  "paddingLeft": 0,
-                  "paddingRight": 0
+                    "paddingLeft": 0,
+                    "paddingRight": 0
                 },
                 fluid=True,
                 children=
