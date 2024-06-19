@@ -4,7 +4,9 @@ import dash_bootstrap_components as dbc
 from dash import Output, Input, callback, ctx
 from dash.exceptions import PreventUpdate
 
-from indizio.components.matrix.parameters import MatrixParamsMetric, MatrixParamsColorScale,  MatrixParamsColorRange
+from indizio.components.matrix.parameters import MatrixParamsMetric, MatrixParamsColorScale, MatrixParamsColorRange, \
+    MatrixParamsSyncWithNetwork
+from indizio.interfaces.sync_with_network import SyncWithNetwork
 from indizio.store.matrix_parameters import MatrixParametersStore, MatrixParameters
 
 
@@ -53,11 +55,12 @@ class MatrixParamsUpdateButton(dbc.Button):
                 n_clicks=Input(self.ID, "n_clicks"),
                 metric=Input(MatrixParamsMetric.ID, "value"),
                 color_scale=Input(MatrixParamsColorScale.ID, 'value'),
-                color_bins=Input(MatrixParamsColorRange.ID_BIN_TEXT, 'value')
+                color_bins=Input(MatrixParamsColorRange.ID_BIN_TEXT, 'value'),
+                sync_with_network=Input(MatrixParamsSyncWithNetwork.ID, 'value'),
             ),
             prevent_initial_call=True
         )
-        def update_options_on_file_upload(n_clicks, metric, color_scale, color_bins):
+        def update_options_on_file_upload(n_clicks, metric, color_scale, color_bins, sync_with_network):
             log = logging.getLogger()
             log.debug(f'{self.ID} - Updating matrix visualization parameters.')
 
@@ -81,6 +84,7 @@ class MatrixParamsUpdateButton(dbc.Button):
                 params=MatrixParameters(
                     metric=metric,
                     color_scale=color_scale,
-                    slider=slider
+                    slider=slider,
+                    sync_with_network=SyncWithNetwork(sync_with_network)
                 ).model_dump(mode='json')
             )

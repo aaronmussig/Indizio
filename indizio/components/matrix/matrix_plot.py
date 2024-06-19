@@ -6,6 +6,7 @@ from dash import Output, Input, callback, State, dcc
 from dash.exceptions import PreventUpdate
 
 from indizio.config import GRAPH_AXIS_FONT_SIZE
+from indizio.interfaces.sync_with_network import SyncWithNetwork
 from indizio.store.distance_matrix import DistanceMatrixStore, DistanceMatrixData
 from indizio.store.matrix_parameters import MatrixParametersStore, MatrixParameters
 from indizio.store.network_interaction import NetworkInteractionStore, NetworkInteractionData
@@ -51,8 +52,8 @@ class MatrixPlot(dcc.Loading):
                 state_interaction=State(NetworkInteractionStore.ID, "data")
             )
         )
-        @freezeargs
-        @lru_cache
+        # @freezeargs
+        # @lru_cache
         def update_options_on_file_upload(ts_params, ts_dm, ts_interaction, state_params, state_dm, state_interaction):
             log_debug(f'{self.ID} - Updating matrix heatmap figure.')
 
@@ -71,9 +72,12 @@ class MatrixPlot(dcc.Loading):
             else:
                 feature_df = state_dm.get_file(params.metric).read()
 
-            # Read the network interaction data to determine what nodes should be displayed
-            if len(state_interaction.nodes_visible) > 0:
+            # Subset the data visible if requested
+            if params.sync_with_network is SyncWithNetwork.VISIBLE and len(state_interaction.nodes_visible) > 0:
                 subset_cols = [x for x in feature_df.columns if x in state_interaction.nodes_visible]
+                feature_df = feature_df.loc[subset_cols, subset_cols]
+            elif params.sync_with_network is SyncWithNetwork.SELECTED and len(state_interaction.nodes_selected) > 0:
+                subset_cols = [x for x in feature_df.columns if x in state_interaction.nodes_selected]
                 feature_df = feature_df.loc[subset_cols, subset_cols]
 
             # empty initially

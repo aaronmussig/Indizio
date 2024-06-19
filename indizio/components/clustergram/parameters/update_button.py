@@ -5,9 +5,11 @@ from dash import Output, Input, callback, ctx
 from dash.exceptions import PreventUpdate
 
 from indizio.components.clustergram.parameters import ClustergramParamsMetric, ClustergramParamsTree, \
-    ClustergramParamsMetadata, ClustergramParamsClusterOn, ClustergramParamsOptimalLeafOrder
+    ClustergramParamsMetadata, ClustergramParamsClusterOn, ClustergramParamsOptimalLeafOrder, \
+    ClustergramParamsSyncWithNetwork
 from indizio.interfaces.boolean import BooleanYesNo
 from indizio.interfaces.cluster_on import ClusterOn
+from indizio.interfaces.sync_with_network import SyncWithNetwork
 from indizio.store.clustergram_parameters import ClustergramParametersStore, ClustergramParameters
 
 
@@ -37,10 +39,11 @@ class ClustergramParamsUpdateButton(dbc.Button):
                 metadata=Input(ClustergramParamsMetadata.ID, 'value'),
                 cluster_on=Input(ClustergramParamsClusterOn.ID, 'value'),
                 optimal_leaf_ordering=Input(ClustergramParamsOptimalLeafOrder.ID, 'value'),
-                metadata_cols=Input(ClustergramParamsMetadata.ID_COLS, 'value')
+                metadata_cols=Input(ClustergramParamsMetadata.ID_COLS, 'value'),
+                sync_with_network=Input(ClustergramParamsSyncWithNetwork.ID, 'value')
             )
         )
-        def update_options_on_file_upload(n_clicks, metric, tree, metadata, cluster_on, optimal_leaf_ordering, metadata_cols):
+        def update_options_on_file_upload(n_clicks, metric, tree, metadata, cluster_on, optimal_leaf_ordering, metadata_cols, sync_with_network):
             log = logging.getLogger()
             log.debug(f'{self.ID} - Updating clustergram visualization parameters.')
 
@@ -55,7 +58,8 @@ class ClustergramParamsUpdateButton(dbc.Button):
                     metadata=metadata,
                     cluster_on=ClusterOn(cluster_on),
                     optimal_leaf_order=BooleanYesNo(optimal_leaf_ordering),
-                    metadata_cols=metadata_cols if metadata_cols else list()
+                    metadata_cols=metadata_cols if metadata_cols else list(),
+                    sync_with_network=SyncWithNetwork(sync_with_network)
                 ).model_dump(mode='json')
             )
 

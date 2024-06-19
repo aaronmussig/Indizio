@@ -5,6 +5,7 @@ from indizio.components.clustergram.parameters.cluster_on import ClustergramPara
 from indizio.components.clustergram.parameters.metadata import ClustergramParamsMetadata
 from indizio.components.clustergram.parameters.metric import ClustergramParamsMetric
 from indizio.components.clustergram.parameters.optimal_leaf_order import ClustergramParamsOptimalLeafOrder
+from indizio.components.clustergram.parameters.sync_with_network import ClustergramParamsSyncWithNetwork
 from indizio.components.clustergram.parameters.tree import ClustergramParamsTree
 from indizio.components.clustergram.parameters.update_button import ClustergramParamsUpdateButton
 
@@ -39,6 +40,7 @@ class ClustergramParametersCanvas(html.Div):
                         dbc.Row(ClustergramParamsTree(), className="mt-2"),
                         dbc.Row(ClustergramParamsMetadata(), className="mt-2"),
                         dbc.Row(ClustergramParamsClusterOn(), className='mt-2'),
+                        dbc.Row(ClustergramParamsSyncWithNetwork(), className='mt-2'),
                         dbc.Row(ClustergramParamsOptimalLeafOrder(), className='mt-2'),
                         dbc.Row(ClustergramParamsUpdateButton(), className="mt-2")
                     ]

@@ -4,6 +4,7 @@ from dash import dcc
 from pydantic import BaseModel
 
 from indizio.config import PERSISTENCE_TYPE
+from indizio.interfaces.sync_with_network import SyncWithNetwork
 
 
 class MatrixParameters(BaseModel):
@@ -13,6 +14,7 @@ class MatrixParameters(BaseModel):
     metric: Optional[str] = None
     color_scale: str = 'inferno'
     slider: List[float] = [0.0, 1.0]
+    sync_with_network: SyncWithNetwork = SyncWithNetwork.DISABLED
 
 
 class MatrixParametersStore(dcc.Store):

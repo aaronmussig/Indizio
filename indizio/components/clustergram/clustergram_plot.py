@@ -10,6 +10,7 @@ from plotly.subplots import make_subplots
 
 from indizio.config import GRAPH_AXIS_FONT_SIZE
 from indizio.interfaces.boolean import BooleanYesNo
+from indizio.interfaces.sync_with_network import SyncWithNetwork
 from indizio.store.clustergram_parameters import ClustergramParametersStore, ClustergramParameters
 from indizio.store.metadata_file import MetadataFileStore, MetadataData
 from indizio.store.network_interaction import NetworkInteractionStore, NetworkInteractionData
@@ -101,14 +102,12 @@ class ClustergramPlot(dcc.Loading):
             else:
                 feature_df = state_dm.get_file(params.metric).read()
 
-            # If there are nodes selected from the network page, then subset
-            # the dataframe to those nodes
-            if len(state_interaction.nodes_selected) > 0:
-                visible_selected = state_interaction.nodes_visible.intersection(state_interaction.nodes_selected)
-                subset_cols = [x for x in feature_df.columns if x in visible_selected]
-                feature_df = feature_df[subset_cols]
-            elif len(state_interaction.nodes_visible) > 0:
+            # Subset the data visible if requested
+            if params.sync_with_network is SyncWithNetwork.VISIBLE and len(state_interaction.nodes_visible) > 0:
                 subset_cols = [x for x in feature_df.columns if x in state_interaction.nodes_visible]
+                feature_df = feature_df[subset_cols]
+            elif params.sync_with_network is SyncWithNetwork.SELECTED and len(state_interaction.nodes_selected) > 0:
+                subset_cols = [x for x in feature_df.columns if x in state_interaction.nodes_selected]
                 feature_df = feature_df[subset_cols]
 
             # To prevent an error on only one column visible, do not cluster

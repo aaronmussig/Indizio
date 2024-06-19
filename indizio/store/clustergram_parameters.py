@@ -6,6 +6,7 @@ from pydantic import BaseModel
 from indizio.config import PERSISTENCE_TYPE
 from indizio.interfaces.boolean import BooleanYesNo
 from indizio.interfaces.cluster_on import ClusterOn
+from indizio.interfaces.sync_with_network import SyncWithNetwork
 
 
 class ClustergramParameters(BaseModel):
@@ -18,6 +19,7 @@ class ClustergramParameters(BaseModel):
     cluster_on: ClusterOn = ClusterOn.IDS
     optimal_leaf_order: BooleanYesNo = BooleanYesNo.NO
     metadata_cols: List[str] = list()
+    sync_with_network: SyncWithNetwork = SyncWithNetwork.DISABLED
 
 
 class ClustergramParametersStore(dcc.Store):
