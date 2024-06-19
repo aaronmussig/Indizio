@@ -19,6 +19,7 @@ class ClustergramParameters(BaseModel):
     optimal_leaf_order: BooleanYesNo = BooleanYesNo.NO
     metadata_cols: List[str] = list()
 
+
 class ClustergramParametersStore(dcc.Store):
     """
     This class is used to represent the store for the clustergram parameters.

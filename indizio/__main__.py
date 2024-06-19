@@ -15,6 +15,7 @@ from indizio.components.layout.message import LayoutMessage
 from indizio.components.layout.navbar import NavBar
 from indizio.config import RELOAD_ID, TMP_DIR
 from indizio.interfaces.logging import LogLevel
+from indizio.store.active_stores import ACTIVE_STORES
 from indizio.store.clustergram_parameters import ClustergramParametersStore
 from indizio.store.distance_matrix import DistanceMatrixStore
 from indizio.store.dm_graph import DistanceMatrixGraphStore
@@ -89,19 +90,10 @@ def main(
                 children=
                 [
                     # Future Stores will need to be declared here
-                    NetworkFormStore(),
-                    UploadFormStore(),
-                    PresenceAbsenceStore(),
-                    DistanceMatrixStore(),
-                    MetadataFileStore(),
-                    TreeFileStore(),
-                    DistanceMatrixGraphStore(),
-                    MatrixParametersStore(),
-                    ClustergramParametersStore(),
-                    NetworkInteractionStore(),
+                    *ACTIVE_STORES,
 
                     # Add the default page content
-                    NavBar(),
+                    NavBar(debug),
                     LayoutMessage(),
                     dcc.Location(id=RELOAD_ID, refresh=True),
                     dbc.Container(

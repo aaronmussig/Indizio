@@ -92,5 +92,5 @@ class DistanceMatrixStore(dcc.Store):
         super().__init__(
             id=self.ID,
             storage_type=PERSISTENCE_TYPE,
-            data=dict()
+            data=DistanceMatrixData().model_dump(mode='json')
         )

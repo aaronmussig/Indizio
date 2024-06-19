@@ -108,5 +108,5 @@ class PresenceAbsenceStore(dcc.Store):
         super().__init__(
             id=self.ID,
             storage_type=PERSISTENCE_TYPE,
-            data=None
+            data=PresenceAbsenceData().model_dump(mode='json')
         )

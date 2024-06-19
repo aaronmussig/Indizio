@@ -47,5 +47,5 @@ class UploadFormStore(dcc.Store):
         super().__init__(
             id=self.ID,
             storage_type=PERSISTENCE_TYPE,
-            data=dict()
+            data=UploadFormData().model_dump(mode='json')
         )

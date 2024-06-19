@@ -1,8 +1,9 @@
 import dash_bootstrap_components as dbc
 from dash import Output, Input, callback
 
-from indizio.store.distance_matrix import DistanceMatrixStore
 from indizio import __version__
+from indizio.store.distance_matrix import DistanceMatrixStore
+
 
 class NavBar(dbc.NavbarSimple):
     """
@@ -13,8 +14,36 @@ class NavBar(dbc.NavbarSimple):
     ID_MATRIX = f'{ID}-matrix'
     ID_VIZ = f'{ID}-viz'
     ID_STATS = f'{ID}-stats'
+    ID_DEBUG = f'{ID}-debug'
 
-    def __init__(self):
+    def __init__(self, debug: bool):
+        children = [
+            dbc.NavItem(dbc.NavLink(
+                "Matrices",
+                href="/matrix",
+                disabled=False,
+                id=self.ID_MATRIX
+            )),
+            dbc.NavItem(dbc.NavLink(
+                "Network Visualization",
+                href="/network",
+                id=self.ID_VIZ
+            )),
+            dbc.NavItem(dbc.NavLink(
+                "Clustergram",
+                href="/clustergram",
+                id=self.ID_STATS
+            ))
+        ]
+        if debug:
+            children.append(
+                dbc.NavItem(dbc.NavLink(
+                    "Debug",
+                    href="/debug",
+                    id=self.ID_DEBUG
+                ))
+            )
+
         super().__init__(
             brand=[
                 'Indizio',
@@ -31,24 +60,7 @@ class NavBar(dbc.NavbarSimple):
             brand_href='/',
             color="primary",
             dark=True,
-            children=[
-                dbc.NavItem(dbc.NavLink(
-                    "Matrices",
-                    href="/matrix",
-                    disabled=False,
-                    id=self.ID_MATRIX
-                )),
-                dbc.NavItem(dbc.NavLink(
-                    "Network Visualization",
-                    href="/network",
-                    id=self.ID_VIZ
-                )),
-                dbc.NavItem(dbc.NavLink(
-                    "Clustergram",
-                    href="/clustergram",
-                    id=self.ID_STATS
-                )),
-            ])
+            children=children)
 
         @callback(
             output=dict(

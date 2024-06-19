@@ -86,5 +86,5 @@ class MetadataFileStore(dcc.Store):
         super().__init__(
             id=self.ID,
             storage_type=PERSISTENCE_TYPE,
-            data=None
+            data=MetadataData().model_dump(mode='json')
         )

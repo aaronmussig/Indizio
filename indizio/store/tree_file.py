@@ -69,5 +69,5 @@ class TreeFileStore(dcc.Store):
         super().__init__(
             id=self.ID,
             storage_type=PERSISTENCE_TYPE,
-            data=None
+            data=TreeData().model_dump(mode='json')
         )
