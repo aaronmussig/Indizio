@@ -10,9 +10,6 @@ PAGE_TITLE = 'Indizio'
 # session - Kept on page reload, but cleared when the browser is closed.
 PERSISTENCE_TYPE = 'session'
 
-# This is a universally unique ID that allows for a full refresh of the page.
-RELOAD_ID = 'reload-loc'
-
 # The temporary directory is used to store files that are uploaded.
 TMP_DIR = Path(tempfile.gettempdir()) / 'indizio'
 TMP_DIR.mkdir(parents=True, exist_ok=True)
@@ -34,7 +31,6 @@ ID_NETWORK_FORM_NODE_METADATA_COLOR_FILE = 'network-form-node-metadata-color-fil
 ID_NETWORK_FORM_NODE_METADATA_COLOR_COLUMN = 'network-form-node-metadata-color-column'
 ID_NETWORK_FORM_NODE_METADATA_SIZE_FILE = 'network-form-node-metadata-size-file'
 ID_NETWORK_FORM_NODE_METADATA_SIZE_COLUMN = 'network-form-node-metadata-size-column'
-
 
 ID_NETWORK_PARAM_EDGE_WEIGHTS = 'network-parameters-edge-weights'
 ID_NETWORK_PARAM_METRIC_SELECT = 'network-parameters-metric-select'

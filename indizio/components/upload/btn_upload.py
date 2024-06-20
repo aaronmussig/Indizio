@@ -3,8 +3,10 @@ from dash import Output, Input, callback, State, ALL, ctx
 from dash.exceptions import PreventUpdate
 
 from indizio.components.layout.message import LayoutMessage
+from indizio.components.layout.reload import LayoutReload
 from indizio.components.upload.pending.file_selector import UploadFormFileSelector
-from indizio.config import RELOAD_ID
+
+
 from indizio.models.common.file_type import UserFileType
 from indizio.models.distance_matrix.dm_file import DistanceMatrixFile
 from indizio.models.metadata.metadata_file import MetadataFile
@@ -54,7 +56,7 @@ class UploadFormBtnUpload(dbc.Button):
                 graph=Output(DistanceMatrixGraphStore.ID, 'data'),
                 network_params=Output(NetworkFormStore.ID, 'data', allow_duplicate=True),
                 upload_store_clear=Output(UploadFormStore.ID, 'clear_data', allow_duplicate=True),
-                reload=Output(RELOAD_ID, "href", allow_duplicate=True),
+                reload=Output(LayoutReload.ID, "href", allow_duplicate=True),
                 message=Output(LayoutMessage.ID_MESSAGE, 'children'),
                 message_ex=Output(LayoutMessage.ID_EXCEPTION, 'children'),
                 message_show=Output(LayoutMessage.ID_TOAST, 'is_open'),

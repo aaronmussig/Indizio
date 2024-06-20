@@ -4,7 +4,7 @@ import dash_bootstrap_components as dbc
 from dash import Output, Input, callback
 from dash.exceptions import PreventUpdate
 
-from indizio.config import RELOAD_ID
+from indizio.components.layout.reload import LayoutReload
 from indizio.store.active_stores import ACTIVE_STORES
 
 
@@ -31,7 +31,7 @@ class UploadFormBtnClear(dbc.Button):
         @callback(
             output=dict(
                 **{x.ID: Output(x.ID, "clear_data") for x in ACTIVE_STORES},
-                reload=Output(RELOAD_ID, "href", allow_duplicate=True),
+                reload=Output(LayoutReload.ID, "href", allow_duplicate=True),
             ),
             inputs=dict(
                 n_clicks=Input(self.ID, "n_clicks"),

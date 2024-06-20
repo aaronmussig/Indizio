@@ -4,7 +4,7 @@ import dash_bootstrap_components as dbc
 from dash import Output, Input, callback
 from dash.exceptions import PreventUpdate
 
-from indizio.config import RELOAD_ID
+from indizio.components.layout.reload import LayoutReload
 from indizio.models.common.boolean import BooleanYesNo
 from indizio.models.clustergram.cluster_on import ClusterOn
 from indizio.models.distance_matrix.dm_file import DistanceMatrixFile
@@ -58,7 +58,7 @@ class UploadFormBtnExample(dbc.Button):
                 upload_store=Output(UploadFormStore.ID, "clear_data", allow_duplicate=True),
                 presence_absence_store=Output(PresenceAbsenceStore.ID, "data", allow_duplicate=True),
                 tree_store=Output(TreeFileStore.ID, "data", allow_duplicate=True),
-                reload=Output(RELOAD_ID, "href", allow_duplicate=True),
+                reload=Output(LayoutReload.ID, "href", allow_duplicate=True),
             ),
             inputs=dict(
                 n_clicks=Input(self.ID, "n_clicks"),

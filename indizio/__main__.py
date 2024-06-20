@@ -13,7 +13,8 @@ from rich.progress import Progress, SpinnerColumn, TextColumn
 from indizio import __version__
 from indizio.components.layout.message import LayoutMessage
 from indizio.components.layout.navbar import NavBar
-from indizio.config import RELOAD_ID, TMP_DIR
+from indizio.components.layout.reload import LayoutReload
+from indizio.config import TMP_DIR
 from indizio.models.common.logging import LogLevel
 from indizio.store.active_stores import ACTIVE_STORES
 from indizio.util.log import hide_logs
@@ -83,7 +84,7 @@ def main(
                     # Add the default page content
                     NavBar(debug),
                     LayoutMessage(),
-                    dcc.Location(id=RELOAD_ID, refresh=True),
+                    LayoutReload(),
                     dbc.Container(
                         fluid=True,
                         children=
