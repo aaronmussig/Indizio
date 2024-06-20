@@ -96,10 +96,10 @@ class UploadFormBtnUpload(dbc.Button):
 
             # Load the existing state of the stores (if present)
             try:
-                pa_store = PresenceAbsenceStoreModel(**state_pa) if state_pa else PresenceAbsenceStoreModel()
-                dm_store = DistanceMatrixStoreModel(**state_dm) if state_dm else DistanceMatrixStoreModel()
-                meta_store = MetadataFileStoreModel(**state_meta) if state_meta else MetadataFileStoreModel()
-                tree_store = TreeFileStoreModel(**state_tree) if state_tree else TreeFileStoreModel()
+                pa_store = PresenceAbsenceStoreModel(**state_pa)
+                dm_store = DistanceMatrixStoreModel(**state_dm)
+                meta_store = MetadataFileStoreModel(**state_meta)
+                tree_store = TreeFileStoreModel(**state_tree)
                 upload_store = UploadFormData(**state_upload)
             except Exception as e:
                 return notify_user('Unable to load previous data, restart the application and close your current tab',
@@ -216,7 +216,7 @@ class UploadFormBtnUpload(dbc.Button):
 
             # Create the clustergram parameters
             cg_params = ClustergramParametersStoreModel(
-                metric=first_matrix.file_id,
+                metric=pa_store.get_files()[0].file_id if pa_store.n_files() > 0 else None,
                 tree=tree_store.get_files()[0].file_id if len(tree_store.get_files()) > 0 else None
             )
 

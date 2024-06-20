@@ -63,27 +63,3 @@ class ClustergramParamsUpdateButton(dbc.Button):
                 ).model_dump(mode='json')
             )
 
-        @callback(
-            output=dict(
-                disabled=Output(self.ID, "disabled"),
-            ),
-            inputs=dict(
-                metric=Input(ClustergramParamsMetric.ID, "value"),
-                tree=Input(ClustergramParamsTree.ID, 'value'),
-                cluster_on=Input(ClustergramParamsClusterOn.ID, 'value'),
-                optimal_leaf_ordering=Input(ClustergramParamsOptimalLeafOrder.ID, 'value'),
-            )
-        )
-        def toggle_disabled(metric, tree, cluster_on, optimal_leaf_ordering):
-            disabled = False
-            if metric is None:
-                disabled = True
-            if tree is None:
-                disabled = True
-            if cluster_on is None:
-                disabled = True
-            if optimal_leaf_ordering is None:
-                disabled = True
-            return dict(
-                disabled=disabled
-            )

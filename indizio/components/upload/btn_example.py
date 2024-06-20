@@ -83,7 +83,7 @@ class UploadFormBtnExample(dbc.Button):
 
             pa_file = PresenceAbsenceFile.from_upload_data(
                 UploadFormItem(
-                    file_name='pa.tsv',
+                    file_name='Presence / Absence (Example)',
                     name='Presence / Absence (Example)',
                     path=example_dir / 'pa.tsv',
                     hash='28eef894f240bbaa1ea88a64475811c8'
@@ -91,7 +91,7 @@ class UploadFormBtnExample(dbc.Button):
             )
             dm_file = DistanceMatrixFile.from_upload_data(
                 UploadFormItem(
-                    file_name='matrix.tsv',
+                    file_name='Matrix (Example)',
                     name='Matrix (Example)',
                     path=example_dir / 'matrix.tsv',
                     hash='95272f912a12aeca182875cedc714341'
@@ -99,7 +99,7 @@ class UploadFormBtnExample(dbc.Button):
             )
             tree_file = TreeFile.from_upload_data(
                 UploadFormItem(
-                    file_name='tree.nwk',
+                    file_name='Tree (Example)',
                     name='Tree (Example)',
                     path=example_dir / 'tree.nwk',
                     hash='422bd885e40e8cae0f5aded841573a98'
@@ -107,7 +107,7 @@ class UploadFormBtnExample(dbc.Button):
             )
             meta_file_pa = MetadataFile.from_upload_data(
                 UploadFormItem(
-                    file_name='metadata_pa.tsv',
+                    file_name='PA Metadata (Example)',
                     name='PA Metadata (Example)',
                     path=example_dir / 'metadata_pa.tsv',
                     hash='549f0e1e5a6cf1f6212994ce0ad91fbc'
@@ -115,7 +115,7 @@ class UploadFormBtnExample(dbc.Button):
             )
             meta_file_graph = MetadataFile.from_upload_data(
                 UploadFormItem(
-                    file_name='metadata_graph.tsv',
+                    file_name='Graph Metadata (Example)',
                     name='Graph Metadata (Example)',
                     path=example_dir / 'metadata_graph.tsv',
                     hash='462381af92bb1d76167f78d3a15b505b'

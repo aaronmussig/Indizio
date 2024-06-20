@@ -101,7 +101,7 @@ class UploadFormFileUploadForm(html.Div):
                 path = to_file(data=data_decoded, name=md5)
 
                 # Store this file in the output
-                item = UploadFormItem(path=path, file_name=n, hash=md5)
+                item = UploadFormItem(path=path, file_name=n, name=n, hash=md5)
                 output.add_item(item)
 
             return dict(

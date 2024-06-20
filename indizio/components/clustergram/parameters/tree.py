@@ -59,13 +59,18 @@ class ClustergramParamsTree(dbc.Row):
                     value=None
                 )
 
+            # De-serialize the state
+            state = TreeFileStoreModel(**state)
+            if not state.data:
+                return dict(
+                    options = list(),
+                    value = None
+                )
+
             value = None
             if state_param is not None:
                 state_param = ClustergramParametersStoreModel(**state_param)
                 value = state_param.tree
-
-            # De-serialize the state
-            state = TreeFileStoreModel(**state)
 
             # No need to de-serialize as the key values are the file names
             options = state.as_options()

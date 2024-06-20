@@ -9,6 +9,6 @@ class UploadFormItem(BaseModel):
     This class represents the data that is stored in the upload form store.
     """
     file_name: str
-    name: Optional[str] = None
+    name: str
     path: Path
     hash: str

@@ -171,6 +171,7 @@ def generate_clustergram(
         feature_df = feature_df.filter(items=common_taxa, axis=0)
 
         # Order the Y axis values of the feature dataframe to match the tree
+        tree_taxa_ordered = [x.taxon.label for x in tree.leaf_node_iter()]
         feature_df = feature_df.loc[tree_taxa_ordered]
 
     # Compute the clustergram

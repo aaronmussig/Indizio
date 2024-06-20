@@ -60,7 +60,7 @@ class PresenceAbsenceFile(BaseModel):
 
         # Create the distance matrix
         return DistanceMatrixFile(
-            file_name=self.file_name,
+            file_name=f'{self.file_id if self.file_id else self.file_name} (Pearson Corr.)',
             file_id=f'{self.file_id if self.file_id else self.file_name} (Pearson Corr.)',
             path=path,
             hash=md5,
