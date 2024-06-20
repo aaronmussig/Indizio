@@ -7,10 +7,10 @@ from dash.exceptions import PreventUpdate
 from indizio.components.clustergram.parameters import ClustergramParamsMetric, ClustergramParamsTree, \
     ClustergramParamsMetadata, ClustergramParamsClusterOn, ClustergramParamsOptimalLeafOrder, \
     ClustergramParamsSyncWithNetwork
-from indizio.interfaces.boolean import BooleanYesNo
-from indizio.interfaces.cluster_on import ClusterOn
-from indizio.interfaces.sync_with_network import SyncWithNetwork
-from indizio.store.clustergram_parameters import ClustergramParametersStore, ClustergramParameters
+from indizio.models.common.boolean import BooleanYesNo
+from indizio.models.clustergram.cluster_on import ClusterOn
+from indizio.models.common.sync_with_network import SyncWithNetwork
+from indizio.store.clustergram.parameters import ClustergramParametersStore, ClustergramParametersStoreModel
 
 
 class ClustergramParamsUpdateButton(dbc.Button):
@@ -52,7 +52,7 @@ class ClustergramParamsUpdateButton(dbc.Button):
                 raise PreventUpdate
 
             return dict(
-                params=ClustergramParameters(
+                params=ClustergramParametersStoreModel(
                     metric=metric,
                     tree=tree,
                     metadata=metadata,

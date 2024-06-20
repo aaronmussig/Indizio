@@ -1,8 +1,8 @@
 import dash_bootstrap_components as dbc
 from dash import html
 
-from indizio.interfaces.bound import Bound
-from indizio.store.network_form_store import NetworkParamThreshold
+from indizio.models.common.bound import Bound
+from indizio.models.network.parameters import NetworkParamThreshold
 
 
 class NetworkThreshFilterItem(html.Tr):

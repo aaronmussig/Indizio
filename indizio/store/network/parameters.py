@@ -5,66 +5,12 @@ from dash import dcc
 from pydantic import BaseModel
 
 from indizio.config import PERSISTENCE_TYPE
-from indizio.interfaces.boolean import BooleanAllAny, BooleanShowHide
-from indizio.interfaces.bound import Bound
-from indizio.interfaces.edge_weights import EdgeWeights
-from indizio.interfaces.html_option import HtmlOption
+from indizio.models.common.boolean import BooleanAllAny, BooleanShowHide
+from indizio.models.network.parameters import NetworkFormLayoutOption, NetworkParamThreshold, NetworkParamDegree, \
+    NetworkParamNodeColor, NetworkParamNodeSize, NetworkParamEdgeWeights
 
 
-class NetworkThreshCorrOption(HtmlOption):
-    """This class represents the different threshold correlation options."""
-    LT = '<'
-    LEQ = '<='
-    EQ = '='
-    GT = '>'
-    GEQ = '>='
-
-
-class NetworkFormLayoutOption(HtmlOption):
-    """
-    This class represents the different layout options for the network graph.
-    """
-    grid = 'Grid'
-    random = 'Random'
-    circle = 'Circle'
-    concentric = 'Concentric'
-    breadthfirst = 'Breadthfirst'
-    cose = 'Cose'
-    cose_bilkent = 'Cose-bilkent'
-    cola = 'Cola'
-    klay = 'Klay'
-    spread = 'Spread'
-    euler = 'Euler'
-
-
-class NetworkParamThreshold(BaseModel):
-    file_id: str
-    left_bound: Bound = Bound.INCLUSIVE
-    right_bound: Bound = Bound.INCLUSIVE
-    left_value: float
-    right_value: float
-
-
-class NetworkParamDegree(BaseModel):
-    min_value: float = 0.0
-    max_value: float = 1.0
-
-
-class NetworkParamNodeColor(BaseModel):
-    file_id: str
-    column: str
-
-
-class NetworkParamNodeSize(BaseModel):
-    file_id: str
-    column: str
-
-class NetworkParamEdgeWeights(BaseModel):
-    file_id: str
-    value: EdgeWeights = EdgeWeights.HIDDEN
-
-
-class NetworkFormStoreData(BaseModel):
+class NetworkFormStoreModel(BaseModel):
     """
     This class represents the data that is stored in the network form store.
     """
@@ -82,10 +28,6 @@ class NetworkFormStoreData(BaseModel):
     def get_focal_node_str(self):
         """Returns the string output of the focal node."""
         return ', '.join(self.node_of_interest) if self.node_of_interest else 'All'
-
-    def get_threshold_str(self):
-        """Returns the string output of the threshold filtering."""
-        return 'TODO'
 
     def get_cache_key(self) -> bytes:
         """
@@ -111,5 +53,5 @@ class NetworkFormStore(dcc.Store):
         super().__init__(
             id=self.ID,
             storage_type=PERSISTENCE_TYPE,
-            data=NetworkFormStoreData().model_dump(mode='json')
+            data=NetworkFormStoreModel().model_dump(mode='json')
         )

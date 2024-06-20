@@ -3,7 +3,7 @@ from typing import Optional
 import dash_bootstrap_components as dbc
 from dash import html
 
-from indizio.interfaces.file_type import UserFileType
+from indizio.models.common.file_type import UserFileType
 
 
 class UploadedFileDisplay(dbc.Card):

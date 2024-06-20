@@ -5,19 +5,25 @@ from dash import Output, Input, callback
 from dash.exceptions import PreventUpdate
 
 from indizio.config import RELOAD_ID
-from indizio.interfaces.boolean import BooleanYesNo
-from indizio.interfaces.cluster_on import ClusterOn
-from indizio.store.clustergram_parameters import ClustergramParametersStore, ClustergramParameters
-from indizio.store.distance_matrix import DistanceMatrixStore, DistanceMatrixFile, DistanceMatrixData
-from indizio.store.dm_graph import DistanceMatrixGraphStore, DmGraph
-from indizio.store.matrix_parameters import MatrixParametersStore, MatrixParameters
-from indizio.store.metadata_file import MetadataFileStore, MetadataFile, MetadataData
-from indizio.store.network_form_store import NetworkFormStore, NetworkFormStoreData, \
-    NetworkParamThreshold, NetworkParamDegree, NetworkParamNodeColor, NetworkParamNodeSize
-from indizio.store.network_interaction import NetworkInteractionStore, NetworkInteractionData
-from indizio.store.presence_absence import PresenceAbsenceStore, PresenceAbsenceFile, PresenceAbsenceData
-from indizio.store.tree_file import TreeFileStore, TreeFile, TreeData
-from indizio.store.upload_form_store import UploadFormStore, UploadFormItem
+from indizio.models.common.boolean import BooleanYesNo
+from indizio.models.clustergram.cluster_on import ClusterOn
+from indizio.models.distance_matrix.dm_file import DistanceMatrixFile
+from indizio.models.metadata.metadata_file import MetadataFile
+from indizio.models.network.parameters import NetworkParamThreshold, NetworkParamDegree, NetworkParamNodeColor, \
+    NetworkParamNodeSize
+from indizio.models.presence_absence.pa_file import PresenceAbsenceFile
+from indizio.models.tree.tree_file import TreeFile
+from indizio.models.upload.upload_file import UploadFormItem
+from indizio.store.clustergram.parameters import ClustergramParametersStore, ClustergramParametersStoreModel
+from indizio.store.matrix.dm_files import DistanceMatrixStore, DistanceMatrixStoreModel
+from indizio.store.matrix.parameters import MatrixParametersStore, MatrixParametersStoreModel
+from indizio.store.metadata_file import MetadataFileStore, MetadataFileStoreModel
+from indizio.store.network.graph import DistanceMatrixGraphStoreModel, DistanceMatrixGraphStore
+from indizio.store.network.interaction import NetworkInteractionStore, NetworkInteractionStoreModel
+from indizio.store.network.parameters import NetworkFormStore, NetworkFormStoreModel
+from indizio.store.presence_absence import PresenceAbsenceStore, PresenceAbsenceStoreModel
+from indizio.store.tree_file import TreeFileStore, TreeFileStoreModel
+from indizio.store.upload_form_store import UploadFormStore
 from indizio.util.package import get_package_root
 
 
@@ -117,12 +123,12 @@ class UploadFormBtnExample(dbc.Button):
             )
 
             # Create the stores and add their files
-            pa_store = PresenceAbsenceData()
-            dm_store = DistanceMatrixData()
-            meta_store = MetadataData()
-            tree_store = TreeData()
+            pa_store = PresenceAbsenceStoreModel()
+            dm_store = DistanceMatrixStoreModel()
+            meta_store = MetadataFileStoreModel()
+            tree_store = TreeFileStoreModel()
 
-            clustergram_params = ClustergramParameters(
+            clustergram_params = ClustergramParametersStoreModel(
                 metric=pa_file.file_id,
                 tree=tree_file.file_id,
                 metadata=meta_file_pa.file_id,
@@ -130,7 +136,7 @@ class UploadFormBtnExample(dbc.Button):
                 optimal_leaf_order=BooleanYesNo.YES,
                 metadata_cols=['Genus', 'Factor']
             )
-            matrix_params = MatrixParameters(
+            matrix_params = MatrixParametersStoreModel(
                 metric=dm_file.file_id,
                 color_scale='agsunset',
             )
@@ -140,7 +146,7 @@ class UploadFormBtnExample(dbc.Button):
             meta_store.add_item(meta_file_pa)
             meta_store.add_item(meta_file_graph)
             tree_store.add_item(tree_file)
-            graph_store = DmGraph.from_distance_matricies(dm_store.get_files())
+            graph_store = DistanceMatrixGraphStoreModel.from_distance_matricies(dm_store.get_files())
 
             # Compute the maximum/minimum threshold values from the distance matricies
             network_store_thresholds = dict()
@@ -150,7 +156,7 @@ class UploadFormBtnExample(dbc.Button):
                     left_value=cur_dm_file.min_value,
                     right_value=cur_dm_file.max_value
                 )
-            network_store = NetworkFormStoreData(
+            network_store = NetworkFormStoreModel(
                 thresholds=network_store_thresholds,
                 degree=NetworkParamDegree(
                     max_value=max(x[1] for x in graph_store.read().degree),
@@ -175,6 +181,6 @@ class UploadFormBtnExample(dbc.Button):
                 dm_graph_store=graph_store.model_dump(mode='json'),
                 clustergram_params=clustergram_params.model_dump(mode='json'),
                 matrix_param_store=matrix_params.model_dump(mode='json'),
-                network_interaction=NetworkInteractionData().model_dump(mode='json'),
+                network_interaction=NetworkInteractionStoreModel().model_dump(mode='json'),
                 reload="/"
             )

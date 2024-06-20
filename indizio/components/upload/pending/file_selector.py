@@ -3,7 +3,7 @@ from typing import Optional
 import dash_bootstrap_components as dbc
 
 from indizio.components.upload.pending.close_btn import UploadFormCloseButton
-from indizio.interfaces.file_type import UserFileType
+from indizio.models.common.file_type import UserFileType
 
 
 class UploadFormFileSelector(dbc.Row):

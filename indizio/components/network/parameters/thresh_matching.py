@@ -2,8 +2,8 @@ import dash_bootstrap_components as dbc
 from dash import Output, Input, callback, State
 from dash.exceptions import PreventUpdate
 
-from indizio.interfaces.boolean import BooleanAllAny
-from indizio.store.network_form_store import NetworkFormStoreData, NetworkFormStore
+from indizio.models.common.boolean import BooleanAllAny
+from indizio.store.network.parameters import NetworkFormStoreModel, NetworkFormStore
 
 
 class NetworkThreshMatching(dbc.InputGroup):
@@ -20,7 +20,7 @@ class NetworkThreshMatching(dbc.InputGroup):
                 dbc.Select(
                     id=self.ID,
                     options=BooleanAllAny.to_options(),
-                    value=NetworkFormStoreData().thresh_matching.value,
+                    value=NetworkFormStoreModel().thresh_matching.value,
                     size='sm',
                 )
             ],
@@ -43,7 +43,7 @@ class NetworkThreshMatching(dbc.InputGroup):
             if ts is None or state is None:
                 raise PreventUpdate
 
-            params = NetworkFormStoreData(**state)
+            params = NetworkFormStoreModel(**state)
             return dict(
                 value=params.thresh_matching.value,
             )

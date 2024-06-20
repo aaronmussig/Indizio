@@ -1,4 +1,3 @@
-from functools import lru_cache
 from typing import List, Dict, Optional
 
 import dash_cytoscape as cyto
@@ -7,13 +6,11 @@ from dash import Output, Input, callback, State, dcc
 from dash.exceptions import PreventUpdate
 
 from indizio.config import ID_NETWORK_VIZ_EDGE_COUNT, ID_NETWORK_VIZ_NODE_COUNT, ID_NETWORK_VIZ_FILTERING_APPLIED
-from indizio.interfaces.edge_weights import EdgeWeights
-from indizio.store.dm_graph import DistanceMatrixGraphStore, DmGraph
-from indizio.store.metadata_file import MetadataFileStore, MetadataData
-from indizio.store.network_form_store import NetworkFormStore, NetworkFormStoreData, NetworkParamNodeSize, \
-    NetworkParamNodeColor
-from indizio.store.network_interaction import NetworkInteractionStore, NetworkInteractionData
-from indizio.util.cache import freezeargs
+from indizio.models.network.parameters import EdgeWeights, NetworkParamNodeColor, NetworkParamNodeSize
+from indizio.store.metadata_file import MetadataFileStore, MetadataFileStoreModel
+from indizio.store.network.graph import DistanceMatrixGraphStore, DistanceMatrixGraphStoreModel
+from indizio.store.network.interaction import NetworkInteractionStoreModel, NetworkInteractionStore
+from indizio.store.network.parameters import NetworkFormStore, NetworkFormStoreModel
 from indizio.util.data import is_numeric
 from indizio.util.log import log_debug
 from indizio.util.plot import numerical_colorscale
@@ -108,7 +105,7 @@ class NetworkVizStyleSheet:
         if 'width' in self.data['edge']:
             self.data['edge'].pop('width')
 
-    def update_from_iteraction_store(self, store: NetworkInteractionData, edges: List[dict]):
+    def update_from_iteraction_store(self, store: NetworkInteractionStoreModel, edges: List[dict]):
         self.deselect_all()
         for node in store.nodes_selected:
             self.set_node_id_highlighted(node)
@@ -182,11 +179,11 @@ class NetworkVizGraph(dcc.Loading):
                 raise PreventUpdate
 
             # Load the data
-            graph = DmGraph(**state_graph)
+            graph = DistanceMatrixGraphStoreModel(**state_graph)
             graph_read = graph.read()
-            params = NetworkFormStoreData(**state_params)
-            meta = MetadataData(**state_meta)
-            interact = NetworkInteractionData(**network_interaction_state)
+            params = NetworkFormStoreModel(**state_params)
+            meta = MetadataFileStoreModel(**state_meta)
+            interact = NetworkInteractionStoreModel(**network_interaction_state)
 
             out_graph = graph.filter_to_cytoscape(params)
 
@@ -284,8 +281,16 @@ class NetworkVizGraph(dcc.Loading):
             Update the network interaction data based on node selection, or
             what is currently visible.
             """
+
+            print('\n' * 2)
+            print(graph)
+            print(len(graph))
+            print(type(graph))
+            [print(f'{x}\n') for x in graph['nodes']]
+            print('\n' * 2)
+
             # Store this in the network interaction store
-            network_interaction_store = NetworkInteractionData(**state)
+            network_interaction_store = NetworkInteractionStoreModel(**state)
 
             nodes_visible = {x['data']['id'] for x in graph['nodes']}
 
@@ -327,7 +332,7 @@ class NetworkVizGraph(dcc.Loading):
                 if prev_stylesheet else NetworkVizStyleSheet()
 
             # Load the selected nodes from the store
-            network_interaction_store = NetworkInteractionData(**network_interaction_state)
+            network_interaction_store = NetworkInteractionStoreModel(**network_interaction_state)
 
             # Reflect the state of the interaction in the stylesheet
             stylesheet.update_from_iteraction_store(
@@ -341,7 +346,7 @@ class NetworkVizGraph(dcc.Loading):
             )
 
 
-def get_sizes_for_nodes(param: Optional[NetworkParamNodeSize], meta: MetadataData):
+def get_sizes_for_nodes(param: Optional[NetworkParamNodeSize], meta: MetadataFileStoreModel):
     # Nothing to do
     if param is None:
         return dict()
@@ -369,7 +374,7 @@ def get_sizes_for_nodes(param: Optional[NetworkParamNodeSize], meta: MetadataDat
     return out
 
 
-def get_colours_for_nodes(param: Optional[NetworkParamNodeColor], meta: MetadataData):
+def get_colours_for_nodes(param: Optional[NetworkParamNodeColor], meta: MetadataFileStoreModel):
     # Nothing to do
     if param is None:
         return dict()

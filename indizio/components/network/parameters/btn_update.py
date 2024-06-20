@@ -12,11 +12,11 @@ from indizio.config import ID_NETWORK_FORM_DEGREE_LOWER_VALUE, ID_NETWORK_FORM_D
     ID_NETWORK_FORM_EDGES_TO_SELF, ID_NETWORK_FORM_NODE_METADATA_COLOR_FILE, ID_NETWORK_FORM_NODE_METADATA_COLOR_COLUMN, \
     ID_NETWORK_FORM_NODE_METADATA_SIZE_FILE, ID_NETWORK_FORM_NODE_METADATA_SIZE_COLUMN, ID_NETWORK_PARAM_EDGE_WEIGHTS, \
     ID_NETWORK_PARAM_METRIC_SELECT
-from indizio.interfaces.boolean import BooleanAllAny, BooleanShowHide
-from indizio.interfaces.bound import Bound
-from indizio.interfaces.edge_weights import EdgeWeights
-from indizio.store.network_form_store import NetworkFormStore, NetworkFormStoreData, NetworkFormLayoutOption, \
-    NetworkParamThreshold, NetworkParamDegree, NetworkParamNodeColor, NetworkParamNodeSize, NetworkParamEdgeWeights
+from indizio.models.common.boolean import BooleanAllAny, BooleanShowHide
+from indizio.models.common.bound import Bound
+from indizio.models.network.parameters import EdgeWeights, NetworkFormLayoutOption, NetworkParamNodeColor, \
+    NetworkParamNodeSize, NetworkParamDegree, NetworkParamThreshold, NetworkParamEdgeWeights
+from indizio.store.network.parameters import NetworkFormStore, NetworkFormStoreModel
 
 
 class NetworkFormBtnUpdate(dbc.Button):
@@ -93,7 +93,7 @@ class NetworkFormBtnUpdate(dbc.Button):
                 raise PreventUpdate
 
             # Serialise the network form state data
-            network_form_state = NetworkFormStoreData()
+            network_form_state = NetworkFormStoreModel()
 
             network_form_state.layout = NetworkFormLayoutOption(layout)
 

@@ -2,8 +2,8 @@ import dash_bootstrap_components as dbc
 from dash import Output, Input, callback, State, dcc
 
 from indizio.config import ID_CLUSTERGRAM_PARAMS_METRIC
-from indizio.store.clustergram_parameters import ClustergramParametersStore, ClustergramParameters
-from indizio.store.presence_absence import PresenceAbsenceStore, PresenceAbsenceData
+from indizio.store.clustergram.parameters import ClustergramParametersStore, ClustergramParametersStoreModel
+from indizio.store.presence_absence import PresenceAbsenceStore, PresenceAbsenceStoreModel
 
 
 class ClustergramParamsMetric(dbc.Row):
@@ -57,11 +57,11 @@ class ClustergramParamsMetric(dbc.Row):
 
             value = None
             if state_param is not None:
-                state_param = ClustergramParameters(**state_param)
+                state_param = ClustergramParametersStoreModel(**state_param)
                 value = state_param.metric
 
             # De-serialize the state
-            state = PresenceAbsenceData(**state)
+            state = PresenceAbsenceStoreModel(**state)
 
             # No need to de-serialize as the key values are the file names
             options = state.as_options()

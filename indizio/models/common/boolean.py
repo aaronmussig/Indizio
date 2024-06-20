@@ -1,4 +1,4 @@
-from indizio.interfaces.html_option import HtmlOption
+from indizio.models.common.html_option import HtmlOption
 
 
 class BooleanAllAny(HtmlOption):

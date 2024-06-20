@@ -4,8 +4,8 @@ import dash_bootstrap_components as dbc
 from dash import Output, Input, callback, State
 from dash import html, dcc
 
-from indizio.store.dm_graph import DistanceMatrixGraphStore, DmGraph
-from indizio.store.network_form_store import NetworkFormStore, NetworkFormStoreData
+from indizio.store.network.graph import DistanceMatrixGraphStore, DistanceMatrixGraphStoreModel
+from indizio.store.network.parameters import NetworkFormStore, NetworkFormStoreModel
 
 
 class NetworkFormNodeOfInterest(dbc.Card):
@@ -50,7 +50,7 @@ class NetworkFormNodeOfInterest(dbc.Card):
 
             value = None
             if state_param is not None:
-                params = NetworkFormStoreData(**state_param)
+                params = NetworkFormStoreModel(**state_param)
                 value = params.node_of_interest
 
             if state_graph is None:
@@ -60,7 +60,7 @@ class NetworkFormNodeOfInterest(dbc.Card):
                 )
 
             # De-serialize the graph and return the nodes
-            graph = DmGraph(**state_graph).read()
+            graph = DistanceMatrixGraphStoreModel(**state_graph).read()
 
             return dict(
                 options=sorted(graph.nodes),

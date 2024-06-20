@@ -3,11 +3,11 @@ import logging
 from dash import Output, Input, html, callback, State
 
 from indizio.components.upload.processed.uploaded_file import UploadedFileDisplay
-from indizio.interfaces.file_type import UserFileType
-from indizio.store.distance_matrix import DistanceMatrixStore, DistanceMatrixData
-from indizio.store.metadata_file import MetadataFileStore, MetadataData
-from indizio.store.presence_absence import PresenceAbsenceStore, PresenceAbsenceData
-from indizio.store.tree_file import TreeFileStore, TreeData
+from indizio.models.common.file_type import UserFileType
+from indizio.store.matrix.dm_files import DistanceMatrixStore, DistanceMatrixStoreModel
+from indizio.store.metadata_file import MetadataFileStore, MetadataFileStoreModel
+from indizio.store.presence_absence import PresenceAbsenceStore, PresenceAbsenceStoreModel
+from indizio.store.tree_file import TreeFileStore, TreeFileStoreModel
 
 
 class UploadedFileContainer(html.Div):
@@ -44,10 +44,10 @@ class UploadedFileContainer(html.Div):
             log.debug(f'{self.ID} - Refreshing uploaded & processed files.')
 
             # Deserialize the sores
-            pa_store = PresenceAbsenceData(**pa_store) if pa_store else PresenceAbsenceData()
-            dm_store = DistanceMatrixData(**dm_store) if dm_store else DistanceMatrixData()
-            meta_store = MetadataData(**meta_store) if meta_store else MetadataData()
-            tree_store = TreeData(**tree_store) if tree_store else TreeData()
+            pa_store = PresenceAbsenceStoreModel(**pa_store) if pa_store else PresenceAbsenceStoreModel()
+            dm_store = DistanceMatrixStoreModel(**dm_store) if dm_store else DistanceMatrixStoreModel()
+            meta_store = MetadataFileStoreModel(**meta_store) if meta_store else MetadataFileStoreModel()
+            tree_store = TreeFileStoreModel(**tree_store) if tree_store else TreeFileStoreModel()
 
             # Deserialize the data and create a html element for each type
             children = list()

@@ -1,8 +1,8 @@
 import dash_bootstrap_components as dbc
 from dash import Output, Input, callback, State
 
-from indizio.interfaces.boolean import BooleanYesNo
-from indizio.store.clustergram_parameters import ClustergramParameters, ClustergramParametersStore
+from indizio.models.common.boolean import BooleanYesNo
+from indizio.store.clustergram.parameters import ClustergramParametersStoreModel, ClustergramParametersStore
 
 
 class ClustergramParamsOptimalLeafOrder(dbc.Row):
@@ -27,7 +27,7 @@ class ClustergramParamsOptimalLeafOrder(dbc.Row):
                     dbc.RadioItems(
                         id=self.ID,
                         options=BooleanYesNo.to_options(),
-                        value=ClustergramParameters().optimal_leaf_order.value,
+                        value=ClustergramParametersStoreModel().optimal_leaf_order.value,
                         className="bg-light text-dark",
                     ),
                 ),
@@ -44,7 +44,7 @@ class ClustergramParamsOptimalLeafOrder(dbc.Row):
             )
         )
         def reflect_values_in_state(ts, state):
-            state = ClustergramParameters(**state) if state else ClustergramParameters()
+            state = ClustergramParametersStoreModel(**state) if state else ClustergramParametersStoreModel()
             return dict(
                 value=state.optimal_leaf_order.value
             )

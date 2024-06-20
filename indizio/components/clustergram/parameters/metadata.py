@@ -1,8 +1,8 @@
 import dash_bootstrap_components as dbc
 from dash import Output, Input, callback, State, dcc
 
-from indizio.store.clustergram_parameters import ClustergramParametersStore, ClustergramParameters
-from indizio.store.metadata_file import MetadataFileStore, MetadataData
+from indizio.store.clustergram.parameters import ClustergramParametersStore, ClustergramParametersStoreModel
+from indizio.store.metadata_file import MetadataFileStore, MetadataFileStoreModel
 
 
 class ClustergramParamsMetadata(dbc.Row):
@@ -67,11 +67,11 @@ class ClustergramParamsMetadata(dbc.Row):
 
             value = None
             if state_params is not None:
-                state_params = ClustergramParameters(**state_params)
+                state_params = ClustergramParametersStoreModel(**state_params)
                 value = state_params.metadata
 
             # De-serialize the state
-            state = MetadataData(**state)
+            state = MetadataFileStoreModel(**state)
 
             # No need to de-serialize as the key values are the file names
             options = state.as_options()
@@ -105,13 +105,13 @@ class ClustergramParamsMetadata(dbc.Row):
                 )
 
             # De-serialize the state
-            state = MetadataData(**state_meta)
+            state = MetadataFileStoreModel(**state_meta)
             meta_file = state.get_file(metadata_value)
             meta_cols = meta_file.get_cols_as_html_options()
 
             # Update the state to reflect the store
             if state_params is not None:
-                state_params = ClustergramParameters(**state_params)
+                state_params = ClustergramParametersStoreModel(**state_params)
                 value = state_params.metadata_cols
             else:
                 value = list()

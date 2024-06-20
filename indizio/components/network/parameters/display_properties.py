@@ -5,9 +5,9 @@ from dash.exceptions import PreventUpdate
 
 from indizio.config import ID_NETWORK_PARAM_EDGE_WEIGHTS, \
     ID_NETWORK_PARAM_METRIC_SELECT
-from indizio.interfaces.edge_weights import EdgeWeights
-from indizio.store.dm_graph import DistanceMatrixGraphStore, DmGraph
-from indizio.store.network_form_store import NetworkFormStore, NetworkFormStoreData
+from indizio.models.network.parameters import EdgeWeights
+from indizio.store.network.graph import DistanceMatrixGraphStore, DistanceMatrixGraphStoreModel
+from indizio.store.network.parameters import NetworkFormStore, NetworkFormStoreModel
 
 
 class NetworkParamsDisplayProperties(dbc.Card):
@@ -160,7 +160,7 @@ class NetworkParamsDisplayProperties(dbc.Card):
             if ts is None or state is None:
                 raise PreventUpdate
 
-            params = NetworkFormStoreData(**state)
+            params = NetworkFormStoreModel(**state)
 
             if params.edge_weights is not None:
                 edge_weight_value = params.edge_weights.value.value
@@ -190,7 +190,7 @@ class NetworkParamsDisplayProperties(dbc.Card):
             if ts is None or state is None:
                 raise PreventUpdate
 
-            state = DmGraph(**state)
+            state = DistanceMatrixGraphStoreModel(**state)
             edge_weight_options = list()
             for dm_file in state.matrices:
                 edge_weight_options.append({

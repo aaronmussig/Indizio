@@ -3,8 +3,8 @@ from dash import Output, Input, callback, State
 from dash import html
 from dash.exceptions import PreventUpdate
 
-from indizio.store.network_form_store import NetworkFormLayoutOption
-from indizio.store.network_form_store import NetworkFormStore, NetworkFormStoreData
+from indizio.models.network.parameters import NetworkFormLayoutOption
+from indizio.store.network.parameters import NetworkFormStore, NetworkFormStoreModel
 
 
 class NetworkFormLayout(html.Div):
@@ -23,7 +23,7 @@ class NetworkFormLayout(html.Div):
                         dbc.Select(
                             id=self.ID,
                             options=NetworkFormLayoutOption.to_options(),
-                            value=NetworkFormStoreData().layout.value,
+                            value=NetworkFormStoreModel().layout.value,
                         )
                     ])
             ]
@@ -41,7 +41,7 @@ class NetworkFormLayout(html.Div):
         def reflect_store_parameters(ts, state):
             if ts is None or state is None:
                 raise PreventUpdate
-            params = NetworkFormStoreData(**state)
+            params = NetworkFormStoreModel(**state)
             return dict(
                 value=params.layout.value
             )

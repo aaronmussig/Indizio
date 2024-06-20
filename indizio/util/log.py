@@ -4,7 +4,7 @@ from datetime import datetime
 
 import rich
 
-from indizio.interfaces.logging import LogLevel
+from indizio.models.common.logging import LogLevel
 
 
 def log(msg, level: LogLevel = LogLevel.INFO):

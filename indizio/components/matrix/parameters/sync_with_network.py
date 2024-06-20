@@ -1,8 +1,8 @@
 import dash_bootstrap_components as dbc
 from dash import Output, Input, callback, State, dcc
 
-from indizio.interfaces.sync_with_network import SyncWithNetwork
-from indizio.store.matrix_parameters import MatrixParameters, MatrixParametersStore
+from indizio.models.common.sync_with_network import SyncWithNetwork
+from indizio.store.matrix.parameters import MatrixParametersStoreModel, MatrixParametersStore
 
 
 class MatrixParamsSyncWithNetwork(dbc.Row):
@@ -23,7 +23,7 @@ class MatrixParamsSyncWithNetwork(dbc.Row):
                     dcc.Dropdown(
                         id=self.ID,
                         options=SyncWithNetwork.to_options(),
-                        value=MatrixParameters().sync_with_network.value,
+                        value=MatrixParametersStoreModel().sync_with_network.value,
                         className="bg-light text-dark",
                         clearable=False
                     ),
@@ -43,9 +43,9 @@ class MatrixParamsSyncWithNetwork(dbc.Row):
         def reflect_values_in_state(ts, state):
             if state is None:
                 return dict(
-                    value=MatrixParameters().sync_with_network.value
+                    value=MatrixParametersStoreModel().sync_with_network.value
                 )
-            state = MatrixParameters(**state)
+            state = MatrixParametersStoreModel(**state)
             return dict(
                 value=state.sync_with_network.value
             )

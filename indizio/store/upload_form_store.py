@@ -1,20 +1,10 @@
-from pathlib import Path
-from typing import Optional, Dict
+from typing import Dict
 
 from dash import dcc
 from pydantic import BaseModel
 
 from indizio.config import PERSISTENCE_TYPE
-
-
-class UploadFormItem(BaseModel):
-    """
-    This class represents the data that is stored in the upload form store.
-    """
-    file_name: str
-    name: Optional[str] = None
-    path: Path
-    hash: str
+from indizio.models.upload.upload_file import UploadFormItem
 
 
 class UploadFormData(BaseModel):

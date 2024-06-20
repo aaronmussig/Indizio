@@ -6,7 +6,7 @@ from pydantic import BaseModel
 from indizio.config import PERSISTENCE_TYPE
 
 
-class NetworkInteractionData(BaseModel):
+class NetworkInteractionStoreModel(BaseModel):
     """
     This is the actual model for the data in the network interaction store.
     """
@@ -36,5 +36,5 @@ class NetworkInteractionStore(dcc.Store):
         super().__init__(
             id=self.ID,
             storage_type=PERSISTENCE_TYPE,
-            data=NetworkInteractionData().model_dump(mode='json')
+            data=NetworkInteractionStoreModel().model_dump(mode='json')
         )

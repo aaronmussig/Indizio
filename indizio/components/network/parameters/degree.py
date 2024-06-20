@@ -4,8 +4,8 @@ from dash.exceptions import PreventUpdate
 
 from indizio.config import ID_NETWORK_FORM_DEGREE_LOWER_VALUE, ID_NETWORK_FORM_DEGREE_UPPER_VALUE, \
     ID_NETWORK_FORM_DEGREE, ID_NETWORK_FORM_EDGES_TO_SELF
-from indizio.interfaces.boolean import BooleanShowHide
-from indizio.store.network_form_store import NetworkFormStoreData, NetworkFormStore
+from indizio.models.common.boolean import BooleanShowHide
+from indizio.store.network.parameters import NetworkFormStoreModel, NetworkFormStore
 
 
 class NetworkFormDegree(dbc.Card):
@@ -92,7 +92,7 @@ class NetworkFormDegree(dbc.Card):
             if ts_params is None or state_params is None:
                 raise PreventUpdate
 
-            params = NetworkFormStoreData(**state_params)
+            params = NetworkFormStoreModel(**state_params)
             return dict(
                 lower_value=params.degree.min_value,
                 upper_value=params.degree.max_value,

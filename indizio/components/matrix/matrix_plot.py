@@ -6,10 +6,10 @@ from dash import Output, Input, callback, State, dcc
 from dash.exceptions import PreventUpdate
 
 from indizio.config import GRAPH_AXIS_FONT_SIZE
-from indizio.interfaces.sync_with_network import SyncWithNetwork
-from indizio.store.distance_matrix import DistanceMatrixStore, DistanceMatrixData
-from indizio.store.matrix_parameters import MatrixParametersStore, MatrixParameters
-from indizio.store.network_interaction import NetworkInteractionStore, NetworkInteractionData
+from indizio.models.common.sync_with_network import SyncWithNetwork
+from indizio.store.matrix.dm_files import DistanceMatrixStore, DistanceMatrixStoreModel
+from indizio.store.matrix.parameters import MatrixParametersStore, MatrixParametersStoreModel
+from indizio.store.network.interaction import NetworkInteractionStore, NetworkInteractionStoreModel
 from indizio.util.cache import freezeargs
 from indizio.util.graph import format_axis_labels
 from indizio.util.log import log_debug
@@ -62,9 +62,9 @@ class MatrixPlot(dcc.Loading):
                 raise PreventUpdate
 
             # De-serialize the distance matrix store
-            state_dm = DistanceMatrixData(**state_dm)
-            params = MatrixParameters(**state_params)
-            state_interaction = NetworkInteractionData(**state_interaction)
+            state_dm = DistanceMatrixStoreModel(**state_dm)
+            params = MatrixParametersStoreModel(**state_params)
+            state_interaction = NetworkInteractionStoreModel(**state_interaction)
 
             # If the metric is not set from the parameters, choose the first one
             if params.metric is None:

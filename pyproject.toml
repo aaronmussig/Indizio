@@ -7,7 +7,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "indizio"
-version = "0.9.0"
+version = "0.10.0"
 dependencies = [
     "dash ~= 2.16.1",
     "dash-bootstrap-components ~= 1.5.0",

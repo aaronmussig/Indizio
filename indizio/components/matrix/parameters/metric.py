@@ -6,7 +6,7 @@ from dash import dcc
 from dash.exceptions import PreventUpdate
 
 from indizio.config import PERSISTENCE_TYPE, ID_MATRIX_PARAMS_METRIC
-from indizio.store.distance_matrix import DistanceMatrixStore, DistanceMatrixData
+from indizio.store.matrix.dm_files import DistanceMatrixStore, DistanceMatrixStoreModel
 
 
 class MatrixParamsMetric(dbc.Row):
@@ -60,7 +60,7 @@ class MatrixParamsMetric(dbc.Row):
                 raise PreventUpdate
 
             # De-serialize the state
-            state = DistanceMatrixData(**state)
+            state = DistanceMatrixStoreModel(**state)
 
             # No need to de-serialize as the key values are the file names
             options = state.as_options()

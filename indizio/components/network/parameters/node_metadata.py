@@ -5,8 +5,8 @@ from dash.exceptions import PreventUpdate
 
 from indizio.config import ID_NETWORK_FORM_NODE_METADATA_COLOR_FILE, ID_NETWORK_FORM_NODE_METADATA_COLOR_COLUMN, \
     ID_NETWORK_FORM_NODE_METADATA_SIZE_FILE, ID_NETWORK_FORM_NODE_METADATA_SIZE_COLUMN
-from indizio.store.metadata_file import MetadataFileStore, MetadataData
-from indizio.store.network_form_store import NetworkFormStore, NetworkFormStoreData
+from indizio.store.metadata_file import MetadataFileStore, MetadataFileStoreModel
+from indizio.store.network.parameters import NetworkFormStore, NetworkFormStoreModel
 
 
 class NetworkFormNodeMetadata(dbc.Card):
@@ -103,7 +103,7 @@ class NetworkFormNodeMetadata(dbc.Card):
             size_meta_options = list()
 
             if ts_meta is not None:
-                meta = MetadataData(**state_meta)
+                meta = MetadataFileStoreModel(**state_meta)
                 for file in meta.get_files():
                     color_meta_options.append({'label': file.file_name, 'value': file.file_id})
                     size_meta_options.append({'label': file.file_name, 'value': file.file_id})
@@ -128,7 +128,7 @@ class NetworkFormNodeMetadata(dbc.Card):
         def update_node_size_columns(size_meta_file, state_meta):
             out = list()
             if state_meta is not None and size_meta_file is not None:
-                meta = MetadataData(**state_meta)
+                meta = MetadataFileStoreModel(**state_meta)
                 meta_file = meta.get_file(size_meta_file)
                 if meta_file:
                     for column in meta_file.read().columns:
@@ -150,7 +150,7 @@ class NetworkFormNodeMetadata(dbc.Card):
         def update_node_color_columns(color_meta_file, state_meta):
             out = list()
             if state_meta is not None and color_meta_file is not None:
-                meta = MetadataData(**state_meta)
+                meta = MetadataFileStoreModel(**state_meta)
                 meta_file = meta.get_file(color_meta_file)
                 if meta_file:
                     for column in meta_file.read().columns:
@@ -178,7 +178,7 @@ class NetworkFormNodeMetadata(dbc.Card):
             if ts is None or state is None:
                 raise PreventUpdate
 
-            params = NetworkFormStoreData(**state)
+            params = NetworkFormStoreModel(**state)
 
             if params.node_color is not None:
                 color_file = params.node_color.file_id

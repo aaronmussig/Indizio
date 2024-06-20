@@ -3,8 +3,8 @@ from dash import Output, Input, callback, State
 from dash import dcc
 
 from indizio.config import PERSISTENCE_TYPE
-from indizio.store.clustergram_parameters import ClustergramParametersStore, ClustergramParameters
-from indizio.store.tree_file import TreeFileStore, TreeData
+from indizio.store.clustergram.parameters import ClustergramParametersStore, ClustergramParametersStoreModel
+from indizio.store.tree_file import TreeFileStore, TreeFileStoreModel
 
 
 class ClustergramParamsTree(dbc.Row):
@@ -61,11 +61,11 @@ class ClustergramParamsTree(dbc.Row):
 
             value = None
             if state_param is not None:
-                state_param = ClustergramParameters(**state_param)
+                state_param = ClustergramParametersStoreModel(**state_param)
                 value = state_param.tree
 
             # De-serialize the state
-            state = TreeData(**state)
+            state = TreeFileStoreModel(**state)
 
             # No need to de-serialize as the key values are the file names
             options = state.as_options()

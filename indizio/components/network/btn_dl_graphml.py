@@ -5,8 +5,8 @@ import networkx as nx
 from dash import Output, Input, callback, html, dcc, State
 from dash.exceptions import PreventUpdate
 
-from indizio.store.dm_graph import DistanceMatrixGraphStore, DmGraph
-from indizio.store.network_form_store import NetworkFormStore, NetworkFormStoreData
+from indizio.store.network.graph import DistanceMatrixGraphStore, DistanceMatrixGraphStoreModel
+from indizio.store.network.parameters import NetworkFormStore, NetworkFormStoreModel
 
 
 class DownloadGraphMlButton(html.Div):
@@ -50,8 +50,8 @@ class DownloadGraphMlButton(html.Div):
                 raise PreventUpdate
 
             # De-serialize the states
-            graph = DmGraph(**state_graph)
-            params = NetworkFormStoreData(**state_params)
+            graph = DistanceMatrixGraphStoreModel(**state_graph)
+            params = NetworkFormStoreModel(**state_params)
 
             filtered_graph = graph.filter(params)
 

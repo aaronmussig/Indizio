@@ -4,12 +4,12 @@ from dash import dcc
 from pydantic import BaseModel
 
 from indizio.config import PERSISTENCE_TYPE
-from indizio.interfaces.boolean import BooleanYesNo
-from indizio.interfaces.cluster_on import ClusterOn
-from indizio.interfaces.sync_with_network import SyncWithNetwork
+from indizio.models.clustergram.cluster_on import ClusterOn
+from indizio.models.common.boolean import BooleanYesNo
+from indizio.models.common.sync_with_network import SyncWithNetwork
 
 
-class ClustergramParameters(BaseModel):
+class ClustergramParametersStoreModel(BaseModel):
     """
     This class is the actual model for the data in the clustergram parameters.
     """
@@ -33,5 +33,5 @@ class ClustergramParametersStore(dcc.Store):
         super().__init__(
             id=self.ID,
             storage_type=PERSISTENCE_TYPE,
-            data=ClustergramParameters().model_dump(mode='json')
+            data=ClustergramParametersStoreModel().model_dump(mode='json')
         )

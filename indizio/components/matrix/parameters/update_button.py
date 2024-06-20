@@ -6,8 +6,8 @@ from dash.exceptions import PreventUpdate
 
 from indizio.components.matrix.parameters import MatrixParamsMetric, MatrixParamsColorScale, MatrixParamsColorRange, \
     MatrixParamsSyncWithNetwork
-from indizio.interfaces.sync_with_network import SyncWithNetwork
-from indizio.store.matrix_parameters import MatrixParametersStore, MatrixParameters
+from indizio.models.common.sync_with_network import SyncWithNetwork
+from indizio.store.matrix.parameters import MatrixParametersStore, MatrixParametersStoreModel
 
 
 class MatrixParamsUpdateButton(dbc.Button):
@@ -81,7 +81,7 @@ class MatrixParamsUpdateButton(dbc.Button):
             slider = sorted(set(new_bins))
 
             return dict(
-                params=MatrixParameters(
+                params=MatrixParametersStoreModel(
                     metric=metric,
                     color_scale=color_scale,
                     slider=slider,

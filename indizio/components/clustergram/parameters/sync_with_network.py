@@ -1,8 +1,8 @@
 import dash_bootstrap_components as dbc
 from dash import Output, Input, callback, State, dcc
 
-from indizio.interfaces.sync_with_network import SyncWithNetwork
-from indizio.store.clustergram_parameters import ClustergramParametersStore, ClustergramParameters
+from indizio.models.common.sync_with_network import SyncWithNetwork
+from indizio.store.clustergram.parameters import ClustergramParametersStore, ClustergramParametersStoreModel
 
 
 class ClustergramParamsSyncWithNetwork(dbc.Row):
@@ -23,7 +23,7 @@ class ClustergramParamsSyncWithNetwork(dbc.Row):
                     dcc.Dropdown(
                         id=self.ID,
                         options=SyncWithNetwork.to_options(),
-                        value=ClustergramParameters().sync_with_network.value,
+                        value=ClustergramParametersStoreModel().sync_with_network.value,
                         className="bg-light text-dark",
                         clearable=False
                     ),
@@ -43,9 +43,9 @@ class ClustergramParamsSyncWithNetwork(dbc.Row):
         def reflect_values_in_state(ts, state):
             if state is None:
                 return dict(
-                    value=ClustergramParameters().sync_with_network.value
+                    value=ClustergramParametersStoreModel().sync_with_network.value
                 )
-            state = ClustergramParameters(**state)
+            state = ClustergramParametersStoreModel(**state)
             return dict(
                 value=state.sync_with_network.value
             )

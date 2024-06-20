@@ -4,9 +4,9 @@ from dash.exceptions import PreventUpdate
 
 from indizio.components.network.parameters.thresh_filter_item import NetworkThreshFilterItem
 from indizio.components.network.parameters.thresh_matching import NetworkThreshMatching
-from indizio.store.dm_graph import DistanceMatrixGraphStore, DmGraph
-from indizio.store.network_form_store import NetworkFormStoreData, NetworkParamThreshold, \
-    NetworkFormStore
+from indizio.models.network.parameters import NetworkParamThreshold
+from indizio.store.network.graph import DistanceMatrixGraphStore, DistanceMatrixGraphStoreModel
+from indizio.store.network.parameters import NetworkFormStoreModel, NetworkFormStore
 
 
 class NetworkThreshFilterContainer(dbc.Card):
@@ -71,8 +71,8 @@ class NetworkThreshFilterContainer(dbc.Card):
                 raise PreventUpdate
 
             # De-serialize the state
-            state = DmGraph(**state_graph)
-            params = NetworkFormStoreData(**state_params)
+            state = DistanceMatrixGraphStoreModel(**state_graph)
+            params = NetworkFormStoreModel(**state_params)
 
             out = dict()
             for dm in state.matrices:

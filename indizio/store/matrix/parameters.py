@@ -4,10 +4,10 @@ from dash import dcc
 from pydantic import BaseModel
 
 from indizio.config import PERSISTENCE_TYPE
-from indizio.interfaces.sync_with_network import SyncWithNetwork
+from indizio.models.common.sync_with_network import SyncWithNetwork
 
 
-class MatrixParameters(BaseModel):
+class MatrixParametersStoreModel(BaseModel):
     """
     This class is the actual model for the data in the matrix parameters.
     """
@@ -27,5 +27,5 @@ class MatrixParametersStore(dcc.Store):
         super().__init__(
             id=self.ID,
             storage_type=PERSISTENCE_TYPE,
-            data=MatrixParameters().model_dump(mode='json')
+            data=MatrixParametersStoreModel().model_dump(mode='json')
         )

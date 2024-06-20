@@ -1,4 +1,3 @@
-import logging
 from functools import lru_cache
 from typing import Optional
 
@@ -10,13 +9,13 @@ from dash import Output, Input, callback, State, dcc
 from plotly.subplots import make_subplots
 
 from indizio.config import GRAPH_AXIS_FONT_SIZE
-from indizio.interfaces.boolean import BooleanYesNo
-from indizio.interfaces.sync_with_network import SyncWithNetwork
-from indizio.store.clustergram_parameters import ClustergramParametersStore, ClustergramParameters
-from indizio.store.metadata_file import MetadataFileStore, MetadataData
-from indizio.store.network_interaction import NetworkInteractionStore, NetworkInteractionData
-from indizio.store.presence_absence import PresenceAbsenceStore, PresenceAbsenceData
-from indizio.store.tree_file import TreeFileStore, TreeData
+from indizio.models.common.boolean import BooleanYesNo
+from indizio.models.common.sync_with_network import SyncWithNetwork
+from indizio.store.clustergram.parameters import ClustergramParametersStore, ClustergramParametersStoreModel
+from indizio.store.metadata_file import MetadataFileStore, MetadataFileStoreModel
+from indizio.store.network.interaction import NetworkInteractionStore, NetworkInteractionStoreModel
+from indizio.store.presence_absence import PresenceAbsenceStore, PresenceAbsenceStoreModel
+from indizio.store.tree_file import TreeFileStore, TreeFileStoreModel
 from indizio.util.cache import freezeargs
 from indizio.util.data import is_numeric
 from indizio.util.graph import format_axis_labels
@@ -74,11 +73,11 @@ class ClustergramPlot(dcc.Loading):
             log_debug(f'{self.ID_GRAPH} - Updating clustergram figure.')
 
             # De-serialize the distance matrix store
-            state_dm = PresenceAbsenceData(**state_dm)
-            params = ClustergramParameters(**state_params)
-            state_tree = TreeData(**state_tree)
-            state_meta = MetadataData(**state_meta)
-            state_interaction = NetworkInteractionData(**state_interaction)
+            state_dm = PresenceAbsenceStoreModel(**state_dm)
+            params = ClustergramParametersStoreModel(**state_params)
+            state_tree = TreeFileStoreModel(**state_tree)
+            state_meta = MetadataFileStoreModel(**state_meta)
+            state_interaction = NetworkInteractionStoreModel(**state_interaction)
 
             # Load the distance matrix based on what was used to generate the graph
 
@@ -137,7 +136,7 @@ class ClustergramPlot(dcc.Loading):
 
 def generate_clustergram(
         feature_df: pd.DataFrame,
-        tree: Optional[TreeData],
+        tree: Optional[TreeFileStoreModel],
         optimal_leaf_ordering: bool,
         cluster_features: bool,
         cluster_ids: bool
@@ -206,8 +205,8 @@ def generate_clustergram(
     return feature_df, traces, dendro_traces
 
 
-def generate_annotation_heatmap(feature_df: pd.DataFrame, cg_traces, df_meta: Optional[MetadataData],
-                                params: ClustergramParameters, dendro_traces):
+def generate_annotation_heatmap(feature_df: pd.DataFrame, cg_traces, df_meta: Optional[MetadataFileStoreModel],
+                                params: ClustergramParametersStoreModel, dendro_traces):
     """
     Creates the main clustergram figure
     """

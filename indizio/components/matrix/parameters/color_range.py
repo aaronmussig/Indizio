@@ -5,8 +5,8 @@ from dash import Output, Input, callback
 from dash import State
 from dash.exceptions import PreventUpdate
 
-from indizio.store.distance_matrix import DistanceMatrixStore, DistanceMatrixData
-from indizio.store.matrix_parameters import MatrixParameters, MatrixParametersStore
+from indizio.store.matrix.dm_files import DistanceMatrixStore, DistanceMatrixStoreModel
+from indizio.store.matrix.parameters import MatrixParametersStoreModel, MatrixParametersStore
 
 
 class MatrixParamsColorRange(dbc.Row):
@@ -50,12 +50,12 @@ class MatrixParamsColorRange(dbc.Row):
                 raise PreventUpdate
 
             # Read the stored matrix value
-            param_store = MatrixParameters(**mat_param_store)
+            param_store = MatrixParametersStoreModel(**mat_param_store)
             if param_store.metric is None:
                 raise PreventUpdate
 
             # Load the file to obtain the minimum / maximum value
-            dm_store = DistanceMatrixData(**dm_store)
+            dm_store = DistanceMatrixStoreModel(**dm_store)
             matrix = dm_store.get_file(param_store.metric)
 
             # Use the slider values set from the matrix parameters, if they exist

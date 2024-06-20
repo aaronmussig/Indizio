@@ -14,7 +14,7 @@ from indizio import __version__
 from indizio.components.layout.message import LayoutMessage
 from indizio.components.layout.navbar import NavBar
 from indizio.config import RELOAD_ID, TMP_DIR
-from indizio.interfaces.logging import LogLevel
+from indizio.models.common.logging import LogLevel
 from indizio.store.active_stores import ACTIVE_STORES
 from indizio.util.log import hide_logs
 from indizio.util.log import log

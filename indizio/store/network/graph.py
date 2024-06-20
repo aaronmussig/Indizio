@@ -7,15 +7,15 @@ from dash import dcc
 from pydantic import BaseModel
 
 from indizio.config import PERSISTENCE_TYPE
-from indizio.interfaces.boolean import BooleanAllAny, BooleanShowHide
-from indizio.interfaces.bound import Bound
-from indizio.store.distance_matrix import DistanceMatrixFile
-from indizio.store.network_form_store import NetworkFormStoreData
+from indizio.models.common.boolean import BooleanAllAny, BooleanShowHide
+from indizio.models.common.bound import Bound
+from indizio.models.distance_matrix.dm_file import DistanceMatrixFile
+from indizio.store.network.parameters import NetworkFormStoreModel
 from indizio.util.dataframe import dataframe_to_pairs
 from indizio.util.files import to_pickle, from_pickle
 
 
-class DmGraph(BaseModel):
+class DistanceMatrixGraphStoreModel(BaseModel):
     """
     This is the actual model for the distance matrix graph.
     """
@@ -24,10 +24,7 @@ class DmGraph(BaseModel):
     hash: str
 
     @classmethod
-    def from_distance_matricies(
-            cls,
-            matrices: Collection[DistanceMatrixFile],
-    ):
+    def from_distance_matricies(cls, matrices: Collection[DistanceMatrixFile]):
         """
         Create a graph from a collection of distance matrices.
         """
@@ -73,7 +70,7 @@ class DmGraph(BaseModel):
             out.add(dm.file_id)
         return frozenset(out)
 
-    def filter(self, params: NetworkFormStoreData):
+    def filter(self, params: NetworkFormStoreModel):
 
         # if ENABLE_CACHE:
         #     # Extract the caching key from the parameters
@@ -166,7 +163,7 @@ class DmGraph(BaseModel):
         # Return the filtered graph
         return composed
 
-    def filter_to_cytoscape(self, params: NetworkFormStoreData):
+    def filter_to_cytoscape(self, params: NetworkFormStoreModel):
         filtered_graph = self.filter(params)
 
         # Convert the graph to cytoscape format
@@ -199,5 +196,5 @@ class DistanceMatrixGraphStore(dcc.Store):
         super().__init__(
             id=self.ID,
             storage_type=PERSISTENCE_TYPE,
-            data=None
+            data=dict()
         )

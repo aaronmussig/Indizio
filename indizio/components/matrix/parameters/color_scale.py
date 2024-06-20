@@ -6,8 +6,8 @@ from dash import Output, Input, callback
 from dash import dcc, State
 from dash.exceptions import PreventUpdate
 
-from indizio.store.matrix_parameters import MatrixParameters
-from indizio.store.matrix_parameters import MatrixParametersStore
+from indizio.store.matrix.parameters import MatrixParametersStoreModel
+from indizio.store.matrix.parameters import MatrixParametersStore
 
 
 class MatrixParamsColorScale(dbc.Row):
@@ -32,7 +32,7 @@ class MatrixParamsColorScale(dbc.Row):
                     dcc.Dropdown(
                         id=self.ID,
                         options=px.colors.named_colorscales(),
-                        value=MatrixParameters().color_scale,
+                        value=MatrixParametersStoreModel().color_scale,
                         className="bg-light text-dark",
                         clearable=False
                     )
@@ -57,7 +57,7 @@ class MatrixParamsColorScale(dbc.Row):
                 log.debug(f'{self.ID} - Nothing to do.')
                 raise PreventUpdate
 
-            dm_store = MatrixParameters(**mat_param_store)
+            dm_store = MatrixParametersStoreModel(**mat_param_store)
 
             return dict(
                 value=dm_store.color_scale

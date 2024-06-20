@@ -1,8 +1,8 @@
 import dash_bootstrap_components as dbc
 from dash import Output, Input, callback, State, dcc
 
-from indizio.interfaces.cluster_on import ClusterOn
-from indizio.store.clustergram_parameters import ClustergramParameters, ClustergramParametersStore
+from indizio.models.clustergram.cluster_on import ClusterOn
+from indizio.store.clustergram.parameters import ClustergramParametersStoreModel, ClustergramParametersStore
 
 
 class ClustergramParamsClusterOn(dbc.Row):
@@ -27,7 +27,7 @@ class ClustergramParamsClusterOn(dbc.Row):
                     dcc.Dropdown(
                         id=self.ID,
                         options=ClusterOn.to_options(),
-                        value=ClustergramParameters().cluster_on.value,
+                        value=ClustergramParametersStoreModel().cluster_on.value,
                         className="bg-light text-dark",
                         clearable=False
                     ),
@@ -47,9 +47,9 @@ class ClustergramParamsClusterOn(dbc.Row):
         def reflect_values_in_state(ts, state):
             if state is None:
                 return dict(
-                    value=ClustergramParameters().cluster_on.value
+                    value=ClustergramParametersStoreModel().cluster_on.value
                 )
-            state = ClustergramParameters(**state)
+            state = ClustergramParametersStoreModel(**state)
             return dict(
                 value=state.cluster_on.value
             )

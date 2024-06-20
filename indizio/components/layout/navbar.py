@@ -2,7 +2,7 @@ import dash_bootstrap_components as dbc
 from dash import Output, Input, callback
 
 from indizio import __version__
-from indizio.store.distance_matrix import DistanceMatrixStore
+from indizio.store.matrix.dm_files import DistanceMatrixStore
 
 
 class NavBar(dbc.NavbarSimple):

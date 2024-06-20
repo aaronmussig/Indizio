@@ -5,15 +5,20 @@ from dash.exceptions import PreventUpdate
 from indizio.components.layout.message import LayoutMessage
 from indizio.components.upload.pending.file_selector import UploadFormFileSelector
 from indizio.config import RELOAD_ID
-from indizio.interfaces.file_type import UserFileType
-from indizio.store.clustergram_parameters import ClustergramParametersStore, ClustergramParameters
-from indizio.store.distance_matrix import DistanceMatrixStore, DistanceMatrixFile, DistanceMatrixData
-from indizio.store.dm_graph import DmGraph, DistanceMatrixGraphStore
-from indizio.store.matrix_parameters import MatrixParameters, MatrixParametersStore
-from indizio.store.metadata_file import MetadataFile, MetadataFileStore, MetadataData
-from indizio.store.network_form_store import NetworkFormStore, NetworkFormStoreData, NetworkParamThreshold
-from indizio.store.presence_absence import PresenceAbsenceStore, PresenceAbsenceFile, PresenceAbsenceData
-from indizio.store.tree_file import TreeFile, TreeFileStore, TreeData
+from indizio.models.common.file_type import UserFileType
+from indizio.models.distance_matrix.dm_file import DistanceMatrixFile
+from indizio.models.metadata.metadata_file import MetadataFile
+from indizio.models.network.parameters import NetworkParamThreshold
+from indizio.models.presence_absence.pa_file import PresenceAbsenceFile
+from indizio.models.tree.tree_file import TreeFile
+from indizio.store.clustergram.parameters import ClustergramParametersStore, ClustergramParametersStoreModel
+from indizio.store.matrix.dm_files import DistanceMatrixStore, DistanceMatrixStoreModel
+from indizio.store.matrix.parameters import MatrixParametersStoreModel, MatrixParametersStore
+from indizio.store.metadata_file import MetadataFileStore, MetadataFileStoreModel
+from indizio.store.network.graph import DistanceMatrixGraphStore, DistanceMatrixGraphStoreModel
+from indizio.store.network.parameters import NetworkFormStore, NetworkFormStoreModel
+from indizio.store.presence_absence import PresenceAbsenceStore, PresenceAbsenceStoreModel
+from indizio.store.tree_file import  TreeFileStore, TreeFileStoreModel
 from indizio.store.upload_form_store import UploadFormStore, UploadFormData
 from indizio.util.callbacks import notify_user
 from indizio.util.log import log_debug, log_info, log_warn
@@ -89,10 +94,10 @@ class UploadFormBtnUpload(dbc.Button):
 
             # Load the existing state of the stores (if present)
             try:
-                pa_store = PresenceAbsenceData(**state_pa) if state_pa else PresenceAbsenceData()
-                dm_store = DistanceMatrixData(**state_dm) if state_dm else DistanceMatrixData()
-                meta_store = MetadataData(**state_meta) if state_meta else MetadataData()
-                tree_store = TreeData(**state_tree) if state_tree else TreeData()
+                pa_store = PresenceAbsenceStoreModel(**state_pa) if state_pa else PresenceAbsenceStoreModel()
+                dm_store = DistanceMatrixStoreModel(**state_dm) if state_dm else DistanceMatrixStoreModel()
+                meta_store = MetadataFileStoreModel(**state_meta) if state_meta else MetadataFileStoreModel()
+                tree_store = TreeFileStoreModel(**state_tree) if state_tree else TreeFileStoreModel()
                 upload_store = UploadFormData(**state_upload)
             except Exception as e:
                 return notify_user('Unable to load previous data, restart the application and close your current tab',
@@ -168,14 +173,14 @@ class UploadFormBtnUpload(dbc.Button):
 
             # Create the matrix parameters default values
             first_matrix = dm_store.get_files()[0]
-            matrix_params = MatrixParameters(
+            matrix_params = MatrixParametersStoreModel(
                 metric=first_matrix.file_id,
                 slider=[first_matrix.min_value, first_matrix.max_value],
             )
 
             # Create the graph
             try:
-                graph = DmGraph.from_distance_matricies(dm_store.get_files())
+                graph = DistanceMatrixGraphStoreModel.from_distance_matricies(dm_store.get_files())
             except Exception as e:
                 return notify_user('Unable to create Graph from Distance Matricies.', e)
 
@@ -189,7 +194,7 @@ class UploadFormBtnUpload(dbc.Button):
 
             # Create the network parameters
             try:
-                network_params = NetworkFormStoreData(**state_network_params)
+                network_params = NetworkFormStoreModel(**state_network_params)
                 network_thresholds = dict()
                 for cur_dm in dm_store.get_files():
                     if cur_dm.file_id in network_params:
@@ -208,7 +213,7 @@ class UploadFormBtnUpload(dbc.Button):
                 return notify_user('Unable to create Network Parameters.', e)
 
             # Create the clustergram parameters
-            cg_params = ClustergramParameters(
+            cg_params = ClustergramParametersStoreModel(
                 metric=first_matrix.file_name,
                 tree=tree_store.get_files()[0].file_name if len(tree_store.get_files()) > 0 else None
             )
