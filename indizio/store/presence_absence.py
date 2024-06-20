@@ -14,6 +14,9 @@ class PresenceAbsenceStoreModel(BaseModel):
     """
     data: Dict[str, PresenceAbsenceFile] = dict()
 
+    def n_files(self) -> int:
+        return len(self.data)
+
     def add_item(self, item: PresenceAbsenceFile):
         """
         Add an item to the store.

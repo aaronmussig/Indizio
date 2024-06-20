@@ -32,22 +32,8 @@ class NetworkVizFilteringApplied(html.Div):
                 dbc.Tooltip(
                     "Based on the selected parameters, not all nodes and/or edges are visible.",
                     id=self.ID_TOOLTIP,
-                    is_open=False,
                     target=self.ID,
                 )
             ]
         )
 
-        @callback(
-            output=dict(
-                is_open=Output(self.ID_TOOLTIP, 'is_open'),
-            ),
-            inputs=dict(
-                n=Input(self.ID, "n_clicks"),
-                is_open=State(self.ID_TOOLTIP, "is_open"),
-            ),
-        )
-        def open_tooltip(n, is_open):
-            if n:
-                return dict(is_open=not is_open)
-            return dict(is_open=is_open)

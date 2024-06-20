@@ -13,6 +13,9 @@ class DistanceMatrixStoreModel(BaseModel):
     """
     data: Dict[str, DistanceMatrixFile] = dict()
 
+    def n_files(self) -> int:
+        return len(self.data)
+
     def add_item(self, item: DistanceMatrixFile):
         self.data[item.file_id] = item
 

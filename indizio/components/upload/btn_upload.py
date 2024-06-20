@@ -216,8 +216,8 @@ class UploadFormBtnUpload(dbc.Button):
 
             # Create the clustergram parameters
             cg_params = ClustergramParametersStoreModel(
-                metric=first_matrix.file_name,
-                tree=tree_store.get_files()[0].file_name if len(tree_store.get_files()) > 0 else None
+                metric=first_matrix.file_id,
+                tree=tree_store.get_files()[0].file_id if len(tree_store.get_files()) > 0 else None
             )
 
             # Now that we've calculated everything, we need to serialize the content
