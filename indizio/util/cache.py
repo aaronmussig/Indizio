@@ -41,15 +41,15 @@ def freezeargs(func):
 
     return wrapped
 
-
-def get_tmp_dir() -> Path:
-    """
-    Returns a temporary path for storing files.
-    This is set to be prefixed by the parent PID.
-    """
-    parent_pid = os.getppid()
-    tmp_root = tempfile.gettempdir()
-    return Path(tmp_root) / f'indizio-{parent_pid}'
+#
+# def get_tmp_dir() -> Path:
+#     """
+#     Returns a temporary path for storing files.
+#     This is set to be prefixed by the parent PID.
+#     """
+#     parent_pid = os.getppid()
+#     tmp_root = tempfile.gettempdir()
+#     return Path(tmp_root) / f'indizio-{parent_pid}'
 
 # def cache_by(kwargs_to_cache):
 #     """

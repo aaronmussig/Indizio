@@ -15,6 +15,7 @@ RELOAD_ID = 'reload-loc'
 
 # The temporary directory is used to store files that are uploaded.
 TMP_DIR = Path(tempfile.gettempdir()) / 'indizio'
+TMP_DIR.mkdir(parents=True, exist_ok=True)
 
 # Identifiers for some components where a circular import would otherwise be created.
 ID_MATRIX_PARAMS_METRIC = 'matrix-params-metric'
@@ -39,4 +40,4 @@ ID_NETWORK_PARAM_EDGE_WEIGHTS = 'network-parameters-edge-weights'
 ID_NETWORK_PARAM_METRIC_SELECT = 'network-parameters-metric-select'
 
 GRAPH_AXIS_FONT_SIZE = 10
-GRAPH_AXIS_MAX_LENGTH = 10
+GRAPH_AXIS_MAX_LENGTH = 15

@@ -38,18 +38,22 @@ def from_pickle_df(path: Path) -> pd.DataFrame:
         return pd.read_pickle(f)
 
 
-def to_pickle(obj) -> Tuple[Path, str]:
+def to_pickle(obj: object, path: Optional[Path] = None) -> Tuple[Path, str]:
     """
     Save a dataframe to a pickle object.
     Returns the temp path to the pickle object (by default, this is the md5).
     """
+
+    # Dump the object to a buffer
     buffer = io.BytesIO()
     pickle.dump(obj, buffer, protocol=pickle.HIGHEST_PROTOCOL)
     value = buffer.getvalue()
 
     # Compute the path based on the md5
-    md5 = calc_md5(value)
-    path = TMP_DIR / md5
+    md5 = None
+    if path is None:
+        md5 = calc_md5(value)
+        path = TMP_DIR / md5
 
     # Write to disk
     with open(path, 'wb') as f:

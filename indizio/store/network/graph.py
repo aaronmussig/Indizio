@@ -1,18 +1,19 @@
 from collections import defaultdict
 from pathlib import Path
-from typing import List, Collection, FrozenSet
+from typing import List, Collection
 
 import networkx as nx
 from dash import dcc
 from pydantic import BaseModel
 
-from indizio.config import PERSISTENCE_TYPE
+from indizio.config import PERSISTENCE_TYPE, TMP_DIR
 from indizio.models.common.boolean import BooleanAllAny, BooleanShowHide
 from indizio.models.common.bound import Bound
 from indizio.models.distance_matrix.dm_file import DistanceMatrixFile
 from indizio.store.network.parameters import NetworkFormStoreModel
 from indizio.util.dataframe import dataframe_to_pairs
 from indizio.util.files import to_pickle, from_pickle
+from indizio.util.hashing import calc_md5
 
 
 class DistanceMatrixGraphStoreModel(BaseModel):
@@ -63,26 +64,17 @@ class DistanceMatrixGraphStoreModel(BaseModel):
     def read(self) -> nx.Graph:
         return from_pickle(self.path)
 
-    def get_metrics(self) -> FrozenSet[str]:
-        """Return all metrics used in the construction of the graph edges."""
-        out = set()
-        for dm in self.matrices:
-            out.add(dm.file_id)
-        return frozenset(out)
-
     def filter(self, params: NetworkFormStoreModel):
 
-        # if ENABLE_CACHE:
-        #     # Extract the caching key from the parameters
-        #     param_cache_key = params.get_cache_key()
-        #     combined_cache_key = calc_md5(self.hash.encode() + param_cache_key)
-        #     cache_key = f'cyto-graph-{combined_cache_key}'
+        # Generate a unique key for the parameters
+        param_cache_key = params.get_cache_key()
+        combined_cache_key = calc_md5(self.hash.encode() + param_cache_key)
+        cache_key = f'cyto-graph-{combined_cache_key}'
+        cache_path = TMP_DIR / cache_key
 
-        # # Check if the graph is already cached
-        # with Cache(CACHE.directory) as cache:
-        #     existing_result = cache.get(cache_key)
-        #     if existing_result:
-        #         return existing_result
+        # Check if this is already present in the cache, if it is then load it
+        if cache_path.exists():
+            return from_pickle(cache_path)
 
         # No existing data were found, compute it
         G = self.read()
@@ -156,9 +148,7 @@ class DistanceMatrixGraphStoreModel(BaseModel):
         composed = nx.Graph(composed)
 
         # Store the result in the cache
-        # if ENABLE_CACHE:
-        #     with Cache(CACHE.directory) as cache:
-        #         cache.set(cache_key, composed)
+        to_pickle(composed, cache_path)
 
         # Return the filtered graph
         return composed

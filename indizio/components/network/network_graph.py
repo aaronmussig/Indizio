@@ -1,4 +1,4 @@
-from typing import List, Dict, Optional
+from typing import Optional
 
 import dash_cytoscape as cyto
 import plotly.express as px
@@ -7,6 +7,7 @@ from dash.exceptions import PreventUpdate
 
 from indizio.config import ID_NETWORK_VIZ_EDGE_COUNT, ID_NETWORK_VIZ_NODE_COUNT, ID_NETWORK_VIZ_FILTERING_APPLIED
 from indizio.models.network.parameters import EdgeWeights, NetworkParamNodeColor, NetworkParamNodeSize
+from indizio.models.network.stylesheet import NetworkVizStyleSheet
 from indizio.store.metadata_file import MetadataFileStore, MetadataFileStoreModel
 from indizio.store.network.graph import DistanceMatrixGraphStore, DistanceMatrixGraphStoreModel
 from indizio.store.network.interaction import NetworkInteractionStoreModel, NetworkInteractionStore
@@ -14,114 +15,6 @@ from indizio.store.network.parameters import NetworkFormStore, NetworkFormStoreM
 from indizio.util.data import is_numeric
 from indizio.util.log import log_debug
 from indizio.util.plot import numerical_colorscale
-
-
-class NetworkVizStyleSheet:
-    """
-    This is the default network stylesheet. This should be carefully modified
-    as needed. It's instantiated as a class to faciliate this.
-
-    Changes are made to this in order to display toggled nodes.
-    """
-    DEFAULT = {
-        "node": {
-            "width": "mapData(size, 0, 100, 15, 80)",
-            "height": "mapData(size, 0, 100, 15, 80)",
-            "background-color": "data(color)",
-            "content": "data(label)",
-        },
-        "edge": {
-            "opacity": 0.4
-        },
-    }
-
-    def __init__(self, data=None):
-        self.data = {**self.DEFAULT, **(data or {})}
-
-    @classmethod
-    def from_graph(cls, stylesheet):
-        out = dict()
-        for item in stylesheet:
-            out[item['selector']] = item['style']
-        return cls(out)
-
-    def node_selected_key(self, node_id: str) -> str:
-        return f'node[id = "{node_id}"]'
-
-    def edge_selected_key(self, edge_id: str) -> str:
-        return f'edge[id = "{edge_id}"]'
-
-    def set_node_id_highlighted(self, node_id: str):
-        node_key = self.node_selected_key(node_id)
-        out = {
-            "background-color": "#eb6864",
-            "border-color": "#963835",
-            "border-width": 2,
-            "border-opacity": 1,
-            "opacity": 1,
-            "text-opacity": 1,
-            "z-index": 9999,
-        }
-        self.data[node_key] = {**self.data.get(node_key, dict()), **out}
-
-    def set_edge_id_highlighted(self, edge_id: str):
-        edge_key = self.edge_selected_key(edge_id)
-        new_data = {
-            "line-color": "#eb6864",
-            "opacity": 0.9,
-            "z-index": 9000,
-        }
-        self.data[edge_key] = {**self.data.get(edge_key, dict()), **new_data}
-
-    def deselect_node_id(self, node_id: str):
-        node_key = self.node_selected_key(node_id)
-        if node_key in self.data:
-            self.data.pop(node_key)
-
-    def deselect_edge_id(self, edge_id: str):
-        edge_key = self.edge_selected_key(edge_id)
-        if edge_key in self.data:
-            self.data.pop(edge_key)
-
-    def deselect_all(self):
-        keys_to_remove = set()
-        for key in self.data:
-            if key.startswith('node[id') or key.startswith('edge[id'):
-                keys_to_remove.add(key)
-        for key in keys_to_remove:
-            self.data.pop(key)
-
-    def enable_edge_weights_text(self):
-        self.data['edge']['content'] = 'data(label)'
-
-    def disable_edge_weights_text(self):
-        if 'content' in self.data['edge']:
-            self.data['edge'].pop('content')
-
-    def enable_edge_weights_thick(self):
-        self.data['edge']['width'] = 'mapData(width, 0, 1, 1, 10)'
-
-    def disable_edge_weights_thick(self):
-        if 'width' in self.data['edge']:
-            self.data['edge'].pop('width')
-
-    def update_from_iteraction_store(self, store: NetworkInteractionStoreModel, edges: List[dict]):
-        self.deselect_all()
-        for node in store.nodes_selected:
-            self.set_node_id_highlighted(node)
-        for edge in edges:
-            edge_data = edge['data']
-            if edge_data['source'] in store.nodes_selected and edge_data['target'] in store.nodes_selected:
-                self.set_edge_id_highlighted(edge_data['id'])
-
-    def export(self) -> List[Dict]:
-        out = list()
-        for selector, style in self.data.items():
-            out.append({
-                'selector': selector,
-                'style': style
-            })
-        return out
 
 
 class NetworkVizGraph(dcc.Loading):
@@ -165,10 +58,6 @@ class NetworkVizGraph(dcc.Loading):
                 prev_stylesheet=State(self.ID_GRAPH, 'stylesheet'),
                 network_interaction_state=State(NetworkInteractionStore.ID, 'data')
             ),
-            # running=[
-            #     (Output(self.ID_GRAPH, 'style'), {'visibility': 'hidden'}, {'visibility': 'visible'}),
-            #     (Output(ID_NETWORK_VIZ_EDGE_COUNT, 'children'), 'Loading...', 'No distance matrix loaded.'),
-            # ],
         )
         def draw_graph(ts_graph, ts_param, state_graph, state_params, state_meta, prev_stylesheet,
                        network_interaction_state):
@@ -270,8 +159,8 @@ class NetworkVizGraph(dcc.Loading):
                 network_interaction=Output(NetworkInteractionStore.ID, 'data')
             ),
             inputs=dict(
-                graph=Input(self.ID_GRAPH, "elements"),
                 node_input=Input(self.ID_GRAPH, "tapNode"),
+                graph=State(self.ID_GRAPH, "elements"),
                 state=State(NetworkInteractionStore.ID, 'data')
             ),
             prevent_initial_call=True
@@ -281,20 +170,19 @@ class NetworkVizGraph(dcc.Loading):
             Update the network interaction data based on node selection, or
             what is currently visible.
             """
+            if not graph:
+                raise PreventUpdate
 
-            print('\n' * 2)
-            print(graph)
-            print(len(graph))
-            print(type(graph))
-            [print(f'{x}\n') for x in graph['nodes']]
-            print('\n' * 2)
+            # For some reason the graph can either be a dict or list
+            if isinstance(graph, dict):
+                nodes_visible = {x['data']['id'] for x in graph['nodes']}
+            elif isinstance(graph, list):
+                nodes_visible = {x['data']['id'] for x in graph}
+            else:
+                raise PreventUpdate
 
             # Store this in the network interaction store
             network_interaction_store = NetworkInteractionStoreModel(**state)
-
-            nodes_visible = {x['data']['id'] for x in graph['nodes']}
-
-            # Update what is visible
             network_interaction_store.set_visible_nodes(nodes_visible)
 
             # Update on node selection
@@ -335,9 +223,17 @@ class NetworkVizGraph(dcc.Loading):
             network_interaction_store = NetworkInteractionStoreModel(**network_interaction_state)
 
             # Reflect the state of the interaction in the stylesheet
+            # For some reason the graph can either be a dict or list
+            if isinstance(graph, dict):
+                graph_edges = graph.get('edges', list())
+            elif isinstance(graph, list):
+                graph_edges = [x for x in graph if 'source' in x.get('data', dict())]
+            else:
+                raise PreventUpdate
+
             stylesheet.update_from_iteraction_store(
                 network_interaction_store,
-                graph.get('edges', list())
+                graph_edges
             )
 
             # Export the updated stylesheet with highlighting

@@ -1,7 +1,7 @@
+import json
+
 import dash_bootstrap_components as dbc
 from dash import callback, Output, Input, State, html
-
-import json
 
 
 class DebugStore(dbc.Card):
