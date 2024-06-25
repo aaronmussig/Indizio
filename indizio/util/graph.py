@@ -6,7 +6,7 @@ from indizio.config import GRAPH_AXIS_MAX_LENGTH
 def format_axis_label(label: str) -> str:
     """Format the axis label to be more human readable."""
     if len(label) > GRAPH_AXIS_MAX_LENGTH:
-        return ''.join([f'{label[:3]}', '...', f'{label[-3:]}'])
+        return ''.join([f'{label[:5]}', '...', f'{label[-5:]}'])
     else:
         return label
 
