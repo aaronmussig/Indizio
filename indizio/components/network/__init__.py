@@ -1,6 +1,7 @@
 import dash_bootstrap_components as dbc
 from dash import html
 
+from indizio.components.network.btn_deselect import NetworkBtnDeselect
 from indizio.components.network.btn_dl_graphml import DownloadGraphMlButton
 from indizio.components.network.filtering_applied import NetworkVizFilteringApplied
 from indizio.components.network.network_graph import NetworkVizGraph
@@ -34,6 +35,7 @@ class NetworkVizContainer(dbc.Card):
                                 children=[
                                     NetworkFormParameters(),
                                     NetworkVizResetView(),
+                                    NetworkBtnDeselect(),
                                     DownloadGraphMlButton(),
                                 ]
                             ),

@@ -14,6 +14,9 @@ class NetworkInteractionStoreModel(BaseModel):
     nodes_selected: Set[str] = set()
     nodes_visible: Set[str] = set()
 
+    def deselect_nodes(self):
+        self.nodes_selected = set()
+
     def toggle_node(self, node_id: str):
 
         # Toggle the node active/inactive

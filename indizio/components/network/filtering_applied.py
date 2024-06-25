@@ -1,5 +1,5 @@
 import dash_bootstrap_components as dbc
-from dash import html, callback, Output, Input, State
+from dash import html
 
 from indizio.config import ID_NETWORK_VIZ_FILTERING_APPLIED
 
@@ -36,4 +36,3 @@ class NetworkVizFilteringApplied(html.Div):
                 )
             ]
         )
-
