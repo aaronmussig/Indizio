@@ -1,3 +1,4 @@
+import time
 from functools import lru_cache
 
 import numpy as np
@@ -12,7 +13,7 @@ from indizio.store.matrix.parameters import MatrixParametersStore, MatrixParamet
 from indizio.store.network.interaction import NetworkInteractionStore, NetworkInteractionStoreModel
 from indizio.util.cache import freezeargs
 from indizio.util.graph import format_axis_labels
-from indizio.util.log import log_debug
+from indizio.util.log import log_debug, pretty_fmt_seconds
 from indizio.util.plot import get_color
 
 
@@ -61,6 +62,9 @@ class MatrixPlot(dcc.Loading):
                 log_debug(f'{self.ID} - No data to update from.')
                 raise PreventUpdate
 
+            # Record the duration
+            start_time = time.time()
+
             # De-serialize the distance matrix store
             state_dm = DistanceMatrixStoreModel(**state_dm)
             params = MatrixParametersStoreModel(**state_params)
@@ -79,9 +83,6 @@ class MatrixPlot(dcc.Loading):
             elif params.sync_with_network is SyncWithNetwork.SELECTED and len(state_interaction.nodes_selected) > 0:
                 subset_cols = [x for x in feature_df.columns if x in state_interaction.nodes_selected]
                 feature_df = feature_df.loc[subset_cols, subset_cols]
-
-            # empty initially
-            fig = go.Figure()
 
             # if dataset in meta_dict.keys():
             #     meta_df = meta_dict[dataset]
@@ -103,32 +104,31 @@ class MatrixPlot(dcc.Loading):
             else:
                 colorscale = params.color_scale
 
-            # Create the hovertext for the heatmap
-            xy_labels_full = list()
-            for y in feature_df.index:
-                cur_vals = list()
-                for x in feature_df.columns:
-                    cur_vals.append((y, x, feature_df[y][x]))
-                xy_labels_full.append(cur_vals)
-
             heatmap = go.Heatmap(
-                x=format_axis_labels(feature_df.columns),
-                y=format_axis_labels(feature_df.index),
+                x=feature_df.columns,
+                y=feature_df.index,
                 z=feature_df,
                 colorscale=colorscale,
                 zmin=slidervals[0],
                 zmax=slidervals[-1],
-                customdata=xy_labels_full,
                 name="",
-                hovertemplate='%{customdata[0]}<br>%{customdata[1]}<br>%{customdata[2]}'
             )
 
-            f = go.Figure(heatmap)
-            for data in f.data:
-                fig.add_trace(data)
+            fig = go.Figure(heatmap)
+            fig.update_xaxes(
+                tickangle=45,
+                tickfont=dict(size=GRAPH_AXIS_FONT_SIZE),
+                tickvals=np.arange(len(feature_df.columns)),
+                ticktext=format_axis_labels(feature_df.columns)
+            )
+            fig.update_yaxes(
+                tickfont=dict(size=GRAPH_AXIS_FONT_SIZE),
+                tickvals=np.arange(len(feature_df.index)),
+                ticktext=format_axis_labels(feature_df.index)
+            )
 
-            fig.update_xaxes(tickangle=45, tickfont=dict(size=GRAPH_AXIS_FONT_SIZE))
-            fig.update_yaxes(tickfont=dict(size=GRAPH_AXIS_FONT_SIZE))
+            duration_s = time.time() - start_time
+            log_debug(f'Finished creating distance matrix in {pretty_fmt_seconds(duration_s)}.')
 
             return dict(
                 fig=fig

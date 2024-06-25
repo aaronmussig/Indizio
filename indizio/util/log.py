@@ -51,3 +51,14 @@ def log_err(msg: str):
 def hide_logs(name: str):
     logger = logging.getLogger(name)
     logger.setLevel(logging.WARNING)
+
+
+
+def pretty_fmt_seconds(seconds: float) -> str:
+    """Formats the given number of seconds into a human-readable string."""
+    if seconds < 60:
+        return f'{seconds:.2f} seconds'
+    elif seconds < 3600:
+        return f'{seconds / 60:.2f} minutes'
+    else:
+        return f'{seconds / 3600:.2f} hours'
