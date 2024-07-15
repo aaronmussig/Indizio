@@ -156,6 +156,41 @@ class NetworkVizGraph(dcc.Loading):
 
         @callback(
             output=dict(
+                network_interaction=Output(NetworkInteractionStore.ID, 'data', allow_duplicate=True)
+            ),
+            inputs=dict(
+                graph=Input(self.ID_GRAPH, "elements"),
+                state=State(NetworkInteractionStore.ID, 'data')
+            ),
+            prevent_initial_call=True
+        )
+        def update_interaction_on_graph_load(graph, state):
+            """
+            Update the network interaction data based on node selection, or
+            what is currently visible.
+            """
+            if not graph:
+                raise PreventUpdate
+
+            # For some reason the graph can either be a dict or list
+            if isinstance(graph, dict):
+                nodes_visible = {x['data']['id'] for x in graph['nodes']}
+            elif isinstance(graph, list):
+                nodes_visible = {x['data']['id'] for x in graph}
+            else:
+                raise PreventUpdate
+
+            # Store this in the network interaction store
+            network_interaction_store = NetworkInteractionStoreModel(**state)
+            network_interaction_store.set_visible_nodes(nodes_visible)
+
+            # Export the updated stylesheet with highlighting
+            return dict(
+                network_interaction=network_interaction_store.model_dump(mode='json')
+            )
+
+        @callback(
+            output=dict(
                 network_interaction=Output(NetworkInteractionStore.ID, 'data')
             ),
             inputs=dict(
