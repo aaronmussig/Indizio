@@ -122,8 +122,14 @@ class NavBar(dbc.NavbarSimple):
             ),
         )
         def toggle_nav_disabled(state_dm, state_pa):
-            state_dm = DistanceMatrixStoreModel(**state_dm)
-            state_pa = PresenceAbsenceStoreModel(**state_pa)
+            if state_dm is None:
+                state_dm = DistanceMatrixStoreModel()
+            else:
+                state_dm = DistanceMatrixStoreModel(**state_dm)
+            if state_pa is None:
+                state_pa = PresenceAbsenceStoreModel()
+            else:
+                state_pa = PresenceAbsenceStoreModel(**state_pa)
 
             disabled_style = {'visibility': 'hidden'}
 
@@ -131,9 +137,9 @@ class NavBar(dbc.NavbarSimple):
             no_pa_matrix = state_pa.n_files() == 0
             return dict(
                 matricies=no_dist_matrix,
-                matricies_tip_style={} if no_dist_matrix and no_pa_matrix else disabled_style,
+                matricies_tip_style=dict() if no_dist_matrix and no_pa_matrix else disabled_style,
                 network=no_dist_matrix,
-                network_tip_style={} if no_dist_matrix and no_pa_matrix else disabled_style,
+                network_tip_style=dict() if no_dist_matrix and no_pa_matrix else disabled_style,
                 clustergram=no_pa_matrix,
-                clustergram_tip_style={} if no_pa_matrix else disabled_style,
+                clustergram_tip_style=dict() if no_pa_matrix else disabled_style,
             )
