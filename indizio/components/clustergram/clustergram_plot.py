@@ -64,8 +64,8 @@ class ClustergramPlot(dcc.Loading):
                 state_interaction=State(NetworkInteractionStore.ID, "data")
             )
         )
-        @freezeargs
-        @lru_cache
+        # @freezeargs
+        # @lru_cache
         def update_options_on_file_upload(
                 ts_params, ts_dm, ts_tree, ts_meta, ts_interaction, state_params, state_dm,
                 state_tree, state_meta, state_interaction
@@ -379,25 +379,31 @@ def generate_metadata_heatmap(
     heat_text = np.zeros(heat_data.shape, dtype=object)
 
     # Extract the values for this column
-    cur_col = df_meta[column_name]
+    cur_col = df_meta[column_name].to_dict()
 
     # Check if this is a numerical or categorical column
-    all_numeric = all(is_numeric(x, nan_not_numeric=False) for x in cur_col.values)
+    all_numeric = all(is_numeric(x, nan_not_numeric=False) for x in cur_col.values())
 
     # If this is a numeric column, assign a color gradient to the values
     if not all_numeric:
-        d_value_to_idx = {k: i for i, k in enumerate(cur_col.values)}
 
-        # Iterate over each value in the current column to assign a value
-        for row_idx, cur_value in enumerate(cur_col.values):
-            heat_data[row_idx, 0] = d_value_to_idx[cur_value]
-            heat_text[row_idx, 0] = cur_value
+        # Assign a numeric value to each unique category
+        d_value_to_idx = dict()
+        for value in cur_col.values():
+            if value not in d_value_to_idx:
+                d_value_to_idx[value] = len(d_value_to_idx)
+
+        # Iterate over each value in the feature dataframe to keep ordering
+        # consistent. Assign the value to the heatmap
+        for row_idx, cur_value in enumerate(feature_df.index):
+            heat_data[row_idx, 0] = d_value_to_idx[cur_col[cur_value]]
+            heat_text[row_idx, 0] = cur_col[cur_value]
 
     else:
         # Iterate over each value in the current column to assign a value
-        for row_idx, cur_value in enumerate(cur_col.values):
-            heat_data[row_idx, 0] = cur_value
-            heat_text[row_idx, 0] = cur_value
+        for row_idx, cur_value in enumerate(feature_df.index):
+            heat_data[row_idx, 0] = cur_col[cur_value]
+            heat_text[row_idx, 0] = cur_col[cur_value]
 
     # Re-order the heatmap to be consistent with the main heatmap clustering
     heat_data = heat_data[cg_traces['row_ids'], :]
