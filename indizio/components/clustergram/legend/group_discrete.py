@@ -17,16 +17,18 @@ class ClustergramLegendGroupDiscrete(dbc.Card):
             rows.append(
                 html.Tr([
                     html.Td(current_bin.text),
-                    dbc.Input(
-                        type="color",
-                        id={
-                            'type': self.ID_COLOR_PICKER,
-                            'group': group_name,
-                            'key': current_bin.text,
-                        },
-                        value=current_bin.hex_code,
-                        style={"width": 50, "height": 25},
-                    ),
+                    html.Td(
+                        dbc.Input(
+                            type="color",
+                            id={
+                                'type': self.ID_COLOR_PICKER,
+                                'group': group_name,
+                                'key': current_bin.text,
+                            },
+                            value=current_bin.hex_code,
+                            # style={"width": 50, "height": 25},
+                        ),
+                    )
                 ])
             )
 
