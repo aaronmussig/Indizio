@@ -1,4 +1,3 @@
-from functools import lru_cache
 from typing import Optional
 
 import dash_bio
@@ -11,15 +10,16 @@ from plotly.subplots import make_subplots
 from indizio.config import GRAPH_AXIS_FONT_SIZE
 from indizio.models.common.boolean import BooleanYesNo
 from indizio.models.common.sync_with_network import SyncWithNetwork
+from indizio.store.clustergram.legend import ClustergramLegendStore, ClustergramLegendStoreModel
 from indizio.store.clustergram.parameters import ClustergramParametersStore, ClustergramParametersStoreModel
 from indizio.store.metadata_file import MetadataFileStore, MetadataFileStoreModel
 from indizio.store.network.interaction import NetworkInteractionStore, NetworkInteractionStoreModel
 from indizio.store.presence_absence import PresenceAbsenceStore, PresenceAbsenceStoreModel
 from indizio.store.tree_file import TreeFileStore, TreeFileStoreModel
-from indizio.util.cache import freezeargs
-from indizio.util.data import is_numeric
+from indizio.util.data import normalize
 from indizio.util.graph import format_axis_labels
 from indizio.util.log import log_debug
+from indizio.util.plot import get_color
 from indizio.util.trees import create_dendrogram_plot
 
 
@@ -57,18 +57,21 @@ class ClustergramPlot(dcc.Loading):
                 ts_tree=Input(TreeFileStore.ID, "modified_timestamp"),
                 ts_meta=Input(MetadataFileStore.ID, "modified_timestamp"),
                 ts_interaction=Input(NetworkInteractionStore.ID, "modified_timestamp"),
+                ts_legend=Input(ClustergramLegendStore.ID, "modified_timestamp"),
                 state_params=State(ClustergramParametersStore.ID, "data"),
                 state_dm=State(PresenceAbsenceStore.ID, "data"),
                 state_tree=State(TreeFileStore.ID, "data"),
                 state_meta=State(MetadataFileStore.ID, "data"),
-                state_interaction=State(NetworkInteractionStore.ID, "data")
-            )
+                state_interaction=State(NetworkInteractionStore.ID, "data"),
+                state_legend=State(ClustergramLegendStore.ID, "data"),
+            ),
         )
         # @freezeargs
         # @lru_cache
         def update_options_on_file_upload(
-                ts_params, ts_dm, ts_tree, ts_meta, ts_interaction, state_params, state_dm,
-                state_tree, state_meta, state_interaction
+                ts_params, ts_dm, ts_tree, ts_meta, ts_interaction, ts_legend,
+                state_params, state_dm, state_tree, state_meta, state_interaction,
+                state_legend
         ):
             log_debug(f'{self.ID_GRAPH} - Updating clustergram figure.')
 
@@ -78,6 +81,7 @@ class ClustergramPlot(dcc.Loading):
             state_tree = TreeFileStoreModel(**state_tree)
             state_meta = MetadataFileStoreModel(**state_meta)
             state_interaction = NetworkInteractionStoreModel(**state_interaction)
+            state_legend = ClustergramLegendStoreModel(**state_legend)
 
             # Load the distance matrix based on what was used to generate the graph
 
@@ -124,7 +128,7 @@ class ClustergramPlot(dcc.Loading):
 
             # Using the DashBio data, create our own Clustergram figure
             # as the DashBio doesn't allow for multiple colour grouping (meta)
-            fig = generate_annotation_heatmap(feature_df, cg_traces, df_meta, params, dendro_traces)
+            fig = generate_annotation_heatmap(feature_df, cg_traces, df_meta, params, dendro_traces, state_legend)
 
             fig.update_xaxes(tickangle=45, tickfont=dict(size=GRAPH_AXIS_FONT_SIZE))
             fig.update_yaxes(tickfont=dict(size=GRAPH_AXIS_FONT_SIZE))
@@ -207,7 +211,8 @@ def generate_clustergram(
 
 
 def generate_annotation_heatmap(feature_df: pd.DataFrame, cg_traces, df_meta: Optional[MetadataFileStoreModel],
-                                params: ClustergramParametersStoreModel, dendro_traces):
+                                params: ClustergramParametersStoreModel, dendro_traces,
+                                state_legend: ClustergramLegendStoreModel):
     """
     Creates the main clustergram figure
     """
@@ -318,7 +323,8 @@ def generate_annotation_heatmap(feature_df: pd.DataFrame, cg_traces, df_meta: Op
                 cg_traces,
                 main_heatmap,
                 df_meta,
-                meta_col_value
+                meta_col_value,
+                state_legend
             )
             fig.add_trace(left_meta, row=row_meta_left, col=meta_col_idx)
             fig.update_xaxes(
@@ -372,20 +378,23 @@ def generate_metadata_heatmap(
         cg_traces,
         main_heatmap,
         df_meta: pd.DataFrame,
-        column_name: str
+        column_name: str,
+        state_legend: ClustergramLegendStoreModel
 ):
     # Create the data matrix
     heat_data = np.zeros((feature_df.shape[0], 1), dtype=float)
     heat_text = np.zeros(heat_data.shape, dtype=object)
 
+    # Load the data for this legend group
+    target_group = state_legend.groups[column_name]
+
     # Extract the values for this column
     cur_col = df_meta[column_name].to_dict()
 
-    # Check if this is a numerical or categorical column
-    all_numeric = all(is_numeric(x, nan_not_numeric=False) for x in cur_col.values())
+    # Check group type
+    if target_group.is_discrete():
 
-    # If this is a numeric column, assign a color gradient to the values
-    if not all_numeric:
+        d_key_to_hex = target_group.get_discrete_key_to_hex()
 
         # Assign a numeric value to each unique category
         d_value_to_idx = dict()
@@ -399,11 +408,44 @@ def generate_metadata_heatmap(
             heat_data[row_idx, 0] = d_value_to_idx[cur_col[cur_value]]
             heat_text[row_idx, 0] = cur_col[cur_value]
 
+        # Create the custom colorscale to use the defined hex colours
+        lst_values = list()
+        lst_keys = list()
+        for key, value in d_value_to_idx.items():
+            lst_values.append(value)
+            lst_keys.append(key)
+
+        if len(lst_values) == 0:
+            colorscale = list()
+        elif len(lst_values) == 1:
+            colorscale=[(0, d_key_to_hex[lst_keys[0]]), (1, d_key_to_hex[lst_keys[0]])]
+        else:
+            lst_values_normed = normalize(lst_values)
+
+            colorscale = list()
+            for cur_key, cur_normed in zip(lst_keys, lst_values_normed):
+                cur_hex = d_key_to_hex[cur_key]
+                colorscale.append([cur_normed, cur_hex])
+
     else:
         # Iterate over each value in the current column to assign a value
         for row_idx, cur_value in enumerate(feature_df.index):
             heat_data[row_idx, 0] = cur_col[cur_value]
             heat_text[row_idx, 0] = cur_col[cur_value]
+
+        colorscale = target_group.continuous_colorscale
+        cont_bins = target_group.continuous_bins
+
+        # Greater than two, so interpolate between those values
+        if len(cont_bins) > 2:
+            colorscale = []
+            colors = get_color(target_group.continuous_colorscale, np.linspace(0, 1, len(cont_bins) - 1))
+            minval = min(cont_bins)
+            maxval = max(cont_bins)
+            normed_vals = [(x - minval) / (maxval - minval) for x in cont_bins]
+            for i, _ in enumerate(normed_vals[:-1]):
+                colorscale.append([normed_vals[i], colors[i]])
+                colorscale.append([normed_vals[i + 1], colors[i]])
 
     # Re-order the heatmap to be consistent with the main heatmap clustering
     heat_data = heat_data[cg_traces['row_ids'], :]
@@ -414,7 +456,7 @@ def generate_metadata_heatmap(
         x=list(range(heat_data.shape[1])),
         y=main_heatmap.y,
         z=heat_data,
-        colorscale='agsunset',
+        colorscale=colorscale,
         showscale=False,
         name='',
         customdata=heat_text,

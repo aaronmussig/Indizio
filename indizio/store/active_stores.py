@@ -1,3 +1,4 @@
+from indizio.store.clustergram.legend import ClustergramLegendStore
 from indizio.store.clustergram.parameters import ClustergramParametersStore
 from indizio.store.matrix.dm_files import DistanceMatrixStore
 from indizio.store.matrix.parameters import MatrixParametersStore
@@ -10,6 +11,7 @@ from indizio.store.tree_file import TreeFileStore
 from indizio.store.upload_form_store import UploadFormStore
 
 ACTIVE_STORES = [
+    ClustergramLegendStore(),
     ClustergramParametersStore(),
     DistanceMatrixStore(),
     DistanceMatrixGraphStore(),

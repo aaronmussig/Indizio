@@ -16,7 +16,7 @@ class ClustergramParametersStoreModel(BaseModel):
     metric: Optional[str] = None
     tree: Optional[str] = None
     metadata: Optional[str] = None
-    cluster_on: ClusterOn = ClusterOn.IDS
+    cluster_on: ClusterOn = ClusterOn.BOTH
     optimal_leaf_order: BooleanYesNo = BooleanYesNo.NO
     metadata_cols: List[str] = list()
     sync_with_network: SyncWithNetwork = SyncWithNetwork.DISABLED

@@ -5,6 +5,7 @@ from dash import Output, Input, callback
 from dash.exceptions import PreventUpdate
 
 from indizio.components.layout.reload import LayoutReload
+from indizio.models.clustergram.legend import LegendGroup, LegendItem
 from indizio.models.common.boolean import BooleanYesNo
 from indizio.models.clustergram.cluster_on import ClusterOn
 from indizio.models.distance_matrix.dm_file import DistanceMatrixFile
@@ -14,6 +15,7 @@ from indizio.models.network.parameters import NetworkParamThreshold, NetworkPara
 from indizio.models.presence_absence.pa_file import PresenceAbsenceFile
 from indizio.models.tree.tree_file import TreeFile
 from indizio.models.upload.upload_file import UploadFormItem
+from indizio.store.clustergram.legend import ClustergramLegendStore, ClustergramLegendStoreModel
 from indizio.store.clustergram.parameters import ClustergramParametersStore, ClustergramParametersStoreModel
 from indizio.store.matrix.dm_files import DistanceMatrixStore, DistanceMatrixStoreModel
 from indizio.store.matrix.parameters import MatrixParametersStore, MatrixParametersStoreModel
@@ -59,6 +61,7 @@ class UploadFormBtnExample(dbc.Button):
                 presence_absence_store=Output(PresenceAbsenceStore.ID, "data", allow_duplicate=True),
                 tree_store=Output(TreeFileStore.ID, "data", allow_duplicate=True),
                 reload=Output(LayoutReload.ID, "href", allow_duplicate=True),
+                clustergram_legend=Output(ClustergramLegendStore.ID, "data", allow_duplicate=True),
             ),
             inputs=dict(
                 n_clicks=Input(self.ID, "n_clicks"),
@@ -171,6 +174,24 @@ class UploadFormBtnExample(dbc.Button):
                 )
             )
 
+            clustergram_legend = ClustergramLegendStoreModel()
+            clustergram_legend.groups['Genus'] = LegendGroup(
+                name='Genus',
+                discrete_bins={
+                    'Campylobacter': LegendItem(text='Campylobacter', hex_code='#8df900'),
+                    'Haemophilus': LegendItem(text='Haemophilus', hex_code='#005392'),
+                    'Helicobacter': LegendItem(text='Helicobacter', hex_code='#ff7d78'),
+                    'Mycobacterium': LegendItem(text='Mycobacterium', hex_code='#009192'),
+                    'Staphylococcus': LegendItem(text='Staphylococcus', hex_code='#FF0000'),
+                    'Streptococcus': LegendItem(text='Streptococcus', hex_code='#eaeaea'),
+                }
+            )
+            clustergram_legend.groups['Factor'] = LegendGroup(
+                name='Factor',
+                continuous_bins=[0.0, 150.2],
+                continuous_colorscale='agsunset'
+            )
+
             return dict(
                 network_store=network_store.model_dump(mode='json'),
                 upload_store=True,
@@ -182,5 +203,6 @@ class UploadFormBtnExample(dbc.Button):
                 clustergram_params=clustergram_params.model_dump(mode='json'),
                 matrix_param_store=matrix_params.model_dump(mode='json'),
                 network_interaction=NetworkInteractionStoreModel().model_dump(mode='json'),
-                reload="/"
+                reload="/",
+                clustergram_legend=clustergram_legend.model_dump(mode='json'),
             )

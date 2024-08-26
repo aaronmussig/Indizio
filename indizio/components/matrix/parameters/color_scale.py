@@ -6,8 +6,9 @@ from dash import Output, Input, callback
 from dash import dcc, State
 from dash.exceptions import PreventUpdate
 
-from indizio.store.matrix.parameters import MatrixParametersStoreModel
+from indizio.components.common.plotly_color_scale import CommonColorScale
 from indizio.store.matrix.parameters import MatrixParametersStore
+from indizio.store.matrix.parameters import MatrixParametersStoreModel
 
 
 class MatrixParamsColorScale(dbc.Row):
@@ -16,6 +17,12 @@ class MatrixParamsColorScale(dbc.Row):
     """
 
     ID = "matrix-params-color-scale"
+
+    # Create the colour scale
+    color_scale = CommonColorScale(
+        identifier=ID,
+        default_color=MatrixParametersStoreModel().color_scale
+    )
 
     def __init__(self):
         super().__init__(
@@ -29,14 +36,9 @@ class MatrixParamsColorScale(dbc.Row):
                     width=3,
                 ),
                 dbc.Col(
-                    dcc.Dropdown(
-                        id=self.ID,
-                        options=px.colors.named_colorscales(),
-                        value=MatrixParametersStoreModel().color_scale,
-                        className="bg-light text-dark",
-                        clearable=False
-                    )
-                )
+                    self.color_scale
+                ),
+
             ]
         )
 

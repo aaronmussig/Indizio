@@ -2,6 +2,7 @@ import dash_bootstrap_components as dbc
 from dash import html
 
 from indizio.components.clustergram.clustergram_plot import ClustergramPlot
+from indizio.components.clustergram.legend import ClustergramLegendCanvas
 from indizio.components.clustergram.parameters import ClustergramParametersCanvas
 
 
@@ -26,6 +27,10 @@ class ClustergramContainer(dbc.Card):
                                     className='d-flex',
                                     style={'marginLeft': 'auto', 'marginRight': '0px'},
                                     children=[
+                                        html.Div(
+                                            ClustergramLegendCanvas(),
+                                            style={'marginRight': '10px'}
+                                        ),
                                         ClustergramParametersCanvas(),
                                     ]
                                 ),
