@@ -1,6 +1,7 @@
 import dash_bootstrap_components as dbc
 from dash import Output, Input, State, html, callback
 
+from indizio.components.network.parameters.btn_reset import NetworkFormBtnReset
 from indizio.components.network.parameters.btn_update import NetworkFormBtnUpdate
 from indizio.components.network.parameters.degree import NetworkFormDegree
 from indizio.components.network.parameters.display_properties import NetworkParamsDisplayProperties
@@ -75,7 +76,16 @@ class NetworkFormParameters(html.Div):
                         html.Div(
                             className='mt-3',
                             children=[
-                                NetworkFormBtnUpdate(),
+                                dbc.Row(
+                                    [
+                                        dbc.Col(
+                                            NetworkFormBtnReset(),
+                                        ),
+                                        dbc.Col(
+                                            NetworkFormBtnUpdate(),
+                                        )
+                                    ]
+                                ),
                             ]
                         )
 

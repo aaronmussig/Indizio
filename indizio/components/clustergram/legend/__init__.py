@@ -54,8 +54,6 @@ class ClustergramLegendCanvas(html.Div):
                 is_open=open_form
             )
 
-
-
         @callback(
             output=dict(
                 disabled=Output(self.ID_TOGGLE_BTN, "disabled"),
@@ -71,7 +69,7 @@ class ClustergramLegendCanvas(html.Div):
             # If we have a state then check if a legend would exist
             if state_legend is not None:
                 legend = ClustergramLegendStoreModel(**state_legend)
-                disabled=legend.is_empty()
+                disabled = legend.is_empty()
 
             return dict(
                 disabled=disabled
