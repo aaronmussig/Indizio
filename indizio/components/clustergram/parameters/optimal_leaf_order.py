@@ -17,7 +17,7 @@ class ClustergramParamsOptimalLeafOrder(dbc.Row):
             [
                 dbc.Col(
                     dbc.Label(
-                        "Optimal leaf ordering",
+                        "Optimal feature ordering",
                         html_for=self.ID,
                         style={'fontWeight': 'bold'}
                     ),
