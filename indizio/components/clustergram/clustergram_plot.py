@@ -1,4 +1,3 @@
-from functools import lru_cache
 from typing import Optional
 
 import dash_bio
@@ -17,7 +16,6 @@ from indizio.store.metadata_file import MetadataFileStore, MetadataFileStoreMode
 from indizio.store.network.interaction import NetworkInteractionStore, NetworkInteractionStoreModel
 from indizio.store.presence_absence import PresenceAbsenceStore, PresenceAbsenceStoreModel
 from indizio.store.tree_file import TreeFileStore, TreeFileStoreModel
-from indizio.util.cache import freezeargs
 from indizio.util.data import normalize
 from indizio.util.graph import format_axis_labels
 from indizio.util.log import log_debug
@@ -68,8 +66,8 @@ class ClustergramPlot(dcc.Loading):
                 state_legend=State(ClustergramLegendStore.ID, "data"),
             ),
         )
-        @freezeargs
-        @lru_cache
+        # @freezeargs
+        # @lru_cache
         def update_options_on_file_upload(
                 ts_params, ts_dm, ts_tree, ts_meta, ts_interaction, ts_legend,
                 state_params, state_dm, state_tree, state_meta, state_interaction,
@@ -221,27 +219,45 @@ def generate_annotation_heatmap(feature_df: pd.DataFrame, cg_traces, df_meta: Op
     has_metadata = df_meta is not None and params.metadata is not None and len(params.metadata_cols) > 0
     n_meta_cols = len(params.metadata_cols) if has_metadata else 0
 
+    has_tree = dendro_traces is not None and len(dendro_traces) > 0
+    has_cluster = params.cluster_on.is_features()
+
     # As the ordering of indices may have changed in the main heatmap, get the
     # names of the rows and columns in the correct order
     idx_to_row_label = [feature_df.index[x] for x in cg_traces['row_ids']]
     idx_to_col_label = [feature_df.columns[x] for x in cg_traces['column_ids']]
 
-    # Set the dimensions/identifiers for the plot (variable columns)
-    row_meta_left = 2
-    row_dend_left, col_dend_left = 2, 1
-    row_dend_top, col_dend_top = 1, 2 + n_meta_cols
-    row_heat_main, col_heat_main = 2, 2 + n_meta_cols
+    # Set the dimensions/identifiers for the plot (variable columns & rows)
+    """
+    Set the indices for the subplots as follows (1 indexed):
+        [empty]   [empty]  ... [empty_n]   [cluster]
+        [tree]    [meta_1] ... [meta_n]    [heatmap]
+    """
+    row_tree, col_tree = 2, 1
+    row_meta, col_meta = 2, 2
+    row_heat, col_heat = 2, 2 + n_meta_cols
+    row_clst, col_clst = 1, 2 + n_meta_cols
 
-    # The remaining space will be used by the metadata columns (if present)
-    col_left_dendro_width = 20
-    col_main_heatmap_width = 70 if n_meta_cols > 0 else 80
-    if n_meta_cols > 0:
-        col_meta_each = (100 - (col_main_heatmap_width + col_left_dendro_width)) / n_meta_cols
-        column_widths = [col_left_dendro_width]
-        [column_widths.append(col_meta_each) for _ in range(n_meta_cols)]
-        column_widths.append(col_main_heatmap_width)
-    else:
-        column_widths = [col_left_dendro_width, col_main_heatmap_width]
+    # Set the default widths (pct) of the columns (if everything was enabled)
+    width_tree, width_meta, width_heat = (15, 15, 70)
+    height_clst, height_heat = (20, 80)
+
+    # Alter the heights based on what is visible
+    if not has_cluster:
+        height_clst = 0
+        height_heat = 100
+    row_heights = [height_clst, height_heat]
+
+    # Alter the widths based on what is visible
+    if not has_tree:
+        width_meta += width_tree / 2
+        width_heat += width_tree / 2
+        width_tree = 0
+
+    col_widths = [width_tree]
+    for _ in range(n_meta_cols):
+        col_widths.append(width_meta / n_meta_cols)
+    col_widths.append(width_heat)
 
     """
     Create subplots equal to the following:
@@ -255,8 +271,8 @@ def generate_annotation_heatmap(feature_df: pd.DataFrame, cg_traces, df_meta: Op
         horizontal_spacing=0,
         shared_xaxes=True,
         shared_yaxes=True,
-        column_widths=column_widths,
-        row_heights=[20, 80],
+        column_widths=col_widths,
+        row_heights=row_heights,
     )
 
     """
@@ -283,20 +299,20 @@ def generate_annotation_heatmap(feature_df: pd.DataFrame, cg_traces, df_meta: Op
         name='',
     )
 
-    fig.add_trace(main_heatmap, row=row_heat_main, col=col_heat_main)
+    fig.add_trace(main_heatmap, row=row_heat, col=col_heat)
 
     # Add the tick labls
     fig.update_xaxes(
         ticktext=format_axis_labels(idx_to_col_label),
         tickvals=main_heatmap.x,
-        row=row_heat_main,
-        col=col_heat_main
+        row=row_heat,
+        col=col_heat
     )
     fig.update_yaxes(
         ticktext=format_axis_labels(idx_to_row_label),
         tickvals=main_heatmap.y,
-        row=row_heat_main,
-        col=col_heat_main
+        row=row_heat,
+        col=col_heat
     )
 
     """
@@ -304,14 +320,14 @@ def generate_annotation_heatmap(feature_df: pd.DataFrame, cg_traces, df_meta: Op
     """
     if dendro_traces is not None:
         for dendro_trace in dendro_traces:
-            fig.add_trace(dendro_trace, row=row_dend_left, col=col_dend_left)
+            fig.add_trace(dendro_trace, row=row_tree, col=col_tree)
     # for trace in cg_traces['dendro_traces']['row']:
     #     dendro_row = go.Scatter(trace, hoverinfo='skip')
     #     fig.add_trace(dendro_row, row=row_dend_left, col=col_dend_left)
 
     for trace in cg_traces['dendro_traces']['col']:
         dendro_col = go.Scatter(trace, hoverinfo='skip')
-        fig.add_trace(dendro_col, row=row_dend_top, col=col_dend_top)
+        fig.add_trace(dendro_col, row=row_clst, col=col_clst)
 
     """
     Add the metadata grouping
@@ -328,14 +344,14 @@ def generate_annotation_heatmap(feature_df: pd.DataFrame, cg_traces, df_meta: Op
                 meta_col_value,
                 state_legend
             )
-            fig.add_trace(left_meta, row=row_meta_left, col=meta_col_idx)
+            fig.add_trace(left_meta, row=row_meta, col=meta_col_idx)
             fig.update_xaxes(
                 ticktext=[meta_col_value], tickvals=left_meta.x,
-                row=row_meta_left, col=meta_col_idx, tickangle=-60
+                row=row_meta, col=meta_col_idx, tickangle=-60
             )
             fig.update_yaxes(
                 ticktext=left_meta_y_ticks, tickvals=left_meta.y,
-                row=row_meta_left, col=meta_col_idx
+                row=row_meta, col=meta_col_idx
             )
 
     """
@@ -356,21 +372,21 @@ def generate_annotation_heatmap(feature_df: pd.DataFrame, cg_traces, df_meta: Op
     fig.update_yaxes(showticklabels=False, showgrid=False, zerolinecolor='rgba(0,0,0,0)')
 
     # Show axis labels for select subplots
-    fig.update_xaxes(showticklabels=True, row=row_heat_main, col=col_heat_main)
-    fig.update_yaxes(showticklabels=True, row=row_heat_main, col=col_heat_main)
+    fig.update_xaxes(showticklabels=True, row=row_heat, col=col_heat)
+    fig.update_yaxes(showticklabels=True, row=row_heat, col=col_heat)
 
     # Change the location of the axes for select subplots
-    fig.update_yaxes(side="right", row=row_heat_main, col=col_heat_main)
+    fig.update_yaxes(side="right", row=row_heat, col=col_heat)
 
     # Update the metadata axes
     for meta_col_idx in range(n_meta_cols):
         meta_col_idx += 2
 
         # Show axis labels for select subplots
-        fig.update_xaxes(showticklabels=True, row=row_meta_left, col=meta_col_idx)
+        fig.update_xaxes(showticklabels=True, row=row_meta, col=meta_col_idx)
 
         # Prevent zooming for certain axes
-        fig.update_xaxes(fixedrange=True, row=row_meta_left, col=meta_col_idx)
+        fig.update_xaxes(fixedrange=True, row=row_meta, col=meta_col_idx)
 
     return fig
 
@@ -420,7 +436,7 @@ def generate_metadata_heatmap(
         if len(lst_values) == 0:
             colorscale = list()
         elif len(lst_values) == 1:
-            colorscale=[(0, d_key_to_hex[lst_keys[0]]), (1, d_key_to_hex[lst_keys[0]])]
+            colorscale = [(0, d_key_to_hex[lst_keys[0]]), (1, d_key_to_hex[lst_keys[0]])]
         else:
             lst_values_normed = normalize(lst_values)
 
