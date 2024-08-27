@@ -3,12 +3,14 @@ from typing import Dict
 import dash_bootstrap_components as dbc
 from dash import html
 
+from indizio.components.common.plotly_color_scale_discrete import CommonColorScaleDiscrete
 from indizio.models.clustergram.legend import LegendItem
 
 
 class ClustergramLegendGroupDiscrete(dbc.Card):
     ID = 'clustergram-legend-group-discrete'
     ID_COLOR_PICKER = f'{ID}-color-picker'
+    ID_COLOR_SCALE = f'{ID}-color-scale'
 
     def __init__(self, group_name: str, bins: Dict[str, LegendItem]):
         # Create the rows for the table
@@ -26,14 +28,24 @@ class ClustergramLegendGroupDiscrete(dbc.Card):
                                 'key': current_bin.text,
                             },
                             value=current_bin.hex_code,
-                            # style={"width": 50, "height": 25},
                         ),
                     )
                 ])
             )
+        rows.append(
+            html.Tr([
+                html.Td(html.B('Replace all:')),
+                html.Td(
+                    CommonColorScaleDiscrete(
+                        {'type': self.ID_COLOR_SCALE, 'group': group_name},
+                        'NO_CHANGE'
+                    )
+                )
+            ])
+        )
 
         super().__init__(
-            className='mt-3',
+            className='mb-3',
 
             children=[
                 dbc.CardHeader([
@@ -45,8 +57,8 @@ class ClustergramLegendGroupDiscrete(dbc.Card):
                     dbc.Table(
                         children=[
                             html.Thead(html.Tr([
-                                html.Th("Value"),
-                                html.Th("Colour"),
+                                html.Th("Value", style={'width': '65%'}),
+                                html.Th("Colour", style={'width': '35%'}),
                             ])),
                             html.Tbody(
                                 children=rows
@@ -56,6 +68,6 @@ class ClustergramLegendGroupDiscrete(dbc.Card):
                         size='sm',
                         className='mb-0'
                     )
-                )
+                ),
             ],
         )

@@ -109,4 +109,12 @@ def categorical_colorscale(values, colorscale=px.colors.qualitative.Dark24):
 
 
 def rgb_tuple_to_hex(rgb: Tuple[int, int, int]) -> str:
-    return '#{:02x}{:02x}{:02x}'.format(int(rgb[0] * 255), int(rgb[1] * 255), int(rgb[2] * 255))
+    if any(x > 1 for x in rgb):
+        red = min(int(rgb[0]), 255)
+        green = min(int(rgb[1]), 255)
+        blue = min(int(rgb[2]), 255)
+    else:
+        red = min(int(rgb[0] * 255), 255)
+        green = min(int(rgb[1] * 255), 255)
+        blue = min(int(rgb[2] * 255), 255)
+    return '#{:02x}{:02x}{:02x}'.format(red, green, blue)

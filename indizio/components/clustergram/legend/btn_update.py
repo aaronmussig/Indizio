@@ -1,15 +1,10 @@
-from typing import List
-
 import dash_bootstrap_components as dbc
 from dash import Output, Input, callback, State, ALL, ctx
-from dash import html
 from dash.exceptions import PreventUpdate
 
 from indizio.components.clustergram.legend.group_continuous import ClustergramLegendGroupContinuous
 from indizio.components.clustergram.legend.group_discrete import ClustergramLegendGroupDiscrete
-from indizio.models.clustergram.legend import LegendItem
 from indizio.store.clustergram.legend import ClustergramLegendStore, ClustergramLegendStoreModel
-from indizio.store.network.parameters import NetworkFormStoreModel, NetworkFormStore
 
 
 class ClustergramLegendUpdateButton(dbc.Button):
@@ -18,7 +13,7 @@ class ClustergramLegendUpdateButton(dbc.Button):
     def __init__(self):
 
         super().__init__(
-        "Update Legend",
+            "Update Legend",
             id=self.ID,
             color="success",
             n_clicks=0,
@@ -31,13 +26,15 @@ class ClustergramLegendUpdateButton(dbc.Button):
             inputs=dict(
                 n_clicks=Input(self.ID, "n_clicks"),
                 state_legend=State(ClustergramLegendStore.ID, "data"),
-                discrete_colors=State({'type': ClustergramLegendGroupDiscrete.ID_COLOR_PICKER, 'group': ALL, 'key': ALL}, 'value'),
+                discrete_colors=State(
+                    {'type': ClustergramLegendGroupDiscrete.ID_COLOR_PICKER, 'group': ALL, 'key': ALL}, 'value'),
                 continuous_bins=State({'type': ClustergramLegendGroupContinuous.ID_BINS, 'group': ALL}, 'value'),
-                continuous_colors=State({'type': ClustergramLegendGroupContinuous.ID_COLOR_SCALE, 'group': ALL}, 'value'),
+                continuous_colors=State({'type': ClustergramLegendGroupContinuous.ID_COLOR_SCALE, 'group': ALL},
+                                        'value'),
             ),
             prevent_initial_call=True
         )
-        def update_on_store_refresh(n_clicks, state_legend, discrete_colors, continuous_bins, continuous_colors):
+        def update_on_button_press(n_clicks, state_legend, discrete_colors, continuous_bins, continuous_colors):
             """
             Updates the degree filter item when the store is refreshed.
             """
@@ -64,7 +61,6 @@ class ClustergramLegendUpdateButton(dbc.Button):
                 for bin_str in bins.split(','):
                     new_bins.append(float(bin_str))
                 new_bins.sort()
-
 
                 legend.set_continuous_group_bins(group_name, new_bins)
 

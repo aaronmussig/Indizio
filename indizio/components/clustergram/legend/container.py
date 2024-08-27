@@ -1,9 +1,11 @@
 import dash_bootstrap_components as dbc
-from dash import Output, Input, callback, State, html
+from dash import Output, Input, callback, State, html, ALL, ctx
+from dash.exceptions import PreventUpdate
 
 from indizio.components.clustergram.legend.btn_update import ClustergramLegendUpdateButton
 from indizio.components.clustergram.legend.group_continuous import ClustergramLegendGroupContinuous
 from indizio.components.clustergram.legend.group_discrete import ClustergramLegendGroupDiscrete
+from indizio.components.common.plotly_color_scale_discrete import get_name_to_colors, CommonColorScaleDiscrete
 from indizio.store.clustergram.legend import ClustergramLegendStore, ClustergramLegendStoreModel
 
 
@@ -15,10 +17,9 @@ class ClustergramLegendContainer(html.Div):
     def __init__(self):
         super().__init__(
             [
-                dbc.Row(id=self.ID_DISCRETE),
-                dbc.Row(id=self.ID_CONTINUOUS),
+                html.Div(id=self.ID_DISCRETE),
+                html.Div(id=self.ID_CONTINUOUS),
                 dbc.Row(
-                    className='mt-2',
                     children=[ClustergramLegendUpdateButton()]
                 )
             ]
@@ -65,4 +66,63 @@ class ClustergramLegendContainer(html.Div):
             return dict(
                 discrete=discrete,
                 continuous=continuous
+            )
+
+
+
+        @callback(
+            output=dict(
+                colors=Output({'type': ClustergramLegendGroupDiscrete.ID_COLOR_PICKER, 'group': ALL, 'key': ALL}, 'value'),
+            ),
+            inputs=dict(
+                dropdown=Input({'type': ClustergramLegendGroupDiscrete.ID_COLOR_SCALE, 'group': ALL}, 'value'),
+                prev_colors=State({'type': ClustergramLegendGroupDiscrete.ID_COLOR_PICKER, 'group': ALL, 'key': ALL}, 'value')
+            ),
+            prevent_initial_call=True
+        )
+        def update_on_select_change(dropdown, prev_colors):
+            """
+            Updates the degree filter item when the store is refreshed.
+            """
+            target_colour, target_group, target_type = None, None, None
+            for group in ctx.args_grouping['dropdown']:
+                if group['triggered']:
+                    target_colour = group['value']
+                    target_group = group['id']['group']
+                    target_type = group['id']['type']
+
+            # Skip if we didn't find a trigger
+            if target_colour is None or target_group is None or target_type is None:
+                raise PreventUpdate
+
+            # Skip if there is no change required
+            if target_colour == CommonColorScaleDiscrete.VALUE_NO_CHANGE:
+                raise PreventUpdate
+
+            # Get the previous values for all groups and keys
+            d_prev_id_to_hex = dict()
+            for prev_color in ctx.args_grouping['prev_colors']:
+                str_id = f"{prev_color['id']['group']}-{prev_color['id']['key']}"
+                d_prev_id_to_hex[str_id] = prev_color['value']
+
+            # Load the colourscales
+            d_colourscales = get_name_to_colors()
+            avail_colours = d_colourscales[target_colour]
+            next_colour_idx = 0
+
+            # Match the output to be the correct group
+            output = list()
+            for out_group in ctx.outputs_grouping['colors']:
+                id_out_group = out_group['id']['group']
+                str_id = f"{id_out_group}-{out_group['id']['key']}"
+                prev_color = d_prev_id_to_hex[str_id]
+
+                if id_out_group == target_group:
+                    output.append(avail_colours[next_colour_idx % len(avail_colours)])
+                    next_colour_idx += 1
+                else:
+                    output.append(prev_color)
+
+            return dict(
+                colors=output
             )

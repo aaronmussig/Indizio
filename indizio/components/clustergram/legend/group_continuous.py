@@ -23,17 +23,17 @@ class ClustergramLegendGroupContinuous(dbc.Card):
         )
 
         super().__init__(
-            [dbc.CardHeader([
-                html.B(group_name),
-            ],
-                className='d-flex'
-            ),
+            className='mb-3',
+            children=[
+                dbc.CardHeader(
+                    html.B(group_name)
+                ),
                 dbc.CardBody(
                     dbc.Table(
                         children=[
                             html.Thead(html.Tr([
-                                html.Th("Bins"),
-                                html.Th("Colour scale"),
+                                html.Th("Bins", style={'width': '65%'}),
+                                html.Th("Colour scale", style={'width': '35%'}),
                             ])),
                             html.Tbody(
                                 children=[
