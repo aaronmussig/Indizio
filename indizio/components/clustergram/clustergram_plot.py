@@ -1,3 +1,4 @@
+from functools import lru_cache
 from typing import Optional
 
 import dash_bio
@@ -16,6 +17,7 @@ from indizio.store.metadata_file import MetadataFileStore, MetadataFileStoreMode
 from indizio.store.network.interaction import NetworkInteractionStore, NetworkInteractionStoreModel
 from indizio.store.presence_absence import PresenceAbsenceStore, PresenceAbsenceStoreModel
 from indizio.store.tree_file import TreeFileStore, TreeFileStoreModel
+from indizio.util.cache import freezeargs
 from indizio.util.data import normalize
 from indizio.util.graph import format_axis_labels
 from indizio.util.log import log_debug
@@ -66,8 +68,8 @@ class ClustergramPlot(dcc.Loading):
                 state_legend=State(ClustergramLegendStore.ID, "data"),
             ),
         )
-        # @freezeargs
-        # @lru_cache
+        @freezeargs
+        @lru_cache
         def update_options_on_file_upload(
                 ts_params, ts_dm, ts_tree, ts_meta, ts_interaction, ts_legend,
                 state_params, state_dm, state_tree, state_meta, state_interaction,
