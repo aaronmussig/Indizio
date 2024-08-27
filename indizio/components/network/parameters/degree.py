@@ -23,7 +23,7 @@ class NetworkFormDegree(dbc.Card):
             className='p-0',
             children=[
                 dbc.CardHeader([
-                    html.B("Degree (depth of neighborhood)"),
+                    html.B("Degree"),
                 ],
                     className='d-flex'
                 ),
