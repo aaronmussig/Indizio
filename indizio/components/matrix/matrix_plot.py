@@ -128,7 +128,7 @@ class MatrixPlot(dcc.Loading):
             )
 
             duration_s = time.time() - start_time
-            log_debug(f'Finished creating distance matrix in {pretty_fmt_seconds(duration_s)}.')
+            log_debug(f'Finished creating matrix in {pretty_fmt_seconds(duration_s)}.')
 
             return dict(
                 fig=fig

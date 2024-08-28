@@ -15,7 +15,7 @@ class ModalDistanceMatrix(html.Div):
                 dbc.Button(
                     id=self.ID_BUTTON,
                     size='sm',
-                    children='distance matrix',
+                    children='matrix',
                     color='link',
                     style={
                         'paddingLeft': '3px',
@@ -26,11 +26,11 @@ class ModalDistanceMatrix(html.Div):
                     id=self.ID_MODAL,
                     size="lg",
                     children=[
-                        dbc.ModalHeader(dbc.ModalTitle("Distance Matrix")),
+                        dbc.ModalHeader(dbc.ModalTitle("Matrix")),
                         dbc.ModalBody(
                             children=[
                                 html.P(
-                                    "A distance matrix should be either a tab-delimited text file or a CSV file containing numerical values."),
+                                    "A matrix should be either a tab-delimited text file or a CSV file containing numerical values."),
                                 html.P(
                                     "An example table has been included below, with the corresponding text format below that."),
                                 dbc.Table(

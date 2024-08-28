@@ -40,7 +40,7 @@ class NetworkFormNodeMetadata(dbc.Card):
                             html.Tbody([
                                 html.Tr([
                                     html.Td(
-                                        'Node color'
+                                        'Node colour'
                                     ),
                                     html.Td(
                                         dcc.Dropdown(

@@ -38,7 +38,7 @@ class NavBar(dbc.NavbarSimple):
                         id=self.ID_MATRIX
                     ),
                     dbc.Tooltip(
-                        "A presence/absence, or distance matrix is required.",
+                        "A presence/absence, or matrix is required.",
                         id=self.ID_MATRIX_TOOLTIP,
                         target=self.ID_MATRIX_CONTAINER,
                         placement='bottom',
@@ -55,7 +55,7 @@ class NavBar(dbc.NavbarSimple):
                         id=self.ID_NETWORK
                     ),
                     dbc.Tooltip(
-                        "A presence/absence, or distance matrix is required.",
+                        "A presence/absence, or matrix is required.",
                         id=self.ID_NETWORK_TOOLTIP,
                         target=self.ID_NETWORK_CONTAINER,
                         placement='bottom',

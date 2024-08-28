@@ -7,6 +7,6 @@ class UserFileType(HtmlOption):
     """
 
     PA = 'Presence/Absence'
-    DM = 'Distance Matrix'
+    DM = 'Matrix'
     META = 'Metadata'
     TREE = 'Tree'

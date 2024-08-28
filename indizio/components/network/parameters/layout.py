@@ -19,7 +19,7 @@ class NetworkFormLayout(html.Div):
             [
                 dbc.InputGroup(
                     children=[
-                        dbc.InputGroupText(html.B("Network layout")),
+                        dbc.InputGroupText(html.B("Network Layout")),
                         dbc.Select(
                             id=self.ID,
                             options=NetworkFormLayoutOption.to_options(),

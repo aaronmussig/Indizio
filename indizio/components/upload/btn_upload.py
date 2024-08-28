@@ -144,7 +144,7 @@ class UploadFormBtnUpload(dbc.Button):
                     try:
                         dm_store.add_item(DistanceMatrixFile.from_upload_data(file_obj))
                     except Exception as e:
-                        return notify_user('Unable to parse the Distance Matrix file, check your formatting!', e)
+                        return notify_user('Unable to parse the Matrix file, check your formatting!', e)
                 elif file_type is UserFileType.META:
                     try:
                         meta_store.add_item(MetadataFile.from_upload_data(file_obj))
@@ -171,7 +171,7 @@ class UploadFormBtnUpload(dbc.Button):
                         try:
                             dm_store.add_item(pa_file.as_distance_matrix())
                         except Exception as e:
-                            return notify_user(f'Unable to convert {pa_file.file_name} to a Distance Matrix.', e)
+                            return notify_user(f'Unable to convert {pa_file.file_name} to a Matrix.', e)
 
             # Create the matrix parameters default values
             first_matrix = dm_store.get_files()[0]

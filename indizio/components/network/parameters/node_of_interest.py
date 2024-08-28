@@ -18,7 +18,7 @@ class NetworkFormNodeOfInterest(dbc.Card):
     def __init__(self):
         super().__init__(
             [
-                dbc.CardHeader(html.B("Nodes of interest")),
+                dbc.CardHeader(html.B("Nodes of Interest")),
                 dbc.CardBody([
                     dcc.Dropdown(
                         id=self.ID,
