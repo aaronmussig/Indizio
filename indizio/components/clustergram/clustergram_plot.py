@@ -1,4 +1,3 @@
-from functools import lru_cache
 from typing import Optional
 
 import dash_bio
@@ -11,13 +10,13 @@ from plotly.subplots import make_subplots
 from indizio.config import GRAPH_AXIS_FONT_SIZE
 from indizio.models.common.boolean import BooleanYesNo
 from indizio.models.common.sync_with_network import SyncWithNetwork
+from indizio.models.metadata.metadata_column import MetadataColumn
 from indizio.store.clustergram.legend import ClustergramLegendStore, ClustergramLegendStoreModel
 from indizio.store.clustergram.parameters import ClustergramParametersStore, ClustergramParametersStoreModel
 from indizio.store.metadata_file import MetadataFileStore, MetadataFileStoreModel
 from indizio.store.network.interaction import NetworkInteractionStore, NetworkInteractionStoreModel
 from indizio.store.presence_absence import PresenceAbsenceStore, PresenceAbsenceStoreModel
 from indizio.store.tree_file import TreeFileStore, TreeFileStoreModel
-from indizio.util.cache import freezeargs
 from indizio.util.data import normalize
 from indizio.util.graph import format_axis_labels
 from indizio.util.log import log_debug
@@ -68,8 +67,8 @@ class ClustergramPlot(dcc.Loading):
                 state_legend=State(ClustergramLegendStore.ID, "data"),
             ),
         )
-        @freezeargs
-        @lru_cache
+        # @freezeargs
+        # @lru_cache
         def update_options_on_file_upload(
                 ts_params, ts_dm, ts_tree, ts_meta, ts_interaction, ts_legend,
                 state_params, state_dm, state_tree, state_meta, state_interaction,
@@ -212,9 +211,14 @@ def generate_clustergram(
     return feature_df, traces, dendro_traces
 
 
-def generate_annotation_heatmap(feature_df: pd.DataFrame, cg_traces, df_meta: Optional[MetadataFileStoreModel],
-                                params: ClustergramParametersStoreModel, dendro_traces,
-                                state_legend: ClustergramLegendStoreModel):
+def generate_annotation_heatmap(
+        feature_df: pd.DataFrame,
+        cg_traces,
+        df_meta: Optional[MetadataFileStoreModel],
+        params: ClustergramParametersStoreModel,
+        dendro_traces,
+        state_legend: ClustergramLegendStoreModel
+):
     """
     Creates the main clustergram figure
     """
@@ -409,7 +413,7 @@ def generate_metadata_heatmap(
     target_group = state_legend.groups[column_name]
 
     # Extract the values for this column
-    cur_col = df_meta[column_name].to_dict()
+    cur_col = MetadataColumn(df_meta[column_name])
 
     # Check group type
     if target_group.is_discrete():
@@ -417,16 +421,14 @@ def generate_metadata_heatmap(
         d_key_to_hex = target_group.get_discrete_key_to_hex()
 
         # Assign a numeric value to each unique category
-        d_value_to_idx = dict()
-        for value in cur_col.values():
-            if value not in d_value_to_idx:
-                d_value_to_idx[value] = len(d_value_to_idx)
+        d_value_to_idx = cur_col.get_value_to_idx()
 
         # Iterate over each value in the feature dataframe to keep ordering
         # consistent. Assign the value to the heatmap
-        for row_idx, cur_value in enumerate(feature_df.index):
-            heat_data[row_idx, 0] = d_value_to_idx[cur_col[cur_value]]
-            heat_text[row_idx, 0] = cur_col[cur_value]
+        for row_idx, cur_index in enumerate(feature_df.index):
+            cur_value = cur_col.get_discrete_value(cur_index)
+            heat_data[row_idx, 0] = d_value_to_idx[cur_value]
+            heat_text[row_idx, 0] = cur_value
 
         # Create the custom colorscale to use the defined hex colours
         lst_values = list()
@@ -449,9 +451,10 @@ def generate_metadata_heatmap(
 
     else:
         # Iterate over each value in the current column to assign a value
-        for row_idx, cur_value in enumerate(feature_df.index):
-            heat_data[row_idx, 0] = cur_col[cur_value]
-            heat_text[row_idx, 0] = cur_col[cur_value]
+        for row_idx, cur_index in enumerate(feature_df.index):
+            cur_value = cur_col.get_continuous_value(cur_index)
+            heat_data[row_idx, 0] = cur_value
+            heat_text[row_idx, 0] = cur_value
 
         colorscale = target_group.continuous_colorscale
         cont_bins = target_group.continuous_bins

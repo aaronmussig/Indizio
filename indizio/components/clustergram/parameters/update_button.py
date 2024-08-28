@@ -2,23 +2,22 @@ import logging
 from typing import List
 
 import dash_bootstrap_components as dbc
+import pandas as pd
+import plotly.express as px
 from dash import Output, Input, callback, ctx, State
 from dash.exceptions import PreventUpdate
-import pandas as pd
-import math
-import plotly.express as px
+
 from indizio.components.clustergram.parameters import ClustergramParamsMetric, ClustergramParamsTree, \
     ClustergramParamsMetadata, ClustergramParamsClusterOn, ClustergramParamsOptimalLeafOrder, \
     ClustergramParamsSyncWithNetwork
+from indizio.models.clustergram.cluster_on import ClusterOn
 from indizio.models.clustergram.legend import LegendItem, LegendGroup
 from indizio.models.common.boolean import BooleanYesNo
-from indizio.models.clustergram.cluster_on import ClusterOn
 from indizio.models.common.sync_with_network import SyncWithNetwork
+from indizio.models.metadata.metadata_column import MetadataColumn
 from indizio.store.clustergram.legend import ClustergramLegendStore, ClustergramLegendStoreModel
 from indizio.store.clustergram.parameters import ClustergramParametersStore, ClustergramParametersStoreModel
 from indizio.store.metadata_file import MetadataFileStoreModel, MetadataFileStore
-from indizio.util.data import is_numeric, normalize
-from indizio.util.plot import numerical_colorscale
 
 
 class ClustergramParamsUpdateButton(dbc.Button):
@@ -55,7 +54,8 @@ class ClustergramParamsUpdateButton(dbc.Button):
             ),
             prevent_initial_call=True
         )
-        def update_options_on_file_upload(n_clicks, metric, tree, metadata, cluster_on, optimal_leaf_ordering, metadata_cols, sync_with_network, state_legend, state_meta):
+        def update_options_on_file_upload(n_clicks, metric, tree, metadata, cluster_on, optimal_leaf_ordering,
+                                          metadata_cols, sync_with_network, state_legend, state_meta):
             log = logging.getLogger()
             log.debug(f'{self.ID} - Updating clustergram visualization parameters.')
 
@@ -73,7 +73,6 @@ class ClustergramParamsUpdateButton(dbc.Button):
             # If there are metadata columns, read the metadata file and assign
             # colours to each value
             if metadata and metadata_cols:
-
                 # Read the metadata file
                 df_meta = state_meta.get_file(metadata).read()
 
@@ -94,8 +93,8 @@ class ClustergramParamsUpdateButton(dbc.Button):
             )
 
 
-
-def set_legend(df_meta: pd.DataFrame, columns: List[str], old_legend: ClustergramLegendStoreModel) -> ClustergramLegendStoreModel:
+def set_legend(df_meta: pd.DataFrame, columns: List[str],
+               old_legend: ClustergramLegendStoreModel) -> ClustergramLegendStoreModel:
     """
     This method generates the legend store based on the metadata & columns.
     """
@@ -107,36 +106,36 @@ def set_legend(df_meta: pd.DataFrame, columns: List[str], old_legend: Clustergra
     for col in columns:
 
         # Convert the values in the column to a dictionary
-        cur_col = df_meta[col].to_dict()
-
+        cur_col = MetadataColumn(df_meta[col])
         cur_group = LegendGroup(name=col)
 
-        # Check if this is a numerical or categorical column
-        all_numeric = all(is_numeric(x, nan_not_numeric=False) for x in cur_col.values())
+        # Check if this is a continuous or discrete column
+        if cur_col.is_discrete():
 
-        # Discrete values
-        if not all_numeric:
-
-            unique_values = sorted(set(cur_col.values()))
+            unique_values = cur_col.unique_values()
 
             # Generate a list of hex codes to sample from
             hex_colours = tuple(px.colors.qualitative.Light24)
             hex_colours_len = len(hex_colours)
+            hex_next_idx = 0
 
             # Assign an index and colour to each value
-            for idx, name in enumerate(unique_values):
-                cur_colour = hex_colours[idx % hex_colours_len]
+            for value in sorted(unique_values):
+                if value == MetadataColumn.MISSING_VALUE_DISCRETE:
+                    cur_colour = MetadataColumn.MISSING_HEX
+                else:
+                    cur_colour = hex_colours[hex_next_idx % hex_colours_len]
+                    hex_next_idx += 1
                 new_item = LegendItem(
-                    text=name,
+                    text=value,
                     hex_code=cur_colour
                 )
-                cur_group.discrete_bins[name] = new_item
+                cur_group.discrete_bins[value] = new_item
 
         # Continuous values
         else:
             # Normalise the values between what has been allocated
-            cur_col_min = min(cur_col.values())
-            cur_col_max = max(cur_col.values())
+            cur_col_min, cur_col_max = cur_col.get_min_max()
 
             # Simply save this
             cur_group.continuous_bins = [cur_col_min, cur_col_max]

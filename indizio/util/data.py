@@ -1,3 +1,5 @@
+from typing import Any, Optional
+
 import numpy as np
 
 
@@ -20,3 +22,13 @@ def normalize(values, min_value=0, max_value=1):
     min_val = min(values)
     max_val = max(values)
     return [(max_value - min_value) * (val - min_val) / (max_val - min_val) + min_value for val in values]
+
+
+def to_numeric(value: Any) -> Optional[float]:
+    """
+    Convert the value to a numeric type if possible.
+    """
+    try:
+        return float(value)
+    except ValueError:
+        return None
