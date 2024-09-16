@@ -7,7 +7,6 @@ import dash
 import dash_bootstrap_components as dbc
 import dash_cytoscape as cyto
 import typer
-from dash import dcc
 from rich.progress import Progress, SpinnerColumn, TextColumn
 
 from indizio import __version__
